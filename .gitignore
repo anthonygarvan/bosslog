@@ -1,0 +1,7 @@
+/node_modules
+/coverage
+/logs
+/public/js
+/certs
+/.node-persist
+/public/img/usr

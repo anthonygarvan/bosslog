@@ -1,0 +1,10 @@
+extends: airbnb-base
+plugins:
+  - import
+parserOptions:
+  sourceType: script
+  ecmaVersion: 8
+env:
+  node: true
+  browser: true
+  jest: true

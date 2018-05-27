@@ -1,0 +1,40 @@
+{
+  "name": "conduit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "buildDev": "node-sass scss/master.sass public/css/master.css && browserify web/App.js -t [ babelify --presets [ latest react ] ] > public/js/app.js && browserify web/ContactApp.js -t [ babelify --presets [ latest react ] ] > public/js/contact.js",
+    "build": "npm install && node-sass scss/master.sass public/css/master.css && browserify web/App.js -t [ babelify --presets [ latest react ] ] -g [ envify --NODE_ENV production ] -g uglifyify | uglifyjs --compress --mangle > public/js/app.js && browserify web/ContactApp.js -t [ babelify --presets [ latest react ] ] -g [ envify --NODE_ENV production ] -g uglifyify | uglifyjs --compress --mangle > public/js/contact.js",
+    "startDev": "npm run buildDev && node server.js",
+    "start": "npm run build && node server.js",
+    "forever": "npm run build && pm2 start ecosystem.config.js --only peeklink",
+    "reload": "npm run build && pm2 reload peeklink",
+    "reloadGrabber": "npm install && pm2 startOrReload ecosystem.config.js --only peeklink_grabber"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "babel": "latest",
+    "babel-cli": "latest",
+    "babel-eslint": "^7.2.3",
+    "babel-preset-latest": "latest",
+    "babel-preset-react": "latest",
+    "babelify": "latest",
+    "body-parser": "latest",
+    "browserify": "latest",
+    "bulma": "latest",
+    "compression": "latest",
+    "critical": "latest",
+    "express": "latest",
+    "express-react-views": "latest",
+    "morgan": "latest",
+    "node-sass": "latest",
+    "jquery": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "sendinblue-api": "latest",
+    "winston": "latest"
+  }
+}

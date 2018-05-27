@@ -1,0 +1,632 @@
+//$primary: #ae23b8 // purple
+$primary: #f06b08
+$white: #fafafa
+$link: $primary
+//$contrast: #160f0f
+//#020261
+//$contrast: linear-gradient(to right, #2b5876, #4e4376)
+$contrast: linear-gradient(to right, black, $primary)
+$navbar-background-color: transparent
+
+@import "../node_modules/bulma/bulma.sass"
+
+body
+  font-family: "Raleway", sans-serif
+
+.sp-editable:hover
+  border: 1px dashed $primary
+  cursor: pointer
+
+.publish
+  @extend .is-large
+  position: fixed
+  top: 20px
+  right: 20px
+  opacity: .3
+
+.sp-publish-info
+  background-color: lightgrey
+  padding: .5rem
+  margin-top: 1.5rem
+  i
+    vertical-align: baseline
+
+.sp-domain
+  width: 15rem
+
+.sp-title
+  color: $white
+  img
+    height: 2.5rem
+    max-height: 2.5rem
+
+.sp-subtitle
+  color: $text-light
+
+.sp-celebrate,.sp-home-hero
+  .sp-header
+    background: transparent
+
+.sp-header
+  @extend .level
+  padding: 20px
+  top: 0px
+  left: 0px
+  background: #101013
+  a
+    color: $white
+  .modal-card
+    a
+     color: $primary
+    .is-static
+      color: #f8f8f8
+    .button
+      color: #363636
+      &.is-primary
+        color: $white
+  margin-bottom: 0px !important
+  .blue-theme
+    color: blue
+  .red-theme
+    color: red
+  .green-theme
+    color: green
+  .orange-theme
+    color: #f06b08
+  .purple-theme
+    color: #9b4dca
+
+.sp-builder-header
+  @extend .sp-header
+  box-shadow: 0px 5px 5px #888888
+
+.sp-footer
+  background-color: rgb(8, 8, 10)
+  color: $white
+  a
+    text-decoration: underline
+    color: white
+
+.sp-vcenter
+  vertical-align: baseline
+
+.sp-nav-target
+  border-bottom: 1px solid $primary
+
+.sp-background
+  background-image: url('/img/curtains.jpg')
+  background-position: top
+  background-size: cover
+  min-height: 100vh
+
+.sp-home-hero
+  background: linear-gradient(to bottom, #101013, rgba(0, 0, 0, 0.05))
+  .columns
+    max-width: 1100px
+    text-align: center
+    margin: 0 auto
+
+  .sp-pitch
+    .title, div
+      color: $white
+    background-color: rgba(0, 0, 0, 0.6)
+    h4
+      text-transform: uppercase
+    .column .columns .column div
+       text-align: left
+
+    h2 span
+      padding: 0.7rem
+      +tablet
+        padding: 1.5rem
+
+    .sp-support
+      margin-top: 2rem
+
+.burger
+  color: $white
+
+.navbar
+  background-color: transparent
+  a
+    text-decoration: none
+    &:hover
+      color: $white
+      text-shadow: 0 0 2px $white
+  width: 100%
+  .navbar-end .navbar-item
+    color: $white
+
+.hero-body
+  padding: 0px
+  +tablet
+    padding: 3rem 1.5rem
+  .title, p
+    color: $white
+    text-shadow: 0 0 2px black
+    &.is-1
+      font-size: 2rem
+      +tablet
+        font-size: 3rem
+    &.is-3
+      font-size: 1.2rem
+      +tablet
+        font-size: 2rem
+  .field.has-addons
+    display: block
+    +tablet
+      display: flex
+      justify-content: flex-start
+  .control button
+    width: 100%
+    +tablet
+      width: auto
+
+
+.sp-hero-input
+  +desktop
+    flex-grow: 1
+
+.sp-hero-cta
+  width: 100%
+  +desktop
+    //@extend .is-expanded
+    width: auto
+
+.sp-https
+  color: green
+  font-weight: bold
+
+.sp-features
+  .sp-feature
+    background-color: $white
+    text-align: center
+    border: 1px solid lightgray
+    border-radius: 15px
+    margin: 1rem
+    padding: 0px
+    box-shadow: 0px 5px 5px #888888
+
+    p
+      font-size: 1rem
+      text-align: left
+      padding: 1rem
+    i
+      font-size: 8rem
+      text-shadow: black 0px 0px 1px
+      color: $white
+    h3
+      margin-top: 1.5rem
+      color: $white
+    .sp-feature-block
+      padding: 1rem
+      border-radius: 12px 12px 0px 0px
+    .sp-car
+      background-color: darken($primary, 12%)
+    .sp-diamond
+      background-color: darken(lightblue, 50%)
+    .sp-google
+      background-color: darken(blue, 20%)
+    .sp-secure
+      background-color: darken(green, 10%)
+    .sp-responsive
+      background-color: darken(purple, 5%)
+    .sp-smile
+      background-color: darken(#ffdd57, 20%)
+
+
+.sp-header .level-left .level-item
+  +tablet
+    margin-right: 1.5rem
+
+$pricingWidth: 40rem
+.sp-pricing
+  border: 2px solid black
+  border-radius: 15px
+  margin: 0 auto
+  max-width: $pricingWidth
+  background-color: $white
+
+  .sp-price
+    background-color: $primary
+    color: $white
+    text-align: center
+    border-radius: 12px 12px 0px 0px
+    line-height: 1
+    padding: 2rem
+  .sp-price-text
+    padding: 2rem
+  h1
+    font-size: 8rem
+    text-shadow: black 0px 0px 2px
+  h2
+    font-size: 3rem
+  h3
+    font-size: 2rem
+  h4
+    margin-top: 1rem
+  p
+    text-align: justify
+    font-size: 1.25rem
+  .sp-pricing-cta
+    text-align: center
+    padding: 1rem
+
+.sp-questions
+  max-width: $pricingWidth
+  border: 1px solid black
+  border-radius: 15px
+  background-color: lightgray
+  margin: 0 auto
+  padding: 1.5rem
+
+  .sp-help-icon
+    font-size: 4rem
+    text-align: center
+    line-height: 1
+  h3
+    font-size: 1.5rem
+
+.sp-long-pitch
+  background: $white
+  border-radius: 15px
+  //color: black
+  max-width: 45rem
+  margin: 0 auto
+  padding: 3rem
+
+  p
+    font-size: 1.25rem
+    margin-bottom: 1rem
+    margin-top: 1rem
+  h1
+    font-size: 3rem
+
+  .sp-cta
+    text-align: center
+
+.sp-about-container, .sp-contact-container
+  .title
+    &.is-1, &.is-3
+      color: $primary
+
+.sp-about-container
+  max-width: 40rem
+  padding: 2rem
+  border: 1px solid black
+  border-radius: 15px
+  margin: 0 auto
+  background-color: $white
+  overflow: hidden
+  p
+    margin-bottom: 1.5rem
+
+  .sp-about-img-container
+    margin: 0 auto
+    margin-top: 2rem
+    width: 250px
+    img
+      border-radius: 125px
+  h1
+    color: $primary
+
+.sp-faq-container
+  max-width: 60rem
+  padding: 2rem
+  border: 1px solid black
+  border-radius: 15px
+  box-shadow: 0px 5px 5px #888888
+  margin: 0 auto
+  background-color: $white
+
+  h1
+    color: $primary
+
+  p
+    margin-top: .5rem
+
+  .sp-question
+    margin-top: 2rem
+
+.sp-page-body
+  background: linear-gradient(#03060c, #0f3c8b)
+  .title
+    color: $white
+
+.sp-supported-by
+  text-align: center
+  color: $white
+  .sp-icons
+    font-size: 7rem
+
+.sp-checkout-container
+  padding-top: 2rem
+  background-color: #f7f7f7
+  text-align: center
+  iframe
+    border: none
+    width: 100%
+    height: 1350px
+  p
+    max-width: 600px
+    margin: 0 auto
+    margin-bottom: 1.2rem
+
+.sp-thankyou-container
+  @extend .sp-about-container
+
+.sp-contact-container
+  @extend .sp-about-container
+  form
+    margin-top: 1rem
+  h3
+    color: $primary
+
+.sp-spinner
+  height: 25px
+
+iframe
+  border: none
+  margin: 0
+  width: 100%
+  height: 100vh
+
+.sp-sequence
+  text-align: center
+  font-size: 1rem
+  background-color: #160f0f
+
+  .sp-selected
+    text-decoration: underline
+
+.sp-quote
+    textarea
+      width: 100%
+      font-size: 1.5rem
+    button
+      text-align: center
+      width: 100%
+
+.sp-select-container
+  text-align: center
+  max-width: 426px
+  margin: 0 auto
+  button
+    margin-bottom: 1.5rem
+  .buttons
+    margin-bottom: 0px
+
+
+.sp-card
+  background-color: white
+  border: 1px solid lightgray
+  border-radius: 5px
+  font-size: 14px
+
+  .sp-editor
+    background-color: #E1E8ED
+    border-bottom: 1px solid lightgray
+    overflow: hidden
+    .sp-screenshot-container,.sp-image-container
+      position: relative
+      padding-top: 50%
+      width: 100%
+      overflow-y: scroll
+      img, svg
+        position: absolute
+        top: 0px
+        left: 0px
+
+    .sp-text-edit-container
+      position: relative
+      padding-top: 50%
+      width: 100%
+      svg
+        position: absolute
+        top: 0px
+        left: 0px
+
+
+  .sp-card-title
+    font-weight: bold
+    max-height: 1.3em
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+    margin-top: .33rem
+  .sp-description
+    overflow: hidden
+    max-height: 1.3rem
+    text-overflow: ellipsis
+    margin-top: .33rem
+    white-space: nowrap
+  .sp-content
+    font: normal normal 16px/1.4 Helvetica,Roboto,"Segoe UI",Calibri,sans-serif
+    padding-left: 1rem
+    padding-right: 1rem
+    padding: .75rem
+    text-align: left
+  .sp-destination
+    text-transform: lowercase
+    color: #8899A6
+    max-height: 1.3em
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+    margin-top: .33rem
+
+.sp-select-explainer
+  overflow: hidden
+  .level
+    margin-bottom: 0px
+  p
+    font-size: 1.2rem
+    margin-bottom: 1rem
+    text-align: left
+  button
+    font-family: "Raleway", sans-serif
+
+.sp-select
+  max-width: 950px
+  margin: 0 auto
+  background-color: rgba(253, 253, 246, .95)
+  p, .title
+    color: black
+    text-shadow: none
+  border-radius: 5px
+  padding: 15px
+  +tablet
+    padding: 30px
+  li a
+    background-color: rgba(253, 253, 246, 1)
+  a
+    color: $primary
+
+.buttons.has-addons .button.is-selected
+  background-color: #d9d5d1
+  border: inset
+
+.sp-text-edit
+  -webkit-user-modify: read-write-plaintext-only
+  font-size: 2rem
+  background-color: blue
+  color: white
+
+[contenteditable=true]
+  &:focus
+    outline: 0px solid transparent
+  &:empty:before
+    content: attr(placeholder)
+    display: block
+    color: lightgray
+
+.sp-theme
+  padding: 5px
+  margin: 3px
+
+  &.is-active
+    outline: 3px solid $primary
+
+  &.blue
+    background: linear-gradient(to right, #396afc , #2948ff)
+  &.black
+    background: linear-gradient(to right, #000000, #434343)
+  &.orange
+    background: linear-gradient(to right, #ee0979, #ff6a00)
+  &.green
+    background: linear-gradient(to right, #67B26F, #4ca2cd)
+  &.purple
+    background: linear-gradient(to right, #ff00cc, #333399)
+
+.sp-file-upload-container
+  display: flex
+  align-items: center
+  height: 188px
+  text-align: center
+  .sp-file-upload-content
+    display: block
+    margin: 0 auto
+    p
+      margin-top: 0.5rem
+
+.sp-screenshot-loading
+  padding: 20px
+  img
+    width: 150px
+  div
+    color: #8a8989
+
+.grecaptcha-badge
+  display: none
+
+.notification.is-success
+  margin-bottom: 0px
+
+.sp-storyline-cards
+  border: 2px solid #736b6b
+  text-align: center
+  border-radius: 8px
+  background-color: white
+  .title
+    color: #545268
+  .sp-math img
+    height: 8rem
+    +tablet
+      margin-top: 5rem
+
+.sp-before-after
+  padding-top: 20px
+  .container
+    max-width: 1000px
+  .title.is-1
+      margin-bottom: 0px
+      text-align: center
+  .columns
+    margin-bottom: 20px
+    border-bottom: 1px solid rgb(75, 75, 75)
+  .sp-arrow
+    font-size: 12rem
+    text-align: center
+    .title.is-3
+      margin-top: 0px
+      text-transform: uppercase
+      font-weight: 100
+      +tablet
+        margin-top: 25%
+
+    svg
+      width: 30px
+      height: 30px
+      fill: $primary
+      transform: rotate(90deg)
+      +tablet
+        transform: rotate(0deg)
+
+.sp-show
+  p
+    font-size: 1.2rem
+  p a, .title.is-4 a
+    color: white
+    text-decoration: underline
+
+.sp-select-image-from-site
+  margin-bottom: 2rem
+  border: 1px solid darkgray
+  border-radius: 3px
+  img
+    width: 100%
+
+#sp-image-modal
+  +tablet
+    width: 400px
+
+.sp-link-preview
+  max-width: 500px
+  margin: 0 auto
+  margin-top: 1.5rem
+  p, .title
+    color: black
+    text-shadow: none
+  .sp-card .sp-editor .sp-image-container
+    overflow-y: hidden
+
+.sp-who
+  max-width: 45rem
+  margin: 0 auto
+  .columns>div
+    background-color: $white
+    color: $black
+    padding: 20px
+    margin: 20px
+    border-radius: 5px
+
+    h3.title.is-3
+      margin-top: 2rem
+      color: $black
+      text-align: center
+
+.title sup
+  vertical-align: super
+  font-size: 0.5em
+  font-style: italic
+  font-weight: 100
