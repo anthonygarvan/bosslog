@@ -35,8 +35,8 @@
     "morgan": "latest",
     "node-sass": "latest",
     "react": "latest",
+    "react-contenteditable": "^2.1.0",
     "react-dom": "latest",
-    "react-draft-wysiwyg": "^1.12.13",
     "sendinblue-api": "latest",
     "winston": "latest"
   }
