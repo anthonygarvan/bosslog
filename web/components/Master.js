@@ -6,21 +6,21 @@ const raleway = require('./raleway');
 function Master(props) {
   return <html>
           <head>
-          <title>Peeklink | Customized Link Previews</title>
+          <title>Conduit | Notes for Manager</title>
 
-          <meta property="og:title" content="Peeklink | Customized Link Previews" />
-          <meta property="og:description" content="Give them a glimpse before they click." />
+          <meta property="og:title" content="Conduit | Notes for Managers" />
+          <meta property="og:description" content="The perfect notepad to keep your act together." />
           <meta property="og:type" content="website" />
-          <meta property="og:url" content="https://peek.link" />
-          <meta property="og:image" content="https://peek.link/img/curtains.jpg" />
+          <meta property="og:url" content="https://conduitnotes.io" />
+          <meta property="og:image" content="https://conduitnotes.io/img/social.jpg" />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="600" />
 
 
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:image" content="https://peek.link/img/curtains.jpg" />
-          <meta name="twitter:title" content="Peeklink | Customized Link Previews" />
-          <meta name="twitter:description" content="Give them a glimpse before they click." />
+          <meta name="twitter:image" content="https://conduitnotes.io/img/social.jpg" />
+          <meta name="twitter:title" content="Conduit | Notes for Managers" />
+          <meta name="twitter:description" content="The perfect notepad to keep your act together." />
 
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <link rel="icon" href="/img/favicon.png" />

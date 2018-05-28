@@ -1,7 +1,8 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
+const Conduit = require('./components/Conduit');
 
 ReactDOM.render(
-    <div>Conduit Notes!</div>,
+    <Conduit />,
   document.getElementById('root')
 );

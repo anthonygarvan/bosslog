@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "buildDev": "node-sass scss/master.sass public/css/master.css && browserify web/App.js -t [ babelify --presets [ latest react ] ] > public/js/app.js && browserify web/ContactApp.js -t [ babelify --presets [ latest react ] ] > public/js/contact.js",
-    "build": "npm install && node-sass scss/master.sass public/css/master.css && browserify web/App.js -t [ babelify --presets [ latest react ] ] -g [ envify --NODE_ENV production ] -g uglifyify | uglifyjs --compress --mangle > public/js/app.js && browserify web/ContactApp.js -t [ babelify --presets [ latest react ] ] -g [ envify --NODE_ENV production ] -g uglifyify | uglifyjs --compress --mangle > public/js/contact.js",
+    "buildDev": "cp ./node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css ./node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.scss && node-sass scss/master.sass public/css/master.css && browserify web/App.js -t [ babelify --presets [ latest react ] ] > public/js/app.js && browserify web/ContactApp.js -t [ babelify --presets [ latest react ] ] > public/js/contact.js",
+    "build": "cp ./node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css ./node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.scss && npm install && node-sass scss/master.sass public/css/master.css && browserify web/App.js -t [ babelify --presets [ latest react ] ] -g [ envify --NODE_ENV production ] -g uglifyify | uglifyjs --compress --mangle > public/js/app.js && browserify web/ContactApp.js -t [ babelify --presets [ latest react ] ] -g [ envify --NODE_ENV production ] -g uglifyify | uglifyjs --compress --mangle > public/js/contact.js",
     "startDev": "npm run buildDev && node server.js",
     "start": "npm run build && node server.js",
     "forever": "npm run build && pm2 start ecosystem.config.js --only peeklink",
@@ -27,13 +27,16 @@
     "bulma": "latest",
     "compression": "latest",
     "critical": "latest",
+    "draft-js": "^0.10.5",
     "express": "latest",
     "express-react-views": "latest",
+    "immutable": "^3.8.2",
+    "jquery": "latest",
     "morgan": "latest",
     "node-sass": "latest",
-    "jquery": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "react-draft-wysiwyg": "^1.12.13",
     "sendinblue-api": "latest",
     "winston": "latest"
   }
