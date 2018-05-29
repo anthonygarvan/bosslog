@@ -25,13 +25,24 @@ body
   margin: 0 auto
   font-size: 1.5rem
   min-height: 100vh
+  background-color: $white
   +tablet
     width: 800px
 
   .sp-note
-    background-color: $white
     min-height: 100vh
     padding: 1rem
+    padding-right: 3rem
+
+  .sp-header
+    +tablet
+      width: 800px
+    position: fixed
+    top: 0px
+    a
+      position: absolute
+      right: 1rem
+      top: 1rem
 
 [contenteditable]:focus
   outline: 0px solid transparent
