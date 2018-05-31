@@ -27,6 +27,7 @@
     "bulma": "latest",
     "compression": "latest",
     "critical": "latest",
+    "diff": "^3.5.0",
     "draft-js": "^0.10.5",
     "express": "latest",
     "express-react-views": "latest",
@@ -38,6 +39,8 @@
     "react-contenteditable": "^2.1.0",
     "react-dom": "latest",
     "sendinblue-api": "latest",
-    "winston": "latest"
+    "uuid": "^3.2.1",
+    "winston": "latest",
+    "zangodb": "^1.0.7"
   }
 }

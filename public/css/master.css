@@ -6420,8 +6420,9 @@ label.panel-block {
   padding: 3rem 1.5rem 6rem; }
 
 body {
-  font-family: "Raleway", sans-serif;
-  background-color: lightgrey; }
+  font-family: "Roboto Slab", serif;
+  background-color: lightgrey;
+  color: black; }
 
 .sp-footer {
   background-color: #08080a;
@@ -6432,26 +6433,40 @@ body {
 
 .sp-conduit-container {
   margin: 0 auto;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   min-height: 100vh;
   background-color: #fafafa; }
   @media screen and (min-width: 769px), print {
     .sp-conduit-container {
       width: 800px; } }
-  .sp-conduit-container .sp-note {
+  .sp-conduit-container .sp-note, .sp-conduit-container .sp-search-results {
     min-height: 100vh;
     padding: 1rem;
     padding-right: 3rem; }
-  .sp-conduit-container .sp-header {
+  .sp-conduit-container .sp-note-header {
     position: fixed;
     top: 0px; }
     @media screen and (min-width: 769px), print {
-      .sp-conduit-container .sp-header {
+      .sp-conduit-container .sp-note-header {
         width: 800px; } }
-    .sp-conduit-container .sp-header a {
+    .sp-conduit-container .sp-note-header a {
       position: absolute;
       right: 1rem;
       top: 1rem; }
+      .sp-conduit-container .sp-note-header a img {
+        width: 2rem; }
+  .sp-conduit-container .sp-search-header {
+    padding: 1rem;
+    display: flex; }
+    .sp-conduit-container .sp-search-header .sp-search {
+      margin: 0 auto;
+      width: 80%; }
+      .sp-conduit-container .sp-search-header .sp-search .sp-search-box {
+        width: 100%; }
+    .sp-conduit-container .sp-search-header img {
+      width: 2rem; }
+    .sp-conduit-container .sp-search-header .icon img {
+      width: 1rem; }
 
 [contenteditable]:focus {
   outline: 0px solid transparent; }
