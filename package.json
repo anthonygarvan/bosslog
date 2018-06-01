@@ -38,9 +38,10 @@
     "react": "latest",
     "react-contenteditable": "^2.1.0",
     "react-dom": "latest",
+    "select": "^1.1.2",
     "sendinblue-api": "latest",
     "uuid": "^3.2.1",
     "winston": "latest",
-    "zangodb": "^1.0.7"
+    "zangodb": "github:erikolson186/zangodb"
   }
 }
