@@ -17,6 +17,7 @@ class Conduit extends React.Component {
     this.handleNoteChange = this.handleNoteChange.bind(this);
     this.handleSearchChange = this.handleSearchChange.bind(this);
     this.handleSearchResultClick = this.handleSearchResultClick.bind(this);
+    this.handlePaste = this.handlePaste.bind(this);
     this.refreshSearch = this.refreshSearch.bind(this);
   }
 
@@ -44,6 +45,33 @@ class Conduit extends React.Component {
     this.setState({ searchString: e.target.value }, () => {
       this.refreshSearch();
     })
+  }
+
+  handlePaste(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    let paste = (e.clipboardData || window.clipboardData).getData('text');
+    let lines = paste.split('\n');
+
+
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return false;
+
+    const newLines = document.createDocumentFragment();
+
+    lines.forEach((line, i) => {
+      if(i === 0) {
+        selection.getRangeAt(0).insertNode(document.createTextNode(line));
+      } else {
+        var div = document.createElement('div');
+        div.textContent = line;
+        newLines.appendChild(div);
+      }
+    });
+
+    if(lines.length > 1) {
+      selection.anchorNode.parentNode.insertBefore(newLines, selection.anchorNode.nextSibling);
+    }
   }
 
   handleSearchResultClick(_id) {
@@ -81,7 +109,8 @@ class Conduit extends React.Component {
           <ContentEditable
             className="sp-note"
             html={this.state.notes.map(n => `<div>${n.note}</div>`).join('')}
-            onChange={this.handleNoteChange} /></div>
+            onChange={this.handleNoteChange}
+            onPaste={this.handlePaste}/></div>
             :
             <div><div className="sp-search-header">
             <a onClick={() => this.setState({ mode: 'note' })}><img src="/img/back.png" alt="back" /></a>
