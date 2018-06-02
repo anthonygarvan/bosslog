@@ -33,7 +33,7 @@ class Conduit extends React.Component {
 
   refreshSearch() {
       if(this.state.searchString) {
-        this.db.find({ note: { $regex: RegExp(this.state.searchString) }}).sort({ position: 1 }).toArray((err, searchResults) => {
+        this.db.find({ note: { $regex: RegExp(this.state.searchString, 'i') }}).sort({ position: 1 }).toArray((err, searchResults) => {
           this.setState({ searchResults });
         });
       } else {
