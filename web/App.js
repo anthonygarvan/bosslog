@@ -1,8 +1,8 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
-const Conduit = require('./components/Conduit');
+const Bignote = require('./components/Bignote');
 
 ReactDOM.render(
-    <Conduit />,
+    <Bignote />,
   document.getElementById('root')
 );

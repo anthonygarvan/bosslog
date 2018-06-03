@@ -4,7 +4,7 @@ const zango = require('zangodb');
 const uuid = require('uuid/v1');
 const select = require('select');
 
-class Conduit extends React.Component {
+class Bignote extends React.Component {
   constructor(props) {
     super(props);
     document.execCommand('defaultParagraphSeparator', false, 'div');
@@ -132,4 +132,4 @@ class Conduit extends React.Component {
   }
 }
 
-module.exports = Conduit
+module.exports = Bignote

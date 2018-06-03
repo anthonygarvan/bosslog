@@ -6,20 +6,20 @@ const raleway = require('./raleway');
 function Master(props) {
   return <html>
           <head>
-          <title>Conduit | Notes for Manager</title>
+          <title>Bignote | Notes for Manager</title>
 
-          <meta property="og:title" content="Conduit | Notes for Managers" />
+          <meta property="og:title" content="Bignote | Notes for Managers" />
           <meta property="og:description" content="The perfect notepad to keep your act together." />
           <meta property="og:type" content="website" />
-          <meta property="og:url" content="https://conduitnotes.io" />
-          <meta property="og:image" content="https://conduitnotes.io/img/social.jpg" />
+          <meta property="og:url" content="https://bignotenotes.io" />
+          <meta property="og:image" content="https://bignotenotes.io/img/social.jpg" />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="600" />
 
 
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:image" content="https://conduitnotes.io/img/social.jpg" />
-          <meta name="twitter:title" content="Conduit | Notes for Managers" />
+          <meta name="twitter:image" content="https://bignotenotes.io/img/social.jpg" />
+          <meta name="twitter:title" content="Bignote | Notes for Managers" />
           <meta name="twitter:description" content="The perfect notepad to keep your act together." />
 
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />

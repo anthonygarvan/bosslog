@@ -6431,7 +6431,7 @@ body {
     text-decoration: underline;
     color: white; }
 
-.sp-conduit-container {
+.sp-bignote-container {
   margin: 0 auto;
   font-size: 1.2rem;
   min-height: 100vh;
@@ -6439,37 +6439,37 @@ body {
   border: 1px solid lightgrey;
   padding-bottom: 5rem; }
   @media screen and (min-width: 769px), print {
-    .sp-conduit-container {
+    .sp-bignote-container {
       width: 800px; } }
-  .sp-conduit-container .sp-note, .sp-conduit-container .sp-search-results {
+  .sp-bignote-container .sp-note, .sp-bignote-container .sp-search-results {
     min-height: 100vh;
     padding: 1rem;
     padding-right: 3rem; }
-  .sp-conduit-container .sp-search-results a:nth-child(even) div {
+  .sp-bignote-container .sp-search-results a:nth-child(even) div {
     background-color: #edeee9; }
-  .sp-conduit-container .sp-note-header {
+  .sp-bignote-container .sp-note-header {
     position: fixed;
     top: 0px; }
     @media screen and (min-width: 769px), print {
-      .sp-conduit-container .sp-note-header {
+      .sp-bignote-container .sp-note-header {
         width: 800px; } }
-    .sp-conduit-container .sp-note-header a {
+    .sp-bignote-container .sp-note-header a {
       position: absolute;
       right: 1rem;
       top: 1rem; }
-      .sp-conduit-container .sp-note-header a img {
+      .sp-bignote-container .sp-note-header a img {
         width: 2rem; }
-  .sp-conduit-container .sp-search-header {
+  .sp-bignote-container .sp-search-header {
     padding: 1rem;
     display: flex; }
-    .sp-conduit-container .sp-search-header .sp-search {
+    .sp-bignote-container .sp-search-header .sp-search {
       margin: 0 auto;
       width: 80%; }
-      .sp-conduit-container .sp-search-header .sp-search .sp-search-box {
+      .sp-bignote-container .sp-search-header .sp-search .sp-search-box {
         width: 100%; }
-    .sp-conduit-container .sp-search-header img {
+    .sp-bignote-container .sp-search-header img {
       width: 2rem; }
-    .sp-conduit-container .sp-search-header .icon img {
+    .sp-bignote-container .sp-search-header .icon img {
       width: 1rem; }
 
 [contenteditable]:focus {
