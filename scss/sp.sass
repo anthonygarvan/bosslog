@@ -1,5 +1,6 @@
 //$primary: #ae23b8 // purple
-$primary: #f06b08
+//$primary: #f06b08
+$primary: black
 $white: #fafafa
 $link: $primary
 //$contrast: #160f0f
@@ -12,7 +13,7 @@ $navbar-background-color: transparent
 
 body
   font-family: "Roboto Slab", serif
-  background-color: lightgrey
+  background-color: #f6f6eb
   color: black
 
 .sp-footer
@@ -27,6 +28,8 @@ body
   font-size: 1.2rem
   min-height: 100vh
   background-color: $white
+  border: 1px solid lightgrey
+  padding-bottom: 5rem
   +tablet
     width: 800px
 
@@ -34,6 +37,9 @@ body
     min-height: 100vh
     padding: 1rem
     padding-right: 3rem
+
+  .sp-search-results a:nth-child(even) div
+    background-color: #edeee9
 
   .sp-note-header
     +tablet

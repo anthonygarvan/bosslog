@@ -16,6 +16,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fortawesome/fontawesome": "^1.1.8",
+    "@fortawesome/fontawesome-free-solid": "^5.0.13",
+    "@fortawesome/react-fontawesome": "0.0.20",
     "babel": "latest",
     "babel-cli": "latest",
     "babel-eslint": "^7.2.3",

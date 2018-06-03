@@ -33,7 +33,7 @@ class Conduit extends React.Component {
 
   refreshSearch() {
       if(this.state.searchString) {
-        this.db.find({ note: { $regex: RegExp(this.state.searchString, 'i') }}).sort({ position: 1 }).toArray((err, searchResults) => {
+        this.db.find({ note: { $regex: RegExp(this.state.searchString.replace(' ', '|'), 'i') }}).sort({ position: 1 }).toArray((err, searchResults) => {
           this.setState({ searchResults });
         });
       } else {
@@ -103,7 +103,7 @@ class Conduit extends React.Component {
     return this.state.mode === 'note' ?
           <div><div className="sp-note-header">
             <a onClick={() => { this.refreshSearch(); this.setState({ mode: 'search' }) }}>
-              <img src="/img/search.png" alt="search" />
+              <i className="fa fa-search"></i>
             </a>
           </div>
           <ContentEditable
@@ -113,26 +113,21 @@ class Conduit extends React.Component {
             onPaste={this.handlePaste}/></div>
             :
             <div><div className="sp-search-header">
-            <a onClick={() => this.setState({ mode: 'note' })}><img src="/img/back.png" alt="back" /></a>
+            <a onClick={() => this.setState({ mode: 'note' })}><i className="fa fa-arrow-left"></i></a>
 
-            <div className="sp-search field has-addons has-addons-right">
+            <div className="sp-search field">
               <div className="sp-search-box control">
-                <input className="input" type="text"
+                <input className="input" type="search"
                   placeholder="Search your note..."
                   onChange={this.handleSearchChange}
                   value={this.state.searchString}/>
-                <span className="icon is-right">
-                  <a onClick={() => alert('clicked!')}></a>
-                </span>
               </div>
-              <p className="control">
-                 <a className="button is-transparent">
-                   <img src="/img/remove.png" alt="remove" />
-                 </a>
-               </p>
             </div>
             </div>
-            <div className="sp-search-results">{this.state.searchResults.map(n => <a key={n._id} onClick={this.handleSearchResultClick(n._id)}><div>{n.note}</div></a>)}</div>
+            <div className="sp-search-results">
+            {this.state.searchResults.length ?
+                this.state.searchResults.map(n => <a key={n._id} onClick={this.handleSearchResultClick(n._id)}><div>{n.note}</div></a>)
+                : <div><em>No results.</em></div>}</div>
             </div>
   }
 }

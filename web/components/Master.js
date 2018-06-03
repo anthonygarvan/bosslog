@@ -31,7 +31,7 @@ function Master(props) {
               template.innerHTML = '<link rel="stylesheet" href="/css/master.css" />';
               document.head.append(template.content.firstChild)`}}>
           </script>
-          <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossOrigin="anonymous" />
           <script dangerouslySetInnerHTML={ {__html: `!function(f,b,e,v,n,t,s)
           {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
           n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -57,7 +57,6 @@ function Master(props) {
           </head>
           <body>
               {props.children}
-          <Footer />
           </body></html>
 }
 
