@@ -32,6 +32,8 @@
     "critical": "latest",
     "diff": "^3.5.0",
     "draft-js": "^0.10.5",
+    "draft-js-markdown-plugin": "^2.1.0",
+    "draft-js-plugins-editor": "^2.0.8",
     "express": "latest",
     "express-react-views": "latest",
     "immutable": "^3.8.2",
