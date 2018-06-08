@@ -1,26 +1,23 @@
 const React = require('react');
-const Footer = require('./Footer');
-const pacifico = require('./pacifico');
-const raleway = require('./raleway');
 
 function Master(props) {
   return <html>
           <head>
-          <title>Bignote | Notes for Manager</title>
+          <title>Bignote | Just one big note.</title>
 
-          <meta property="og:title" content="Bignote | Notes for Managers" />
-          <meta property="og:description" content="The perfect notepad to keep your act together." />
+          <meta property="og:title" content="Bignote | Just one big note." />
+          <meta property="og:description" content="Write things down. Later, find what you wrote." />
           <meta property="og:type" content="website" />
-          <meta property="og:url" content="https://bignotenotes.io" />
-          <meta property="og:image" content="https://bignotenotes.io/img/social.jpg" />
+          <meta property="og:url" content="https://bignote.app" />
+          <meta property="og:image" content="https://bignote.app/img/social.jpg" />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="600" />
 
 
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:image" content="https://bignotenotes.io/img/social.jpg" />
-          <meta name="twitter:title" content="Bignote | Notes for Managers" />
-          <meta name="twitter:description" content="The perfect notepad to keep your act together." />
+          <meta name="twitter:image" content="https://bignote.app/img/social.jpg" />
+          <meta name="twitter:title" content="Bignote | Just one big note." />
+          <meta name="twitter:description" content="Write things down. Later, find what you wrote." />
 
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <link rel="icon" href="/img/favicon.png" />
@@ -32,20 +29,6 @@ function Master(props) {
               document.head.append(template.content.firstChild)`}}>
           </script>
           <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossOrigin="anonymous" />
-          <script dangerouslySetInnerHTML={ {__html: `!function(f,b,e,v,n,t,s)
-          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-          n.queue=[];t=b.createElement(e);t.async=!0;
-          t.src=v;s=b.getElementsByTagName(e)[0];
-          s.parentNode.insertBefore(t,s)}(window, document,'script',
-          'https://connect.facebook.net/en_US/fbevents.js');
-          fbq('init', '247102719069720');
-          fbq('track', 'PageView');` } }></script>
-
-          <noscript dangerouslySetInnerHTML={ { __html: `<img height="1" width="1" style={ {display:"none" } } alt="nodice"
-            src="https://www.facebook.com/tr?id=247102719069720&ev=PageView&noscript=1" />` } }></noscript>
-
           <script async src="https://www.googletagmanager.com/gtag/js?id=UA-38185442-7"></script>
           <script  dangerouslySetInnerHTML={ {__html: `
             window.dataLayer = window.dataLayer || [];

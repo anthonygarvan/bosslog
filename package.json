@@ -45,6 +45,7 @@
     "react": "latest",
     "react-contenteditable": "^2.1.0",
     "react-dom": "latest",
+    "react-google-login": "^3.2.1",
     "select": "^1.1.2",
     "sendinblue-api": "latest",
     "uuid": "^3.2.1",

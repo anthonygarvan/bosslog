@@ -4,8 +4,7 @@ const MainNav = require('../components/MainNav');
 
 function Index(props) {
     return <Master>
-    <div className="sp-bignote-container">
-    <div id="root"></div></div>
+    <div id="root"></div>
     <script async src="/js/app.js"></script></Master>
 }
 

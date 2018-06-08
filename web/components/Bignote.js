@@ -4,6 +4,7 @@ const Editor = require('draft-js-plugins-editor').default;
 const createMarkdownPlugin = require('draft-js-markdown-plugin').default;
 const draft = require('draft-js');
 const diff = require('deep-diff');
+const GoogleLogin = require('react-google-login').default;
 const EditorState = draft.EditorState;
 const SelectionState = draft.SelectionState;
 const convertToRaw = draft.convertToRaw;
@@ -16,6 +17,8 @@ class Bignote extends React.Component {
     this.handleSearchChange = this.handleSearchChange.bind(this);
     this.handleSearchResultClick = this.handleSearchResultClick.bind(this);
     this.refreshSearch = this.refreshSearch.bind(this);
+    this.handleLoginSuccess = this.handleLoginSuccess.bind(this);
+    this.handleLoginFailure = this.handleLoginFailure.bind(this);
     this.syncData = this.syncData.bind(this);
     this.debouncedSync = _.debounce(this.syncData, 5000);
 
@@ -42,7 +45,8 @@ class Bignote extends React.Component {
       editorState: editorState,
       plugins: [createMarkdownPlugin()],
       searchResults: [],
-      mode: 'note'
+      mode: 'note',
+      isSignedIn: true
     };
   }
 
@@ -102,8 +106,18 @@ class Bignote extends React.Component {
     }
   }
 
+  handleLoginSuccess(response) {
+    console.log(response)
+    this.setState({ user: response });
+  }
+
+  handleLoginFailure(response) {
+    console.log(response);
+    this.setState( { isSignedIn: false });
+  }
+
   render() {
-    return this.state.mode === 'note' ?
+    return <div><div className="sp-bignote-container">{ this.state.mode === 'note' ?
           <div><div className="sp-note-header">
             <a onClick={() => { this.refreshSearch(); this.setState({ mode: 'search' }) }}>
               <i className="fa fa-search fa-2x"></i>
@@ -132,7 +146,24 @@ class Bignote extends React.Component {
             {this.state.searchResults.length ?
                 this.state.searchResults.map(n => <a key={n._id} onClick={this.handleSearchResultClick(n._id)}><div>{n.note}</div></a>)
                 : <div><em>No results.</em></div>}</div>
-            </div>
+            </div> }</div>
+            <footer className="footer sp-footer">
+              <div className="container">
+              <div className="content has-text-centered">
+              { (this.state.isSignedIn && this.state.user) ? <p>Logged in as {this.state.user.profileObj.email}.</p>
+              :
+              <p><GoogleLogin
+                  clientId="1052336133699-qo2rdj03cpq0ki56hm5ske2gvcp5gomn.apps.googleusercontent.com"
+                  buttonText="Login With Google To Sync"
+                  className="button"
+                  onSuccess={this.handleLoginSuccess}
+                  onFailure={this.handleLoginFailure}
+                  isSignedIn={this.state.isSignedIn}
+                /></p> }
+              <p>Copyright © 2018. Made with ♥ by <a href="https://www.twitter.com/anthonygarvan">@anthonygarvan</a>.</p>
+              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a></p>
+              <p>Questions, comments or problems? Feel free to tweet me or use my handy <a href="/contact">contact form</a>.</p>
+              </div></div></footer></div>
   }
 }
 
