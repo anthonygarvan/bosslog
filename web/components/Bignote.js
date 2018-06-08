@@ -1,9 +1,13 @@
 const React = require('react');
+const _ = require('lodash');
 const Editor = require('draft-js-plugins-editor').default;
 const createMarkdownPlugin = require('draft-js-markdown-plugin').default;
 const draft = require('draft-js');
+const diff = require('deep-diff');
 const EditorState = draft.EditorState;
-const convertToRaw = draft.convertToRaw
+const SelectionState = draft.SelectionState;
+const convertToRaw = draft.convertToRaw;
+const convertFromRaw = draft.convertFromRaw;
 
 class Bignote extends React.Component {
   constructor(props) {
@@ -12,18 +16,59 @@ class Bignote extends React.Component {
     this.handleSearchChange = this.handleSearchChange.bind(this);
     this.handleSearchResultClick = this.handleSearchResultClick.bind(this);
     this.refreshSearch = this.refreshSearch.bind(this);
+    this.syncData = this.syncData.bind(this);
+    this.debouncedSync = _.debounce(this.syncData, 5000);
+
+    let editorState;
+    if(window.localStorage.getItem("bigNote")) {
+      this.bigNote = JSON.parse(window.localStorage.getItem("bigNote"));
+      const bigNote = JSON.parse(window.localStorage.getItem("bigNote"));
+      if(window.localStorage.getItem("bigNoteDiff")) {
+        const bigNoteDiff = JSON.parse(window.localStorage.getItem("bigNoteDiff"));
+        bigNoteDiff.forEach(change => {
+          diff.applyChange(bigNote, null, change);
+        })
+      }
+      editorState = EditorState.createWithContent(convertFromRaw(bigNote.editorState));
+      const selectionState = SelectionState.createEmpty();
+      selectionState.merge(bigNote.selectionState);
+      editorState = EditorState.forceSelection(editorState, selectionState);
+    } else {
+      editorState = EditorState.createEmpty()
+      this.bigNote = {};
+    }
 
     this.state = {
-      editorState: EditorState.createEmpty(),
+      editorState: editorState,
       plugins: [createMarkdownPlugin()],
       searchResults: [],
       mode: 'note'
     };
   }
 
+  syncData() {
+    const bigNote = { editorState: convertToRaw(this.state.editorState.getCurrentContent()),
+                      selectionState: this.state.editorState.getSelection() };
+
+    console.log(this.bigNote);
+    console.log(bigNote);
+    const diffObj = diff.diff(this.bigNote, bigNote);
+
+    if(diffObj.length < 50) {
+      window.localStorage.setItem('bigNoteDiff', JSON.stringify(diffObj) );
+      if(!window.localStorage.getItem('bigNote')) {
+        window.localStorage.setItem('bigNote', '{}');
+      }
+    } else {
+      window.localStorage.removeItem('bigNoteDiff');
+      window.localStorage.setItem('bigNote', JSON.stringify(bigNote));
+      this.bigNote = bigNote;
+    }
+  }
+
   handleNoteChange(editorState) {
-    console.log(convertToRaw(editorState.getCurrentContent()));
     this.setState({ editorState });
+    this.debouncedSync();
   }
 
   refreshSearch() {
