@@ -19,6 +19,7 @@ class Bignote extends React.Component {
     this.refreshSearch = this.refreshSearch.bind(this);
     this.handleLoginSuccess = this.handleLoginSuccess.bind(this);
     this.handleLoginFailure = this.handleLoginFailure.bind(this);
+    this.handlePasswordSet = this.handlePasswordSet.bind(this);
     this.syncData = this.syncData.bind(this);
     this.debouncedSync = _.debounce(this.syncData, 5000);
 
@@ -46,7 +47,9 @@ class Bignote extends React.Component {
       plugins: [createMarkdownPlugin()],
       searchResults: [],
       mode: 'note',
-      isSignedIn: true
+      isSignedIn: true,
+      passwordValue: '',
+      password: window.localStorage.getItem('bigNotePassword')
     };
   }
 
@@ -116,6 +119,12 @@ class Bignote extends React.Component {
     this.setState( { isSignedIn: false });
   }
 
+  handlePasswordSet() {
+    this.setState({ password: this.state.passwordValue, loggingIn: false }, () => {
+      window.localStorage.setItem('bigNotePassword', this.state.passwordValue);
+    });
+  }
+
   render() {
     return <div><div className="sp-bignote-container">{ this.state.mode === 'note' ?
           <div><div className="sp-note-header">
@@ -150,16 +159,42 @@ class Bignote extends React.Component {
             <footer className="footer sp-footer">
               <div className="container">
               <div className="content has-text-centered">
-              { (this.state.isSignedIn && this.state.user) ? <p>Logged in as {this.state.user.profileObj.email}.</p>
-              :
-              <p><GoogleLogin
-                  clientId="1052336133699-qo2rdj03cpq0ki56hm5ske2gvcp5gomn.apps.googleusercontent.com"
-                  buttonText="Login With Google To Sync"
-                  className="button"
-                  onSuccess={this.handleLoginSuccess}
-                  onFailure={this.handleLoginFailure}
-                  isSignedIn={this.state.isSignedIn}
-                /></p> }
+              { (this.state.isSignedIn && this.state.user && this.state.password) ? <p>Logged in & syncing as {this.state.user.profileObj.email}.</p>
+              : <p>Want to sync your data? You'll need to <a onClick={() => this.setState({ loggingIn: true })}>sign in</a>.</p> }
+              <div className={`modal ${this.state.loggingIn && 'is-active'}`}>
+                <div className="modal-background" onClick={() => this.setState( { loggingIn: false })}></div>
+                <div className="modal-content">
+                  <div className="box is-centered">{(this.state.isSignedIn && this.state.user) ? <div><p>Logged in as {this.state.user.profileObj.email}.</p>
+                  <p>Please enter your password. It must be at least 8 characters.</p>
+                  <div className="field">
+                    <p className="control has-icons-left">
+                      <input className={`input ${this.state.passwordIsValid ? 'is-success' : this.state.passwordValue && 'is-danger'}`} type="password" placeholder="Password" value={this.state.passwordValue}
+                        onChange={(e) => this.setState({ passwordValue: e.target.value, passwordIsValid: e.target.value.length >= 8 })}/>
+                      <span className="icon is-small is-left">
+                        <i className="fas fa-lock"></i>
+                      </span>
+                    </p>
+                  </div>
+
+                  <p><i className="fas fa-exclamation-triangle"></i>&nbsp;&nbsp;For your security, we do not store your password.
+                  If you lose your password you will not be able to access your note.</p>
+                  <p>
+                    <a className="button is-primary" disabled={!this.state.passwordIsValid} onClick={this.handlePasswordSet}>Start Secure Sync</a>
+                  </p>
+                  </div>
+                     : <div>
+                    <p>Please sign in with your Google account.</p>
+                     <p><GoogleLogin
+                      clientId="1052336133699-qo2rdj03cpq0ki56hm5ske2gvcp5gomn.apps.googleusercontent.com"
+                      buttonText="Login With Google To Sync"
+                      className="button"
+                      onSuccess={this.handleLoginSuccess}
+                      onFailure={this.handleLoginFailure}
+                      isSignedIn={this.state.isSignedIn}
+                    /></p></div>}
+                </div></div>
+                <button className="modal-close is-large" onClick={() => this.setState({ loggingIn: false })}></button>
+              </div>
               <p>Copyright © 2018. Made with ♥ by <a href="https://www.twitter.com/anthonygarvan">@anthonygarvan</a>.</p>
               <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a></p>
               <p>Questions, comments or problems? Feel free to tweet me or use my handy <a href="/contact">contact form</a>.</p>

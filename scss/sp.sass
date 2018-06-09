@@ -8,16 +8,17 @@ $link: $primary
 //$contrast: linear-gradient(to right, #2b5876, #4e4376)
 $contrast: linear-gradient(to right, black, $primary)
 $navbar-background-color: transparent
+$background: rgb(8, 8, 10)
 
 @import "../node_modules/bulma/bulma.sass"
 
 body
   font-family: "Roboto Slab", serif
-  background-color: #f6f6eb
+  background-color: $background
   color: black
 
 .sp-footer
-  background-color: rgb(8, 8, 10)
+  background-color: $background
   color: $white
   a
     text-decoration: underline
