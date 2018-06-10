@@ -29,7 +29,9 @@
     "browserify": "latest",
     "bulma": "latest",
     "compression": "latest",
+    "connect-mongo": "latest",
     "critical": "latest",
+    "crypto-js": "^3.1.9-1",
     "deep-diff": "^1.0.1",
     "diff": "^3.5.0",
     "draft-js": "^0.10.5",
@@ -37,11 +39,17 @@
     "draft-js-plugins-editor": "^2.0.8",
     "express": "latest",
     "express-react-views": "latest",
+    "express-session": "^1.15.6",
     "immutable": "^3.8.2",
-    "jquery": "latest",
+    "jquery": "^3.3.1",
+    "localforage": "^1.7.1",
     "lodash": "^4.17.10",
+    "mongodb": "^3.0.10",
     "morgan": "latest",
     "node-sass": "latest",
+    "passport": "latest",
+    "passport-google-oauth2": "latest",
+    "passport-strategy": "latest",
     "react": "latest",
     "react-contenteditable": "^2.1.0",
     "react-dom": "latest",
@@ -49,7 +57,6 @@
     "select": "^1.1.2",
     "sendinblue-api": "latest",
     "uuid": "^3.2.1",
-    "winston": "latest",
-    "zangodb": "github:erikolson186/zangodb"
+    "winston": "latest"
   }
 }

@@ -4,11 +4,12 @@ const Editor = require('draft-js-plugins-editor').default;
 const createMarkdownPlugin = require('draft-js-markdown-plugin').default;
 const draft = require('draft-js');
 const diff = require('deep-diff');
-const GoogleLogin = require('react-google-login').default;
 const EditorState = draft.EditorState;
 const SelectionState = draft.SelectionState;
 const convertToRaw = draft.convertToRaw;
 const convertFromRaw = draft.convertFromRaw;
+const CryptoJS = require('crypto-js');
+const $ = require('jquery');
 
 class Bignote extends React.Component {
   constructor(props) {
@@ -47,35 +48,41 @@ class Bignote extends React.Component {
       plugins: [createMarkdownPlugin()],
       searchResults: [],
       mode: 'note',
-      isSignedIn: true,
       passwordValue: '',
       password: window.localStorage.getItem('bigNotePassword')
     };
   }
 
+  componentWillMount() {
+    $.getJSON('/auth/is-authenticated', result => {
+      this.setState(result);
+    })
+  }
+
   syncData() {
-    const bigNote = { editorState: convertToRaw(this.state.editorState.getCurrentContent()),
+    let contentState = convertToRaw(this.state.editorState.getCurrentContent());
+
+    contentState = contentState.map(block => {
+        block.text = CryptoJS.AES.encrypt(block.text, this.state.password);
+        return block;
+    });
+
+    const bigNote = { editorState: contentState,
                       selectionState: this.state.editorState.getSelection() };
 
     console.log(this.bigNote);
     console.log(bigNote);
     const diffObj = diff.diff(this.bigNote, bigNote);
 
-    if(diffObj.length < 50) {
-      window.localStorage.setItem('bigNoteDiff', JSON.stringify(diffObj) );
-      if(!window.localStorage.getItem('bigNote')) {
-        window.localStorage.setItem('bigNote', '{}');
-      }
-    } else {
-      window.localStorage.removeItem('bigNoteDiff');
-      window.localStorage.setItem('bigNote', JSON.stringify(bigNote));
-      this.bigNote = bigNote;
-    }
+    $.post(`/sync`)
   }
 
   handleNoteChange(editorState) {
     this.setState({ editorState });
-    this.debouncedSync();
+
+    if(this.state.isSignedIn && this.state.password) {
+      this.debouncedSync();
+    }
   }
 
   refreshSearch() {
@@ -159,12 +166,12 @@ class Bignote extends React.Component {
             <footer className="footer sp-footer">
               <div className="container">
               <div className="content has-text-centered">
-              { (this.state.isSignedIn && this.state.user && this.state.password) ? <p>Logged in & syncing as {this.state.user.profileObj.email}.</p>
+              { (this.state.isAuthenticated && this.state.password) ? <p>Logged in & syncing as {this.state.userEmail}.</p>
               : <p>Want to sync your data? You'll need to <a onClick={() => this.setState({ loggingIn: true })}>sign in</a>.</p> }
               <div className={`modal ${this.state.loggingIn && 'is-active'}`}>
                 <div className="modal-background" onClick={() => this.setState( { loggingIn: false })}></div>
                 <div className="modal-content">
-                  <div className="box is-centered">{(this.state.isSignedIn && this.state.user) ? <div><p>Logged in as {this.state.user.profileObj.email}.</p>
+                  <div className="box is-centered">{this.state.isAuthenticated ? <div><p>Logged in as {this.state.userEmail}.</p>
                   <p>Please enter your password. It must be at least 8 characters.</p>
                   <div className="field">
                     <p className="control has-icons-left">
@@ -184,14 +191,7 @@ class Bignote extends React.Component {
                   </div>
                      : <div>
                     <p>Please sign in with your Google account.</p>
-                     <p><GoogleLogin
-                      clientId="1052336133699-qo2rdj03cpq0ki56hm5ske2gvcp5gomn.apps.googleusercontent.com"
-                      buttonText="Login With Google To Sync"
-                      className="button"
-                      onSuccess={this.handleLoginSuccess}
-                      onFailure={this.handleLoginFailure}
-                      isSignedIn={this.state.isSignedIn}
-                    /></p></div>}
+                     <p><a href="/auth/authenticate" className="button is-primary">Log in with Google</a></p></div>}
                 </div></div>
                 <button className="modal-close is-large" onClick={() => this.setState({ loggingIn: false })}></button>
               </div>
