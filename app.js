@@ -11,12 +11,15 @@ const critical = require('critical');
 const morgan = require('morgan');
 const getDb = require('./api/db').getDb;
 const Auth = require('./api/auth').Auth;
+const Sync = require('./api/sync').Sync;
+const diff = require('deep-diff');
 
 
 module.exports = getDb.then((db) => {
   const app = express();
   const contact = Contact();
   const auth = Auth(db);
+  const sync = Sync(db, auth);
 
   app.use(compression(), express.static('public', { extensions: ['html'] }));
   app.use(urlEncodedBodyParser);
@@ -32,10 +35,7 @@ module.exports = getDb.then((db) => {
 
   app.use('/auth', auth.app);
   app.use('/contact', contact);
-
-  app.post('/sync', (req, res) => {
-    res.send({ success: false })
-  })
+  app.use('/sync', sync);
 
 
   app.render('pages/Index', (err, html) => {

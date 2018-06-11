@@ -61,7 +61,7 @@ module.exports = { Auth: (db) => {
 
 
   app.get('/authenticate', ensureAuthenticated, (req, res) => {
-    res.redirect('/');
+    res.redirect('/?loggingIn=true');
   });
 
   app.get('/is-authenticated', (req, res) => {

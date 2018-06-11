@@ -21,26 +21,25 @@ class Bignote extends React.Component {
     this.handleLoginSuccess = this.handleLoginSuccess.bind(this);
     this.handleLoginFailure = this.handleLoginFailure.bind(this);
     this.handlePasswordSet = this.handlePasswordSet.bind(this);
+    this.handleNotLoggingIn = this.handleNotLoggingIn.bind(this);
     this.syncData = this.syncData.bind(this);
+    this.assembleEditorState = this.assembleEditorState.bind(this);
     this.debouncedSync = _.debounce(this.syncData, 5000);
 
     let editorState;
-    if(window.localStorage.getItem("bigNote")) {
-      this.bigNote = JSON.parse(window.localStorage.getItem("bigNote"));
-      const bigNote = JSON.parse(window.localStorage.getItem("bigNote"));
-      if(window.localStorage.getItem("bigNoteDiff")) {
-        const bigNoteDiff = JSON.parse(window.localStorage.getItem("bigNoteDiff"));
-        bigNoteDiff.forEach(change => {
-          diff.applyChange(bigNote, null, change);
-        })
-      }
-      editorState = EditorState.createWithContent(convertFromRaw(bigNote.editorState));
-      const selectionState = SelectionState.createEmpty();
-      selectionState.merge(bigNote.selectionState);
-      editorState = EditorState.forceSelection(editorState, selectionState);
+    if(window.localStorage.getItem("serverBigNote")) {
+      this.serverBigNote = JSON.parse(window.localStorage.getItem("serverBigNote"));
+      const bigNoteLocalChanges = JSON.parse(window.localStorage.getItem('bigNoteLocalChanges'));
+      this.revision = parseInt(window.localStorage.getItem('revision'));
+      const currentBigNote = Object.clone(this.serverBigNote);
+      bigNoteLocalChanges.forEach(change => {
+        diff.applyChange(currentBigNote, null, change);
+      })
+      editorState = this.assembleEditorState(currentBigNote);
     } else {
       editorState = EditorState.createEmpty()
-      this.bigNote = {};
+      this.serverBigNote = {};
+      this.revision = 0;
     }
 
     this.state = {
@@ -49,6 +48,7 @@ class Bignote extends React.Component {
       searchResults: [],
       mode: 'note',
       passwordValue: '',
+      loggingIn: window.location.href.indexOf('loggingIn=true') >= 0,
       password: window.localStorage.getItem('bigNotePassword')
     };
   }
@@ -59,40 +59,62 @@ class Bignote extends React.Component {
     })
   }
 
+  assembleEditorState(bigNote) {
+    const password = this.state && this.state.password || window.localStorage.getItem('bigNotePassword');
+    bigNote.contentState.blocks = bigNote.contentState.blocks.map(block => {
+      const bytes  = CryptoJS.AES.decrypt(block.text.toString(), password);
+      block.text = bytes.toString(CryptoJS.enc.Utf8);
+      return block
+    });
+    let contentState = convertFromRaw(bigNote.contentState);
+    let editorState = EditorState.createWithContent(contentState);
+    const selectionState = SelectionState.createEmpty();
+    selectionState.merge(bigNote.selectionState);
+    editorState = EditorState.forceSelection(editorState, selectionState);
+    return editorState;
+  }
+
   syncData() {
     let contentState = convertToRaw(this.state.editorState.getCurrentContent());
-
-    contentState = contentState.map(block => {
-        block.text = CryptoJS.AES.encrypt(block.text, this.state.password);
+    contentState.blocks = contentState.blocks.map(block => {
+        block.text = CryptoJS.AES.encrypt(block.text, this.state.password).toString();
         return block;
     });
 
-    const bigNote = { editorState: contentState,
-                      selectionState: this.state.editorState.getSelection() };
+    let currentBigNote = { contentState: contentState,
+                      selectionState: JSON.parse(JSON.stringify(this.state.editorState.getSelection())) };
 
-    console.log(this.bigNote);
-    console.log(bigNote);
-    const diffObj = diff.diff(this.bigNote, bigNote);
+    const diffObj = diff.diff(this.serverBigNote, currentBigNote);
+    this.revision += 1
 
-    $.post(`/sync`)
+    $.post('/sync', { revision: this.revision, diff: JSON.parse(JSON.stringify(diffObj)) }, (data) => {
+      window.localStorage.setItem('bigNoteLocalChanges', '[]');
+
+      if( data.success ) {
+        this.serverBigNote = currentBigNote;
+      } else {
+        this.serverBigNote = data.bigNote;
+        this.revision = data.revision;
+        window.localStorage.setItem('revision', this.revision);
+        this.setState({ editorState: this.assembleEditorState(this.serverBigNote) });
+      }
+
+      window.localStorage.setItem('serverBigNote', JSON.stringify(this.serverBigNote));
+    }).fail(() => {
+      window.localStorage.setItem('bigNoteLocalChanges', JSON.stringify(diffObj));
+    });
   }
 
   handleNoteChange(editorState) {
     this.setState({ editorState });
 
-    if(this.state.isSignedIn && this.state.password) {
+    if(this.state.isAuthenticated && this.state.password) {
       this.debouncedSync();
     }
   }
 
   refreshSearch() {
-      if(this.state.searchString) {
-        this.db.find({ note: { $regex: RegExp(this.state.searchString.replace(' ', '|'), 'i') }}).sort({ position: 1 }).toArray((err, searchResults) => {
-          this.setState({ searchResults });
-        });
-      } else {
-        this.setState({ searchResults: [] })
-      }
+    console.log('not implemented');
   }
 
   handleSearchChange(e) {
@@ -102,33 +124,28 @@ class Bignote extends React.Component {
   }
 
   handleSearchResultClick(_id) {
-    return (e) => {
-      let resultAt;
-      this.db.find({ position:  {$gte: this.state.startPosition, $lte: this.state.endPosition}})
-        .sort({ position: 1 }).toArray((err, notes) => {
-          notes.forEach((note, i) => {
-            if(note._id === _id) {
-              resultAt = i;
-            }
-          });
-          this.setState({mode: 'note', resultAt });
-        })
-    }
+    console.log('not implemented');
   }
 
   handleLoginSuccess(response) {
-    console.log(response)
     this.setState({ user: response });
   }
 
   handleLoginFailure(response) {
-    console.log(response);
     this.setState( { isSignedIn: false });
+  }
+
+  handleNotLoggingIn() {
+    this.setState({ loggingIn: false }, () => {
+      window.history.pushState(null, document.title, '/');
+    })
   }
 
   handlePasswordSet() {
     this.setState({ password: this.state.passwordValue, loggingIn: false }, () => {
       window.localStorage.setItem('bigNotePassword', this.state.passwordValue);
+      this.syncData();
+      this.handleNotLoggingIn();
     });
   }
 
@@ -169,7 +186,7 @@ class Bignote extends React.Component {
               { (this.state.isAuthenticated && this.state.password) ? <p>Logged in & syncing as {this.state.userEmail}.</p>
               : <p>Want to sync your data? You'll need to <a onClick={() => this.setState({ loggingIn: true })}>sign in</a>.</p> }
               <div className={`modal ${this.state.loggingIn && 'is-active'}`}>
-                <div className="modal-background" onClick={() => this.setState( { loggingIn: false })}></div>
+                <div className="modal-background" onClick={this.handleNotLoggingIn}></div>
                 <div className="modal-content">
                   <div className="box is-centered">{this.state.isAuthenticated ? <div><p>Logged in as {this.state.userEmail}.</p>
                   <p>Please enter your password. It must be at least 8 characters.</p>
@@ -193,7 +210,7 @@ class Bignote extends React.Component {
                     <p>Please sign in with your Google account.</p>
                      <p><a href="/auth/authenticate" className="button is-primary">Log in with Google</a></p></div>}
                 </div></div>
-                <button className="modal-close is-large" onClick={() => this.setState({ loggingIn: false })}></button>
+                <button className="modal-close is-large" onClick={this.handleNotLoggingIn}></button>
               </div>
               <p>Copyright © 2018. Made with ♥ by <a href="https://www.twitter.com/anthonygarvan">@anthonygarvan</a>.</p>
               <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a></p>
