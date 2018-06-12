@@ -29,18 +29,19 @@ class Bignote extends React.Component {
 
     let editorState;
     if(window.localStorage.getItem("bigNoteLocalChanges")) {
-      this.serverBigNote = window.localStorage.getItem("serverBigNote") ? JSON.parse(window.localStorage.getItem("serverBigNote")) : {};
+      this.bigNoteServerState = window.localStorage.getItem("bigNoteServerState") ? JSON.parse(window.localStorage.getItem("bigNoteServerState")) : {};
       const bigNoteLocalChanges = JSON.parse(window.localStorage.getItem('bigNoteLocalChanges'));
       this.revision = parseInt(window.localStorage.getItem('revision'));
-      const currentBigNote = _.cloneDeep(this.serverBigNote);
+      const currentBigNote = _.cloneDeep(this.bigNoteServerState);
       bigNoteLocalChanges.forEach(change => {
         diff.applyChange(currentBigNote, null, change);
       })
       editorState = this.assembleEditorState(currentBigNote);
     } else {
       editorState = EditorState.createEmpty()
-      this.serverBigNote = {};
+      this.bigNoteServerState = {};
       this.revision = 0;
+      window.localStorage.setItem('revision', this.revision);
     }
 
     const linkifyPlugin = createLinkifyPlugin({
@@ -74,15 +75,6 @@ class Bignote extends React.Component {
 
   assembleEditorState(bigNote) {
     const password = this.state && this.state.password || window.localStorage.getItem('bigNotePassword');
-
-    if(password) {
-      bigNote.contentState.blocks = bigNote.contentState.blocks.map(block => {
-        const bytes  = CryptoJS.AES.decrypt(block.text.toString(), password);
-        block.text = bytes.toString(CryptoJS.enc.Utf8);
-        return block
-      });
-    }
-
     let contentState = convertFromRaw(bigNote.contentState);
     let editorState = EditorState.createWithContent(contentState);
     const selectionState = SelectionState.createEmpty();
@@ -93,36 +85,40 @@ class Bignote extends React.Component {
 
   syncData() {
     let contentState = convertToRaw(this.state.editorState.getCurrentContent());
-
-    if(this.state.password) {
-      contentState.blocks = contentState.blocks.map(block => {
-          block.text = CryptoJS.AES.encrypt(block.text, this.state.password).toString();
-          return block;
-      });
-    }
-
     let currentBigNote = { contentState: contentState,
                       selectionState: JSON.parse(JSON.stringify(this.state.editorState.getSelection())) };
 
-    const diffObj = diff.diff(this.serverBigNote, currentBigNote);
-
+    const diffObj = diff.diff(this.bigNoteServerState, currentBigNote);
     window.localStorage.setItem('bigNoteLocalChanges', JSON.stringify(diffObj));
 
-    if(this.state.isAuthenticated && this.state.password) {
-      $.post('/sync', { revision: this.revision + 1, diff: JSON.parse(JSON.stringify(diffObj)) }, (data) => {
+    if(this.state.isAuthenticated && this.state.password && diffObj && diffObj.length > 0) {
+      $.post('/sync', { revision: this.revision + 1,
+        encryptedDiff: CryptoJS.AES.encrypt(JSON.stringify(diffObj), this.state.password).toString() }, (data) => {
         window.localStorage.setItem('bigNoteLocalChanges', '[]');
 
         if( data.success ) {
-          this.serverBigNote = currentBigNote;
+          this.bigNoteServerState = currentBigNote;
           this.revision += 1
-        } else {
-          this.serverBigNote = data.bigNote;
-          this.revision = data.revision;
           window.localStorage.setItem('revision', this.revision);
-          this.setState({ editorState: this.assembleEditorState(this.serverBigNote) });
+        } else {
+          const serverDiffs = data.revisions.map(revision => {
+            return JSON.parse(CryptoJS.AES.decrypt(
+                revision.encryptedDiff,
+                this.state.password).toString(CryptoJS.enc.Utf8));
+          })
+
+          serverDiffs.forEach(changes => {
+              changes.forEach(change => {
+                diff.applyChange(this.bigNoteServerState, null, change);
+              });
+          });
+
+          this.revision = parseInt(data.revisions[data.revisions.length - 1].revision);
+          this.setState({ editorState: this.assembleEditorState(this.bigNoteServerState) });
         }
 
-        window.localStorage.setItem('serverBigNote', JSON.stringify(this.serverBigNote));
+        window.localStorage.setItem('revision', this.revision);
+        window.localStorage.setItem('bigNoteServerState', JSON.stringify(this.bigNoteServerState));
       }).fail(() => {
         console.log('Failed to sync.');
       });
