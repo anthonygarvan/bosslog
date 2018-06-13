@@ -6441,10 +6441,11 @@ body {
   @media screen and (min-width: 769px), print {
     .sp-bignote-container {
       width: 800px; } }
-  .sp-bignote-container .sp-note, .sp-bignote-container .sp-search-results {
+  .sp-bignote-container .sp-note {
     min-height: 100vh;
-    padding: 1rem;
-    padding-right: 3rem; }
+    padding: 3rem; }
+    .sp-bignote-container .sp-note.sp-with-search-mode {
+      margin-top: 5rem; }
   .sp-bignote-container .sp-search-results a:nth-child(even) div {
     background-color: #edeee9; }
   .sp-bignote-container .sp-note-header {
@@ -6453,15 +6454,20 @@ body {
     @media screen and (min-width: 769px), print {
       .sp-bignote-container .sp-note-header {
         width: 800px; } }
-    .sp-bignote-container .sp-note-header a {
+    .sp-bignote-container .sp-note-header img {
+      width: 2rem; }
+    .sp-bignote-container .sp-note-header .sp-search-icon {
       position: absolute;
       right: 1rem;
       top: 1rem; }
-      .sp-bignote-container .sp-note-header a img {
-        width: 2rem; }
+    .sp-bignote-container .sp-note-header .sp-back {
+      position: absolute;
+      left: 1rem;
+      top: 1rem; }
   .sp-bignote-container .sp-search-header {
     padding: 1rem;
-    display: flex; }
+    display: flex;
+    background-color: lightgrey; }
     .sp-bignote-container .sp-search-header .sp-search {
       margin: 0 auto;
       width: 80%; }

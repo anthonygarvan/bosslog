@@ -34,10 +34,12 @@ body
   +tablet
     width: 800px
 
-  .sp-note, .sp-search-results
+  .sp-note
     min-height: 100vh
-    padding: 1rem
-    padding-right: 3rem
+    padding: 3rem
+
+    &.sp-with-search-mode
+      margin-top: 5rem
 
   .sp-search-results a:nth-child(even) div
     background-color: #edeee9
@@ -47,17 +49,25 @@ body
       width: 800px
     position: fixed
     top: 0px
-    a
+
+    img
+      width: 2rem
+
+    .sp-search-icon
       position: absolute
       right: 1rem
       top: 1rem
 
-      img
-        width: 2rem
+    .sp-back
+      position: absolute
+      left: 1rem
+      top: 1rem
+
 
   .sp-search-header
     padding: 1rem
     display: flex
+    background-color: lightgrey
 
     .sp-search
       margin: 0 auto

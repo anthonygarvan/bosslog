@@ -24,6 +24,7 @@ class Bignote extends React.Component {
     this.syncData = this.syncData.bind(this);
     this.assembleEditorState = this.assembleEditorState.bind(this);
     this.getVisibility = this.getVisibility.bind(this);
+    this.forceRefresh = this.forceRefresh.bind(this);
     this.debouncedSync = _.debounce(this.syncData, 5000);
 
     let editorState;
@@ -45,9 +46,9 @@ class Bignote extends React.Component {
       window.localStorage.setItem('revision', this.revision);
     }
 
-    this.visibilityMap = {}
+    this.blockMetaData = {}
     this.currentBigNote.contentState.blocks.forEach((block, i) => {
-      this.visibilityMap[block.key] = {text: block.text, index: i}
+      this.blockMetaData[block.key] = {text: block.text, index: i}
     });
 
     const linkifyPlugin = createLinkifyPlugin({
@@ -131,11 +132,12 @@ class Bignote extends React.Component {
   }
 
   getVisibility(contentBlock) {
-    const anchorIndex = (this.currentBigNote.selectionState.anchorKey && this.visibilityMap[this.currentBigNote.selectionState.anchorKey].index) || 0;
     const regex = RegExp(this.state.searchString.replace(' ', '|'), 'i');
-    if(!this.visibilityMap[contentBlock.key] ||
-        this.visibilityMap[contentBlock.key].text == '' ||
-        regex.test(this.visibilityMap[contentBlock.key].text)) {
+    if(this.state.mode === 'note' ||
+        !this.currentBigNote.blockMetaData[contentBlock.key] ||
+        contentBlock.text == '' ||
+        (this.currentBigNote.blockMetaData[contentBlock.key].search && regex.test(this.currentBigNote.blockMetaData[contentBlock.key].search)) ||
+        regex.test(contentBlock.text)) {
       return '';
     } else {
       return 'sp-hidden';
@@ -145,19 +147,31 @@ class Bignote extends React.Component {
   handleNoteChange(editorState) {
     let contentState = convertToRaw(this.state.editorState.getCurrentContent());
     this.currentBigNote = { contentState: contentState,
-                      selectionState: JSON.parse(JSON.stringify(this.state.editorState.getSelection())) };
+                      selectionState: JSON.parse(JSON.stringify(this.state.editorState.getSelection())),
+                      blockMetaData: this.currentBigNote.blockMetaData || {} };
 
-    this.visibilityMap = {}
     this.currentBigNote.contentState.blocks.forEach((block, i) => {
-      this.visibilityMap[block.key] = {text: block.text, index: i}
+      if(!this.currentBigNote.blockMetaData[block.key]) {
+        this.currentBigNote.blockMetaData[block.key] = {index: i, createdOn: new Date()};
+
+        if(this.state.mode == 'search' && this.state.searchString) {
+          this.currentBigNote.blockMetaData[block.key].search = this.state.searchString;
+        }
+      }
     });
     this.setState({ editorState });
     this.debouncedSync();
   }
 
+  forceRefresh() {
+    const editorState = EditorState.createWithContent(this.state.editorState.getCurrentContent());
+    EditorState.set(editorState, { selection: this.state.editorState.getSelection() });
+    this.handleNoteChange(editorState);
+  }
+
   handleSearchChange(e) {
     this.setState({ searchString: e.target.value }, () => {
-      this.handleNoteChange(_.clone(this.state.editorState));
+      this.forceRefresh();
     });
   }
 
@@ -183,27 +197,34 @@ class Bignote extends React.Component {
     });
   }
 
+  componentDidUpdate() {
+    console.log('updated');
+  }
+
   render() {
     return <div><div className="sp-bignote-container">
           <div className="sp-note-header">
             <div className={`sp-search-header ${this.state.mode !== 'search' && 'sp-hidden'}`}>
-            <a className={`${this.state.mode === 'note' && 'sp-hidden'}`}
-              onClick={() => this.setState({ mode: 'note' }) }><i className="fa fa-arrow-left fa-2x"></i></a>
+            <a className={`sp-back ${this.state.mode === 'note' && 'sp-hidden'}`}
+              onClick={() => this.setState({ mode: 'note' }, () => {this.forceRefresh();}) }><i className="fa fa-arrow-left fa-2x"></i></a>
             <div className="sp-search field">
               <div className="sp-search-box control">
+              <form autoComplete="off">
+                <input autoComplete="false" name="hidden" type="text" className="sp-hidden" />
                 <input className="input is-medium" type="search"
                   placeholder="Search your note..."
                   onChange={this.handleSearchChange}
                   value={this.state.searchString}/>
+              </form>
               </div>
             </div>
             </div>
-            <a className={`${this.state.mode === 'search' && 'sp-hidden'}`}
-              onClick={() => { this.setState({ mode: 'search' }) }}>
+            <a className={`sp-search-icon ${this.state.mode === 'search' && 'sp-hidden'}`}
+              onClick={() => { this.setState({ mode: 'search' }, () => {this.forceRefresh();}) }}>
               <i className="fa fa-search fa-2x"></i>
             </a>
           </div>
-          <div className="sp-note content">
+          <div className={`sp-note content ${this.state.mode === 'search' && 'sp-with-search-mode'}`}>
           <Editor
               editorState={this.state.editorState}
               onChange={this.handleNoteChange}
