@@ -135,7 +135,6 @@ class Bignote extends React.Component {
     const regex = RegExp(this.state.searchString.replace(' ', '|'), 'i');
     if(this.state.mode === 'note' ||
         !this.currentBigNote.blockMetaData[contentBlock.key] ||
-        contentBlock.text == '' ||
         (this.currentBigNote.blockMetaData[contentBlock.key].search && regex.test(this.currentBigNote.blockMetaData[contentBlock.key].search)) ||
         (this.currentBigNote.blockMetaData[contentBlock.key].header && regex.test(this.currentBigNote.blockMetaData[contentBlock.key].header)) ||
         regex.test(contentBlock.text)) {
