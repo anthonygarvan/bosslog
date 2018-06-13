@@ -34,6 +34,7 @@
     "draft-js-linkify-plugin": "^2.0.1",
     "draft-js-markdown-plugin": "^2.1.0",
     "draft-js-plugins-editor": "^2.0.8",
+    "envify": "^4.1.0",
     "express": "latest",
     "express-react-views": "latest",
     "express-session": "^1.15.6",
@@ -53,6 +54,7 @@
     "react-google-login": "^3.2.1",
     "select": "^1.1.2",
     "sendinblue-api": "latest",
+    "uglifyify": "^5.0.0",
     "uuid": "^3.2.1",
     "winston": "latest"
   }
