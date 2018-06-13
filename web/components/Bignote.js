@@ -17,14 +17,13 @@ class Bignote extends React.Component {
     super(props);
     this.handleNoteChange = this.handleNoteChange.bind(this);
     this.handleSearchChange = this.handleSearchChange.bind(this);
-    this.handleSearchResultClick = this.handleSearchResultClick.bind(this);
-    this.refreshSearch = this.refreshSearch.bind(this);
     this.handleLoginSuccess = this.handleLoginSuccess.bind(this);
     this.handleLoginFailure = this.handleLoginFailure.bind(this);
     this.handlePasswordSet = this.handlePasswordSet.bind(this);
     this.handleNotLoggingIn = this.handleNotLoggingIn.bind(this);
     this.syncData = this.syncData.bind(this);
     this.assembleEditorState = this.assembleEditorState.bind(this);
+    this.getVisibility = this.getVisibility.bind(this);
     this.debouncedSync = _.debounce(this.syncData, 5000);
 
     let editorState;
@@ -32,17 +31,24 @@ class Bignote extends React.Component {
       this.bigNoteServerState = window.localStorage.getItem("bigNoteServerState") ? JSON.parse(window.localStorage.getItem("bigNoteServerState")) : {};
       const bigNoteLocalChanges = JSON.parse(window.localStorage.getItem('bigNoteLocalChanges'));
       this.revision = parseInt(window.localStorage.getItem('revision'));
-      const currentBigNote = _.cloneDeep(this.bigNoteServerState);
+      this.currentBigNote = _.cloneDeep(this.bigNoteServerState);
       bigNoteLocalChanges.forEach(change => {
-        diff.applyChange(currentBigNote, null, change);
+        diff.applyChange(this.currentBigNote, null, change);
       })
-      editorState = this.assembleEditorState(currentBigNote);
+      editorState = this.assembleEditorState(this.currentBigNote);
     } else {
       editorState = EditorState.createEmpty()
+      this.currentBigNote = { contentState: contentState,
+                        selectionState: JSON.parse(JSON.stringify(this.state.editorState.getSelection())) };
       this.bigNoteServerState = {};
       this.revision = 0;
       window.localStorage.setItem('revision', this.revision);
     }
+
+    this.visibilityMap = {}
+    this.currentBigNote.contentState.blocks.forEach((block, i) => {
+      this.visibilityMap[block.key] = {text: block.text, index: i}
+    });
 
     const linkifyPlugin = createLinkifyPlugin({
       component: (props) => {
@@ -59,7 +65,7 @@ class Bignote extends React.Component {
     this.state = {
       editorState: editorState,
       plugins: [createMarkdownPlugin(), linkifyPlugin],
-      searchResults: [],
+      searchString: '',
       mode: 'note',
       passwordValue: '',
       loggingIn: window.location.href.indexOf('loggingIn=true') >= 0,
@@ -84,12 +90,11 @@ class Bignote extends React.Component {
   }
 
   syncData() {
-    let contentState = convertToRaw(this.state.editorState.getCurrentContent());
-    let currentBigNote = { contentState: contentState,
-                      selectionState: JSON.parse(JSON.stringify(this.state.editorState.getSelection())) };
+    const diffObj = diff.diff(this.bigNoteServerState, this.currentBigNote);
 
-    const diffObj = diff.diff(this.bigNoteServerState, currentBigNote);
-    window.localStorage.setItem('bigNoteLocalChanges', JSON.stringify(diffObj));
+    if(diffObj && diffObj.length > 0) {
+      window.localStorage.setItem('bigNoteLocalChanges', JSON.stringify(diffObj));
+    }
 
     if(this.state.isAuthenticated && this.state.password && diffObj && diffObj.length > 0) {
       $.post('/sync', { revision: this.revision + 1,
@@ -97,7 +102,7 @@ class Bignote extends React.Component {
         window.localStorage.setItem('bigNoteLocalChanges', '[]');
 
         if( data.success ) {
-          this.bigNoteServerState = currentBigNote;
+          this.bigNoteServerState = this.currentBigNote;
           this.revision += 1
           window.localStorage.setItem('revision', this.revision);
         } else {
@@ -125,23 +130,35 @@ class Bignote extends React.Component {
     }
   }
 
+  getVisibility(contentBlock) {
+    const anchorIndex = (this.currentBigNote.selectionState.anchorKey && this.visibilityMap[this.currentBigNote.selectionState.anchorKey].index) || 0;
+    const regex = RegExp(this.state.searchString.replace(' ', '|'), 'i');
+    if(!this.visibilityMap[contentBlock.key] ||
+        this.visibilityMap[contentBlock.key].text == '' ||
+        regex.test(this.visibilityMap[contentBlock.key].text)) {
+      return '';
+    } else {
+      return 'sp-hidden';
+    }
+  }
+
   handleNoteChange(editorState) {
+    let contentState = convertToRaw(this.state.editorState.getCurrentContent());
+    this.currentBigNote = { contentState: contentState,
+                      selectionState: JSON.parse(JSON.stringify(this.state.editorState.getSelection())) };
+
+    this.visibilityMap = {}
+    this.currentBigNote.contentState.blocks.forEach((block, i) => {
+      this.visibilityMap[block.key] = {text: block.text, index: i}
+    });
     this.setState({ editorState });
     this.debouncedSync();
   }
 
-  refreshSearch() {
-    console.log('not implemented');
-  }
-
   handleSearchChange(e) {
     this.setState({ searchString: e.target.value }, () => {
-      this.refreshSearch();
-    })
-  }
-
-  handleSearchResultClick(_id) {
-    console.log('not implemented');
+      this.handleNoteChange(_.clone(this.state.editorState));
+    });
   }
 
   handleLoginSuccess(response) {
@@ -167,22 +184,11 @@ class Bignote extends React.Component {
   }
 
   render() {
-    return <div><div className="sp-bignote-container">{ this.state.mode === 'note' ?
-          <div><div className="sp-note-header">
-            <a onClick={() => { this.refreshSearch(); this.setState({ mode: 'search' }) }}>
-              <i className="fa fa-search fa-2x"></i>
-            </a>
-          </div>
-          <div className="sp-note content">
-          <Editor
-              editorState={this.state.editorState}
-              onChange={this.handleNoteChange}
-              plugins={this.state.plugins}
-            /></div></div>
-            :
-            <div><div className="sp-search-header">
-            <a onClick={() => this.setState({ mode: 'note' })}><i className="fa fa-arrow-left fa-2x"></i></a>
-
+    return <div><div className="sp-bignote-container">
+          <div className="sp-note-header">
+            <div className={`sp-search-header ${this.state.mode !== 'search' && 'sp-hidden'}`}>
+            <a className={`${this.state.mode === 'note' && 'sp-hidden'}`}
+              onClick={() => this.setState({ mode: 'note' }) }><i className="fa fa-arrow-left fa-2x"></i></a>
             <div className="sp-search field">
               <div className="sp-search-box control">
                 <input className="input is-medium" type="search"
@@ -192,11 +198,18 @@ class Bignote extends React.Component {
               </div>
             </div>
             </div>
-            <div className="sp-search-results">
-            {this.state.searchResults.length ?
-                this.state.searchResults.map(n => <a key={n._id} onClick={this.handleSearchResultClick(n._id)}><div>{n.note}</div></a>)
-                : <div><em>No results.</em></div>}</div>
-            </div> }</div>
+            <a className={`${this.state.mode === 'search' && 'sp-hidden'}`}
+              onClick={() => { this.setState({ mode: 'search' }) }}>
+              <i className="fa fa-search fa-2x"></i>
+            </a>
+          </div>
+          <div className="sp-note content">
+          <Editor
+              editorState={this.state.editorState}
+              onChange={this.handleNoteChange}
+              plugins={this.state.plugins}
+              blockStyleFn={this.getVisibility}
+            /></div></div>
             <footer className="footer sp-footer">
               <div className="container">
               <div className="content has-text-centered">

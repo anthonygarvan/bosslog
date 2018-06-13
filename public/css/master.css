@@ -6474,3 +6474,6 @@ body {
 
 [contenteditable]:focus {
   outline: 0px solid transparent; }
+
+.sp-hidden {
+  display: none !important; }
