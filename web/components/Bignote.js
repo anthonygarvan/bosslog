@@ -39,8 +39,8 @@ class Bignote extends React.Component {
       editorState = this.assembleEditorState(this.currentBigNote);
     } else {
       editorState = EditorState.createEmpty()
-      this.currentBigNote = { contentState: contentState,
-                        selectionState: JSON.parse(JSON.stringify(this.state.editorState.getSelection())) };
+      this.currentBigNote = { contentState:  convertToRaw(editorState.getCurrentContent()),
+                        selectionState: JSON.parse(JSON.stringify(editorState.getSelection())) };
       this.bigNoteServerState = {};
       this.revision = 0;
       window.localStorage.setItem('revision', this.revision);
@@ -137,6 +137,7 @@ class Bignote extends React.Component {
         !this.currentBigNote.blockMetaData[contentBlock.key] ||
         contentBlock.text == '' ||
         (this.currentBigNote.blockMetaData[contentBlock.key].search && regex.test(this.currentBigNote.blockMetaData[contentBlock.key].search)) ||
+        (this.currentBigNote.blockMetaData[contentBlock.key].header && regex.test(this.currentBigNote.blockMetaData[contentBlock.key].header)) ||
         regex.test(contentBlock.text)) {
       return '';
     } else {
@@ -150,6 +151,7 @@ class Bignote extends React.Component {
                       selectionState: JSON.parse(JSON.stringify(this.state.editorState.getSelection())),
                       blockMetaData: this.currentBigNote.blockMetaData || {} };
 
+    let header = false;
     this.currentBigNote.contentState.blocks.forEach((block, i) => {
       if(!this.currentBigNote.blockMetaData[block.key]) {
         this.currentBigNote.blockMetaData[block.key] = {index: i, createdOn: new Date()};
@@ -157,6 +159,18 @@ class Bignote extends React.Component {
         if(this.state.mode == 'search' && this.state.searchString) {
           this.currentBigNote.blockMetaData[block.key].search = this.state.searchString;
         }
+      }
+
+      if(block.type.indexOf('header') === 0) {
+        header = block.text;
+      }
+
+      if(block.text === '') {
+        header = false;
+      }
+
+      if(header) {
+        this.currentBigNote.blockMetaData[block.key].header = header;
       }
     });
     this.setState({ editorState });
