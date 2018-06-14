@@ -36,15 +36,16 @@ body
 
   .sp-note
     min-height: 100vh
-    padding: 3rem
+    padding-right: 3rem
+    padding: 1rem
+    +tablet
+      padding: 3rem
 
     &.sp-with-search-mode
       margin-top: 5rem
 
-  .sp-search-results a:nth-child(even) div
-    background-color: #edeee9
-
   .sp-note-header
+    width: 100%
     +tablet
       width: 800px
     position: fixed
@@ -54,15 +55,18 @@ body
       width: 2rem
 
     .sp-search-icon
-      position: absolute
+      position: fixed
       right: 1rem
       top: 1rem
+      +tablet
+        position: absolute
 
     .sp-back
-      position: absolute
+      position: fixed
       left: 1rem
       top: 1rem
-
+      +tablet
+        position: absolute
 
   .sp-search-header
     padding: 1rem
@@ -71,7 +75,9 @@ body
 
     .sp-search
       margin: 0 auto
-      width: 80%
+      width: 70%
+      +tablet
+        width: 80%
       .sp-search-box
         width: 100%
     img
