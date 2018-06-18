@@ -16,7 +16,7 @@ class Bignote extends React.Component {
     this.handleNotLoggingIn = this.handleNotLoggingIn.bind(this);
     this.handleToNoteMode = this.handleToNoteMode.bind(this);
     this.handleToSearchMode = this.handleToSearchMode.bind(this);
-    this.search = this.search.bind(this);
+    this.searchNote = this.searchNote.bind(this);
     this.syncData = this.syncData.bind(this);
     this.forceRefresh = this.forceRefresh.bind(this);
     this.debouncedSync = _.debounce(this.syncData, 5000);
@@ -61,13 +61,54 @@ class Bignote extends React.Component {
       }
     });
 
+
     content.addEventListener('input', (e) => {
       if (e.target.firstChild && e.target.firstChild.nodeType === 3) {
         document.execCommand('formatBlock', false, '<div>');
       } else if (content.innerHTML === '<br>') {
         content.innerHTML = '';
       }
-    });
+
+      const header = new RegExp('^(?:#[\s|\u00A0])(.*)?');
+      const sel = window.getSelection();
+      const anchorNode = sel.anchorNode;
+      const block = $(anchorNode);
+      if(header.test(block.text())) {
+        setTimeout(() => document.execCommand('formatBlock', false, '<h1>'), 0);
+        const match = block.text().match(header);
+        const parent = block.parent();
+        if(match[1]) {
+            parent.text(match[1]);
+        } else {
+            parent.empty();
+            //parent.append(document.createTextNode(''));
+        }
+        var range = document.createRange();
+        range.setStart(parent.get(0), 0);
+        range.setEnd(parent.get(0), 0);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+
+      const ul = new RegExp('^(?:-[\s|\u00A0])(.*)?');
+      if(ul.test(block.text())) {
+        setTimeout(() => document.execCommand('insertUnorderedList', false, null), 0);
+        const match = block.text().match(ul);
+        const parent = block.parent();
+        if(match[1]) {
+          parent.text(match[1]);
+        } else {
+          parent.empty();
+          //parent.append(document.createTextNode(''));
+        }
+
+        var range = document.createRange();
+        range.setStart(parent.get(0), 0);
+        range.setEnd(parent.get(0), 0);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+  });
   }
 
   syncData() {
@@ -121,7 +162,7 @@ class Bignote extends React.Component {
     console.log('not implemented');
   }
 
-  search() {
+  searchNote() {
     const searchRegex = new RegExp(this.state.searchString.replace(' ', '|'), 'i');
     $('#sp-note-content').children().each((i, el) => {
       if(this.state.searchString.length === 0) {
@@ -136,7 +177,7 @@ class Bignote extends React.Component {
 
   handleSearchChange(e) {
     this.setState({ searchString: e.target.value }, () => {
-      this.search();
+      this.searchNote();
     });
   }
 
@@ -150,7 +191,7 @@ class Bignote extends React.Component {
 
   handleToSearchMode() {
     this.setState({mode: 'search'}, () => {
-      this.search();
+      this.searchNote();
     });
   }
 
