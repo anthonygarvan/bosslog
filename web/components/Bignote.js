@@ -3,6 +3,7 @@ const _ = require('lodash');
 const diff = require('deep-diff');
 const CryptoJS = require('crypto-js');
 const $ = require('jquery');
+const shortId = require('shortid');
 
 
 class Bignote extends React.Component {
@@ -61,6 +62,23 @@ class Bignote extends React.Component {
       }
     });
 
+    function formatMarkdown(regex, tag, matchIndex, block, sel) {
+      const nodeContents = block.text();
+      if(regex.test(nodeContents)) {
+        const match = nodeContents.match(regex);
+        const id = shortId.generate();
+        const newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
+        if(match[matchIndex]) {
+          block.replaceWith(newHtml);
+          var range = document.createRange();
+          const cursorNode = $(`#${id}`).get(0);
+          range.setStart(cursorNode, 1);
+          range.setEnd(cursorNode, 1);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      }
+    }
 
     content.addEventListener('input', (e) => {
       if (e.target.firstChild && e.target.firstChild.nodeType === 3) {
@@ -69,26 +87,9 @@ class Bignote extends React.Component {
         content.innerHTML = '';
       }
 
-      const header = new RegExp('^(?:#[\s|\u00A0])(.*)?');
       const sel = window.getSelection();
       const anchorNode = sel.anchorNode;
       const block = $(anchorNode);
-      if(header.test(block.text())) {
-        setTimeout(() => document.execCommand('formatBlock', false, '<h1>'), 0);
-        const match = block.text().match(header);
-        const parent = block.parent();
-        if(match[1]) {
-            parent.text(match[1]);
-        } else {
-            parent.empty();
-            //parent.append(document.createTextNode(''));
-        }
-        var range = document.createRange();
-        range.setStart(parent.get(0), 0);
-        range.setEnd(parent.get(0), 0);
-        sel.removeAllRanges();
-        sel.addRange(range);
-      }
 
       const ul = new RegExp('^(?:-[\s|\u00A0])(.*)?');
       if(ul.test(block.text())) {
@@ -99,7 +100,6 @@ class Bignote extends React.Component {
           parent.text(match[1]);
         } else {
           parent.empty();
-          //parent.append(document.createTextNode(''));
         }
 
         var range = document.createRange();
@@ -108,6 +108,17 @@ class Bignote extends React.Component {
         sel.removeAllRanges();
         sel.addRange(range);
       }
+
+      const italics = new RegExp(/(\*|_)(.*?)\1/);
+      const bold = new RegExp(/(\*\*|__)(.*?)\1/);
+      const header1 = new RegExp('^(?:#[\\s|\u00A0])(.*)?');
+      const header2 = new RegExp('^(?:##[\\s|\u00A0])(.*)?');
+      const unorderedList = new RegExp('^(?:-[\s|\u00A0])(.*)?');
+      formatMarkdown(italics, 'em', 2, block, sel);
+      formatMarkdown(bold, 'strong', 2, block, sel);
+      formatMarkdown(header1, 'h1', 1, block, sel);
+      formatMarkdown(header2, 'h2', 1, block, sel);
+
   });
   }
 

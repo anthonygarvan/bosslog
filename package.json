@@ -46,6 +46,7 @@
     "react-dom": "latest",
     "react-google-login": "^3.2.1",
     "sendinblue-api": "latest",
+    "shortid": "^2.2.8",
     "showdown": "^1.8.6",
     "turndown": "^4.0.2",
     "uuid": "^3.2.1",
