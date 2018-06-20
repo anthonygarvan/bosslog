@@ -77,8 +77,18 @@ class Bignote extends React.Component {
           case 'checkbox':
             newHtml = nodeContents.replace(regex, `<span id="${id}"><input type="checkbox" />${match[matchIndex]}</span>&nbsp;`);
             break;
-          default:
+          case 'strong':
             newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
+            break;
+          case 'em':
+            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
+            break;
+          case 'h1':
+            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>`);
+            break;
+          case 'h2':
+            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>`);
+            break;
         }
 
         if(match[matchIndex]) {
