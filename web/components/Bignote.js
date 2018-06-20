@@ -30,9 +30,13 @@ class Bignote extends React.Component {
       bigNoteLocalChanges.forEach(change => {
         diff.applyChange(this.currentBigNote, null, change);
       })
+
+      if(this.currentBigNote.content.length === 0) {
+        this.currentBigNote.content = ['<div><br></div>'];
+      }
     } else {
       this.bigNoteServerState = {};
-      this.currentBigNote = { content: [] }
+      this.currentBigNote = { content: ['<div><br></div>'] }
       this.revision = 0;
       window.localStorage.setItem('revision', this.revision);
     }
@@ -129,8 +133,8 @@ class Bignote extends React.Component {
     content.addEventListener('input', (e) => {
       if (e.target.firstChild && e.target.firstChild.nodeType === 3) {
         document.execCommand('formatBlock', false, '<div>');
-      } else if (content.innerHTML === '<br>') {
-        content.innerHTML = '';
+      } else if (content.innerHTML === '<br>' || content.innerHTML === '') {
+        content.innerHTML = '<div><br /></div>';
       }
 
       const sel = window.getSelection();
@@ -169,7 +173,11 @@ class Bignote extends React.Component {
           selection.getRangeAt(0).insertNode(document.createTextNode(line));
         } else {
           var div = document.createElement('div');
-          div.textContent = line;
+          if(!line) {
+            div.innerHTML = '<br />';
+          } else {
+            div.textContent = line;
+          }
           newLines.appendChild(div);
         }
       });
