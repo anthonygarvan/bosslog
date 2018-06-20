@@ -9,7 +9,6 @@ const shortId = require('shortid');
 class Bignote extends React.Component {
   constructor(props) {
     super(props);
-    this.handleNoteChange = this.handleNoteChange.bind(this);
     this.handleSearchChange = this.handleSearchChange.bind(this);
     this.handleLoginSuccess = this.handleLoginSuccess.bind(this);
     this.handleLoginFailure = this.handleLoginFailure.bind(this);
@@ -33,6 +32,7 @@ class Bignote extends React.Component {
       })
     } else {
       this.bigNoteServerState = {};
+      this.currentBigNote = { content: [] }
       this.revision = 0;
       window.localStorage.setItem('revision', this.revision);
     }
@@ -54,6 +54,8 @@ class Bignote extends React.Component {
 
   componentDidMount() {
     const content = document.querySelector('#sp-note-content');
+
+    content.innerHTML = this.currentBigNote.content.join('\n');
     content.addEventListener('keydown', (event) => {
       if (event.key === 'Tab') {
         event.preventDefault()
@@ -62,14 +64,25 @@ class Bignote extends React.Component {
       }
     });
 
-    function formatMarkdown(regex, tag, matchIndex, block, sel) {
-      const nodeContents = block.text();
+    function formatMarkdown(regex, nodeContents, tag, matchIndex, nodeToReplace, sel) {
       if(regex.test(nodeContents)) {
         const match = nodeContents.match(regex);
         const id = shortId.generate();
-        const newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
+
+        let newHtml;
+        switch(tag) {
+          case 'ul':
+            newHtml = nodeContents.replace(regex, `<ul><li id="${id}">${match[matchIndex]}</li></ul>&nbsp;`);
+            break;
+          case 'checkbox':
+            newHtml = nodeContents.replace(regex, `<span id="${id}"><input type="checkbox" />${match[matchIndex]}</span>&nbsp;`);
+            break;
+          default:
+            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
+        }
+
         if(match[matchIndex]) {
-          block.replaceWith(newHtml);
+          nodeToReplace.replaceWith(newHtml);
           var range = document.createRange();
           const cursorNode = $(`#${id}`).get(0);
           range.setStart(cursorNode, 1);
@@ -91,39 +104,55 @@ class Bignote extends React.Component {
       const anchorNode = sel.anchorNode;
       const block = $(anchorNode);
 
-      const ul = new RegExp('^(?:-[\s|\u00A0])(.*)?');
-      if(ul.test(block.text())) {
-        setTimeout(() => document.execCommand('insertUnorderedList', false, null), 0);
-        const match = block.text().match(ul);
-        const parent = block.parent();
-        if(match[1]) {
-          parent.text(match[1]);
-        } else {
-          parent.empty();
-        }
-
-        var range = document.createRange();
-        range.setStart(parent.get(0), 0);
-        range.setEnd(parent.get(0), 0);
-        sel.removeAllRanges();
-        sel.addRange(range);
-      }
-
       const italics = new RegExp(/(\*|_)(.*?)\1/);
       const bold = new RegExp(/(\*\*|__)(.*?)\1/);
       const header1 = new RegExp('^(?:#[\\s|\u00A0])(.*)?');
       const header2 = new RegExp('^(?:##[\\s|\u00A0])(.*)?');
-      const unorderedList = new RegExp('^(?:-[\s|\u00A0])(.*)?');
-      formatMarkdown(italics, 'em', 2, block, sel);
-      formatMarkdown(bold, 'strong', 2, block, sel);
-      formatMarkdown(header1, 'h1', 1, block, sel);
-      formatMarkdown(header2, 'h2', 1, block, sel);
+      const unorderedList = new RegExp('^(?:-[\\s|\u00A0])(.*)?');
+      const checkbox = new RegExp('^(?:\\[\\s\\])(.*)?');
+      formatMarkdown(italics, block.text(), 'em', 2, block, sel);
+      formatMarkdown(bold, block.text(), 'strong', 2, block, sel);
+      formatMarkdown(checkbox, block.text(), 'checkbox', 1, block, sel);
+      formatMarkdown(header1, block.text(), 'h1', 1, block.parent(), sel);
+      formatMarkdown(header2, block.text(), 'h2', 1, block.parent(), sel);
+      formatMarkdown(unorderedList, block.text(), 'ul', 1, block.parent(), sel);
 
-  });
+      this.debouncedSync();
+    });
+
+    content.addEventListener('paste', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      let paste = (e.clipboardData || window.clipboardData).getData('text');
+      let lines = paste.split('\n');
+
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return false;
+
+      const newLines = document.createDocumentFragment();
+
+      lines.forEach((line, i) => {
+        if(i === 0) {
+          selection.getRangeAt(0).insertNode(document.createTextNode(line));
+        } else {
+          var div = document.createElement('div');
+          div.textContent = line;
+          newLines.appendChild(div);
+        }
+      });
+
+      if(lines.length > 1) {
+        selection.anchorNode.parentNode.insertBefore(newLines, selection.anchorNode.nextSibling);
+      }
+      });
   }
 
   syncData() {
-    this.currentBigNote = window.view.state.toJSON();
+    this.currentBigNote = { content: [] };
+    const styleRegex = new RegExp('style="(.*)"');
+    $('#sp-note-content').children().each((i, el) => {
+        this.currentBigNote.content.push(el.outerHTML.replace(styleRegex, ''))
+    });
     const diffObj = diff.diff(this.bigNoteServerState, this.currentBigNote);
 
     if(diffObj && diffObj.length > 0) {
@@ -153,7 +182,8 @@ class Bignote extends React.Component {
           });
 
           this.revision = parseInt(data.revisions[data.revisions.length - 1].revision);
-          // this.setState({ editorState: this.assembleEditorState(this.bigNoteServerState) });
+
+          $('#sp-note-content').html(this.bigNoteServerState.content.join('\n'))
         }
 
         window.localStorage.setItem('revision', this.revision);
@@ -164,24 +194,40 @@ class Bignote extends React.Component {
     }
   }
 
-  handleNoteChange() {
-    this.currentBigNote = JSON.parse(JSON.stringify(this.editor));
-    this.debouncedSync();
-  }
-
   forceRefresh() {
     console.log('not implemented');
   }
 
   searchNote() {
-    const searchRegex = new RegExp(this.state.searchString.replace(' ', '|'), 'i');
-    $('#sp-note-content').children().each((i, el) => {
-      if(this.state.searchString.length === 0) {
-        $(el).hide();
-      } else if(searchRegex.test(el.innerText)) {
+    const keywords = this.state.searchString.split(' ')
+            .map(t => t.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'))
+    const searchRegex = new RegExp(keywords.join('|'), 'i');
+    const whitespaceRegex = new RegExp('^[\\s\n]*$')
+    let header = false;
+
+    function showOrHideElement(el) {
+      if(searchRegex.test(el.innerText) || searchRegex.test(header)) {
         $(el).show();
       } else {
         $(el).hide();
+      }
+    }
+
+    $('#sp-note-content').children().each((i, el) => {
+      if(el.tagName === 'H1' || el.tagName === 'H2') {
+        header = el.innerText;
+      }
+      if(whitespaceRegex.test(el.innerText)) {
+        header = false;
+      }
+      if(this.state.searchString.length === 0) {
+        $(el).hide();
+      } else if (el.tagName =='UL') {
+        $(el).children().each((i, child) => {
+          showOrHideElement(child);
+        });
+      } else {
+        showOrHideElement(el);
       }
     });
   }
