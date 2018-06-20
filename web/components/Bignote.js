@@ -230,9 +230,11 @@ class Bignote extends React.Component {
       if(whitespaceRegex.test(el.innerText)) {
         header = false;
       }
+
       if(this.state.searchString.length === 0) {
         $(el).hide();
       } else if (el.tagName =='UL') {
+        $(el).show();
         $(el).children().each((i, child) => {
           showOrHideElement(child);
         });
@@ -252,6 +254,10 @@ class Bignote extends React.Component {
     this.setState({mode: 'note'}, () => {
       $('#sp-note-content').children().each((i, el) => {
           $(el).show();
+
+          if(el.tagName === 'UL') {
+            $(el).children().each((i, child) => $(child).show());
+          }
       });
     });
   }
