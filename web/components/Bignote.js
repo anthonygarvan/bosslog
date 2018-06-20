@@ -54,8 +54,20 @@ class Bignote extends React.Component {
 
   componentDidMount() {
     const content = document.querySelector('#sp-note-content');
-
+    const debouncedSync = this.debouncedSync;
     content.innerHTML = this.currentBigNote.content.join('\n');
+
+    document.querySelectorAll('input[type="checkbox"]').forEach((el) => {
+      el.addEventListener('change', (e) => {
+        if(e.target.checked) {
+          e.target.setAttribute('checked', 'checked');
+        } else {
+          e.target.removeAttribute('checked');
+        }
+        debouncedSync()
+      });
+    })
+
     content.addEventListener('keydown', (event) => {
       if (event.key === 'Tab') {
         event.preventDefault()
@@ -99,6 +111,17 @@ class Bignote extends React.Component {
           range.setEnd(cursorNode, 1);
           sel.removeAllRanges();
           sel.addRange(range);
+        }
+
+        if(tag === 'checkbox') {
+          document.querySelector(`#${id} input`).addEventListener('change', (e) => {
+            if(e.target.checked) {
+              e.target.setAttribute('checked', 'checked');
+            } else {
+              e.target.removeAttribute('checked');
+            }
+            debouncedSync()
+          })
         }
       }
     }
