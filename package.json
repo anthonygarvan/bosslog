@@ -29,6 +29,7 @@
     "critical": "latest",
     "crypto-js": "^3.1.9-1",
     "deep-diff": "^1.0.1",
+    "envify": "^4.1.0",
     "express": "latest",
     "express-react-views": "latest",
     "express-session": "^1.15.6",
