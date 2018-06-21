@@ -4,6 +4,7 @@ const diff = require('deep-diff');
 const CryptoJS = require('crypto-js');
 const $ = require('jquery');
 const shortId = require('shortid');
+const { compress, decompress } = require('lz-string');
 
 
 class Bignote extends React.Component {
@@ -18,13 +19,13 @@ class Bignote extends React.Component {
     this.handleToSearchMode = this.handleToSearchMode.bind(this);
     this.searchNote = this.searchNote.bind(this);
     this.syncData = this.syncData.bind(this);
-    this.forceRefresh = this.forceRefresh.bind(this);
     this.debouncedSync = _.debounce(this.syncData, 5000);
+    this.debouncedSearch = _.debounce(this.searchNote, 500);
 
     let editorState;
     if(window.localStorage.getItem("bigNoteLocalChanges")) {
-      this.bigNoteServerState = window.localStorage.getItem("bigNoteServerState") ? JSON.parse(window.localStorage.getItem("bigNoteServerState")) : {};
-      const bigNoteLocalChanges = JSON.parse(window.localStorage.getItem('bigNoteLocalChanges'));
+      this.bigNoteServerState = window.localStorage.getItem("bigNoteServerState") ? JSON.parse(decompress(window.localStorage.getItem("bigNoteServerState"))) : {};
+      const bigNoteLocalChanges = JSON.parse(decompress(window.localStorage.getItem('bigNoteLocalChanges')));
       this.revision = parseInt(window.localStorage.getItem('revision'));
       this.currentBigNote = _.cloneDeep(this.bigNoteServerState);
       bigNoteLocalChanges.forEach(change => {
@@ -32,11 +33,11 @@ class Bignote extends React.Component {
       })
 
       if(this.currentBigNote.content.length === 0) {
-        this.currentBigNote.content = ['<div><br></div>'];
+        this.currentBigNote.content = [`<div id="${shortId.generate()}" class="sp-block"><br></div>`];
       }
     } else {
       this.bigNoteServerState = {};
-      this.currentBigNote = { content: ['<div><br></div>'] }
+      this.currentBigNote = { content: [`<div id="${shortId.generate()}" class="sp-block"><br></div>`] }
       this.revision = 0;
       window.localStorage.setItem('revision', this.revision);
     }
@@ -75,8 +76,13 @@ class Bignote extends React.Component {
     content.addEventListener('keydown', (event) => {
       if (event.key === 'Tab') {
         event.preventDefault()
-      } else if (event.key === 'Enter' && document.queryCommandValue('formatBlock') === 'blockquote') {
-        setTimeout(() => exec('formatBlock', '<div>'), 0)
+      } else if (event.key === 'Enter') {
+        setTimeout(() => {
+          const sel = window.getSelection();
+          const anchorNode = sel.anchorNode;
+          anchorNode.id = shortId.generate();
+          anchorNode.className ="sp-block";
+        }, 5)
       }
     });
 
@@ -88,7 +94,7 @@ class Bignote extends React.Component {
         let newHtml;
         switch(tag) {
           case 'ul':
-            newHtml = nodeContents.replace(regex, `<ul><li id="${id}">${match[matchIndex]}</li></ul>`);
+            newHtml = nodeContents.replace(regex, `<ul id=${shortId.generate()} class="sp-block"><li id="${id}">${match[matchIndex]}</li></ul>`);
             break;
           case 'checkbox':
             newHtml = nodeContents.replace(regex, `<span id="${id}"><input type="checkbox" />${match[matchIndex]}</span>&nbsp;`);
@@ -100,10 +106,10 @@ class Bignote extends React.Component {
             newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
             break;
           case 'h1':
-            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>`);
+            newHtml = nodeContents.replace(regex, `<${tag} id="${id}" class="sp-block">${match[matchIndex]}</${tag}>`);
             break;
           case 'h2':
-            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>`);
+            newHtml = nodeContents.replace(regex, `<${tag} id="${id}" class="sp-block">${match[matchIndex]}</${tag}>`);
             break;
         }
 
@@ -132,9 +138,9 @@ class Bignote extends React.Component {
 
     content.addEventListener('input', (e) => {
       if (e.target.firstChild && e.target.firstChild.nodeType === 3) {
-        document.execCommand('formatBlock', false, '<div>');
+        content.innterHTML = `<div id=${shortId.generate()} class="sp-block">${content.innerText}</div>`
       } else if (content.innerHTML === '<br>' || content.innerHTML === '') {
-        content.innerHTML = '<div><br /></div>';
+        content.innerHTML = `<div id=${shortId.generate()} class="sp-block"><br /></div>`;
       }
 
       const sel = window.getSelection();
@@ -173,6 +179,8 @@ class Bignote extends React.Component {
           selection.getRangeAt(0).insertNode(document.createTextNode(line));
         } else {
           var div = document.createElement('div');
+          div.className ="sp-block";
+          div.id = shortId.generate();
           if(!line) {
             div.innerHTML = '<br />';
           } else {
@@ -183,27 +191,29 @@ class Bignote extends React.Component {
       });
 
       if(lines.length > 1) {
-        $(newLines).insertAfter($(selection.anchorNode).closest('div, ul'));
+        $(newLines).insertAfter($(selection.anchorNode).closest('.sp-block'));
       }
+
+      this.debouncedSync();
       });
   }
 
   syncData() {
     this.currentBigNote = { content: [] };
-    const styleRegex = new RegExp('style="(.*)"');
+    const hiddenRegex = new RegExp(/sp-hidden/g);
     $('#sp-note-content').children().each((i, el) => {
-        this.currentBigNote.content.push(el.outerHTML.replace(styleRegex, ''))
+        this.currentBigNote.content.push(el.outerHTML.replace(hiddenRegex, ''))
     });
     const diffObj = diff.diff(this.bigNoteServerState, this.currentBigNote);
 
     if(diffObj && diffObj.length > 0) {
-      window.localStorage.setItem('bigNoteLocalChanges', JSON.stringify(diffObj));
+      window.localStorage.setItem('bigNoteLocalChanges', compress(JSON.stringify(diffObj)));
     }
 
     if(this.state.isAuthenticated && this.state.password && diffObj && diffObj.length > 0) {
       $.post('/sync', { revision: this.revision + 1,
         encryptedDiff: CryptoJS.AES.encrypt(JSON.stringify(diffObj), this.state.password).toString() }, (data) => {
-        window.localStorage.setItem('bigNoteLocalChanges', '[]');
+        window.localStorage.setItem('bigNoteLocalChanges', compress('[]'));
 
         if( data.success ) {
           this.bigNoteServerState = this.currentBigNote;
@@ -228,15 +238,11 @@ class Bignote extends React.Component {
         }
 
         window.localStorage.setItem('revision', this.revision);
-        window.localStorage.setItem('bigNoteServerState', JSON.stringify(this.bigNoteServerState));
+        window.localStorage.setItem('bigNoteServerState', compress(JSON.stringify(this.bigNoteServerState)));
       }).fail(() => {
         console.log('Failed to sync.');
       });
     }
-  }
-
-  forceRefresh() {
-    console.log('not implemented');
   }
 
   searchNote() {
@@ -248,48 +254,52 @@ class Bignote extends React.Component {
 
     function showOrHideElement(el) {
       if(searchRegex.test(el.innerText) || searchRegex.test(header)) {
-        $(el).show();
+        el.className = el.className.replace(/sp-hidden/g, '').trim();
       } else {
-        $(el).hide();
+        if(el.className.indexOf('sp-hidden') === -1) {
+            el.className += ' sp-hidden';
+        }
       }
     }
 
-    $('#sp-note-content').children().each((i, el) => {
-      if(el.tagName === 'H1' || el.tagName === 'H2') {
-        header = el.innerText;
-      }
-      if(whitespaceRegex.test(el.innerText)) {
-        header = false;
-      }
+    if( this.state.searchString.length === 0 ) {
+      let html = document.querySelector('#sp-note-content').innerHTML;
+      html = html.replace(/sp-block/g, 'sp-block sp-hidden');
+      document.querySelector('#sp-note-content').innerHTML = html;
+    } else {
+      document.querySelectorAll('.sp-block').forEach(el => {
+        if(el.tagName === 'H1' || el.tagName === 'H2') {
+          header = el.innerText;
+        }
+        if(whitespaceRegex.test(el.innerText)) {
+          header = false;
+        }
 
-      if(this.state.searchString.length === 0) {
-        $(el).hide();
-      } else if (el.tagName =='UL') {
-        $(el).show();
-        $(el).children().each((i, child) => {
-          showOrHideElement(child);
-        });
-      } else {
-        showOrHideElement(el);
-      }
-    });
+        if (el.tagName =='UL') {
+          el.className = el.className.replace(' sp-hidden', '');
+          Array.from(el.children).forEach(child => {
+            showOrHideElement(child);
+          });
+        } else {
+          showOrHideElement(el);
+        }
+      });
+    }
+
+    this.setState({ searching: false })
   }
 
   handleSearchChange(e) {
-    this.setState({ searchString: e.target.value }, () => {
-      this.searchNote();
+    this.setState({ searchString: e.target.value, searching: true }, () => {
+      this.debouncedSearch();
     });
   }
 
   handleToNoteMode() {
     this.setState({mode: 'note'}, () => {
-      $('#sp-note-content').children().each((i, el) => {
-          $(el).show();
-
-          if(el.tagName === 'UL') {
-            $(el).children().each((i, child) => $(child).show());
-          }
-      });
+      let html = document.querySelector('#sp-note-content').innerHTML;
+      html = html.replace(/\ssp-hidden/g, '');
+      document.querySelector('#sp-note-content').innerHTML = html;
     });
   }
 
@@ -328,7 +338,7 @@ class Bignote extends React.Component {
             <a className={`sp-back ${this.state.mode === 'note' && 'sp-hidden'}`}
               onClick={ this.handleToNoteMode }><i className="fa fa-arrow-left fa-2x"></i></a>
             <div className="sp-search field">
-              <div className="sp-search-box control">
+              <div className={`sp-search-box control ${this.state.searching && "is-loading"}`}>
               <form autoComplete="off">
                 <input autoComplete="false" name="hidden" type="text" className="sp-hidden" />
                 <input className="input is-medium" type="search"

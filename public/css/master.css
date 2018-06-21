@@ -6493,8 +6493,12 @@ body {
 [contenteditable]:focus {
   outline: 0px solid transparent; }
 
+.sp-block {
+  position: relative;
+  left: 0px; }
+  .sp-block.sp-hidden {
+    left: -4096px;
+    height: 0px; }
+
 .sp-hidden {
   display: none !important; }
-
-.ProseMirror-menubar {
-  display: none; }
