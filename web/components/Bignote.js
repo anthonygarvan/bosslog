@@ -88,7 +88,7 @@ class Bignote extends React.Component {
         let newHtml;
         switch(tag) {
           case 'ul':
-            newHtml = nodeContents.replace(regex, `<ul><li id="${id}">${match[matchIndex]}</li></ul>&nbsp;`);
+            newHtml = nodeContents.replace(regex, `<ul><li id="${id}">${match[matchIndex]}</li></ul>`);
             break;
           case 'checkbox':
             newHtml = nodeContents.replace(regex, `<span id="${id}"><input type="checkbox" />${match[matchIndex]}</span>&nbsp;`);
@@ -183,7 +183,7 @@ class Bignote extends React.Component {
       });
 
       if(lines.length > 1) {
-        selection.anchorNode.parentNode.insertBefore(newLines, selection.anchorNode.nextSibling);
+        $(newLines).insertAfter($(selection.anchorNode).closest('div, ul'));
       }
       });
   }
