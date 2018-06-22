@@ -19,8 +19,10 @@ class Bignote extends React.Component {
     this.handleToSearchMode = this.handleToSearchMode.bind(this);
     this.searchNote = this.searchNote.bind(this);
     this.syncData = this.syncData.bind(this);
+    this.flipPages = this.flipPages.bind(this);
     this.debouncedSync = _.debounce(this.syncData, 5000);
-    this.debouncedSearch = _.debounce(this.searchNote, 500);
+    this.debouncedSearch = _.debounce(this.searchNote, 300);
+    this.debouncedFlipPages = _.debounce(this.flipPages, 300, { maxWait: 1000 });
 
     let editorState;
     if(window.localStorage.getItem("bigNoteLocalChanges")) {
@@ -33,11 +35,15 @@ class Bignote extends React.Component {
       })
 
       if(this.currentBigNote.content.length === 0) {
-        this.currentBigNote.content = [`<div id="${shortId.generate()}" class="sp-block"><br></div>`];
+        const firstId = shortId.generate();
+        this.currentBigNote.content = [`<div id="${firtId}" class="sp-block"><br></div>`];
+        this.currentBigNote.selectedBlockId = firstId;
       }
     } else {
       this.bigNoteServerState = {};
-      this.currentBigNote = { content: [`<div id="${shortId.generate()}" class="sp-block"><br></div>`] }
+      const firstId = shortId.generate()
+      this.currentBigNote = { content: [`<div id="${firstId}" class="sp-block"><br></div>`] }
+      this.currentBigNote.selectedBlockId = firstId;
       this.revision = 0;
       window.localStorage.setItem('revision', this.revision);
     }
@@ -57,14 +63,54 @@ class Bignote extends React.Component {
     })
   }
 
+  flipPages() {
+			const scrollTop = $(window).scrollTop();
+			const docHeight = $(document).height();
+			const winHeight = $(window).height();
+			const scrollPercent = (scrollTop) / (docHeight - winHeight);
+			console.log(scrollPercent);
+
+      if(scrollPercent < 0.10) {
+        $('.sp-page:not(.sp-hidden)').first().prev().removeClass('sp-hidden');
+      }
+
+      if(scrollPercent > 0.90) {
+        $('.sp-page:not(.sp-hidden)').last().next().removeClass('sp-hidden');
+      }
+  }
+
   componentDidMount() {
     const content = document.querySelector('#sp-note-content');
     const debouncedSync = this.debouncedSync;
     let html = ''
-    _.chunk(this.currentBigNote.content, 5).forEach(pageContent => {
-      html += `<div class="sp-page">${pageContent.join('\n')}</div>`
+    _.chunk(this.currentBigNote.content, 500).forEach(pageContent => {
+      html += `<div class="sp-page sp-hidden">${pageContent.join('\n')}</div>`
     });
     content.innerHTML = html;
+
+    // Set cursor position and hide / reveal pages
+    const range = document.createRange();
+    const cursor = $(`#${this.currentBigNote.selectedBlockId}`);
+    const cursorNode = cursor.get(0);
+
+    const currentPage = cursor.closest('.sp-page');
+    currentPage.removeClass('sp-hidden');
+    if(currentPage.next()) {
+      currentPage.next().removeClass('sp-hidden');
+    }
+
+    if(currentPage.prev()) {
+      currentPage.prev().removeClass('sp-hidden');
+    }
+    $(content).focus();
+
+    $(window).scrollTop(Math.max(cursor.offset().top - $(window).height() / 2, 0));
+
+    range.setStart(cursorNode, 1);
+    range.setEnd(cursorNode, 1);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
 
     document.querySelectorAll('input[type="checkbox"]').forEach((el) => {
       el.addEventListener('change', (e) => {
@@ -77,6 +123,10 @@ class Bignote extends React.Component {
       });
     })
 
+    $(window).scroll(() => {
+      this.debouncedFlipPages();
+    });
+
     content.addEventListener('keydown', (event) => {
       if (event.key === 'Tab') {
         event.preventDefault()
@@ -87,7 +137,7 @@ class Bignote extends React.Component {
           anchorNode.id = shortId.generate();
           anchorNode.className ="sp-block";
 
-          if(anchorNode.parentElement.childElementCount > 10) {
+          if(anchorNode.parentElement.childElementCount > 1000) {
             const children = Array.from(anchorNode.parentElement.children);
             const newHtml = `<div class="sp-page">${children.slice(0, Math.floor(children.length / 2)).map(child => child.outerHTML).join('\n')}</div>
                              <div class="sp-page">${children.slice(Math.floor(children.length / 2), children.length).map(child => child.outerHTML).join('\n')}</div>`
@@ -100,6 +150,12 @@ class Bignote extends React.Component {
             sel.addRange(range);
           }
         }, 5)
+      } else if (event.key === 'Backspace' || event.key === 'Delete') {
+          setTimeout(() => {
+            if (!document.querySelector('#sp-note-content .sp-page')) {
+              content.innerHTML = `<div class="sp-page"><div id=${shortId.generate()} class="sp-block"><br /></div></div>`;
+            }
+          }, 20);
       }
     });
 
@@ -154,12 +210,6 @@ class Bignote extends React.Component {
     }
 
     content.addEventListener('input', (e) => {
-      if (e.target.firstChild && e.target.firstChild.nodeType === 3) {
-        content.innterHTML = `<div class="sp-page"><div id=${shortId.generate()} class="sp-block">${content.innerText}</div></div>`
-      } else if (content.innerHTML === '<br>' || content.innerHTML === '') {
-        content.innerHTML = `<div class="sp-page"><div id=${shortId.generate()} class="sp-block"><br /></div></div>`;
-      }
-
       const sel = window.getSelection();
       const anchorNode = sel.anchorNode;
       const block = $(anchorNode);
@@ -178,6 +228,7 @@ class Bignote extends React.Component {
       formatMarkdown(unorderedList, block.text(), 'ul', 1, block.parent(), sel);
 
       this.debouncedSync();
+
     });
 
     content.addEventListener('paste', (e) => {
@@ -195,7 +246,7 @@ class Bignote extends React.Component {
       selection.getRangeAt(0).insertNode(document.createTextNode(firstLine));
 
       const pageElement = $(selection.anchorNode).closest('.sp-page').get(0);
-      const insertIntoPageCount = Math.min(10 - pageElement.childElementCount, lines.length);
+      const insertIntoPageCount = Math.min(1000 - pageElement.childElementCount, lines.length);
 
       let insertedCount = 0;
       while(insertedCount < insertIntoPageCount) {
@@ -211,10 +262,10 @@ class Bignote extends React.Component {
 
       if(lines.length) {
         newLines = document.createDocumentFragment();
-        _.chunk(lines, 5).forEach(pageContent => {
+        _.chunk(lines, 500).forEach((pageContent, i) => {
           var div = document.createElement('div');
-          div.className ="sp-page";
-          div.innerHTML = pageContent.map(line => `<div id=${shortId.generate} class="sp-block">${line || '<br />'}</div>`).join('\n');
+          div.className = i ? "sp-page sp-hidden" : "sp-page";
+          div.innerHTML = pageContent.map(line => `<div id=${shortId.generate()} class="sp-block">${line || '<br />'}</div>`).join('\n');
           newLines.appendChild(div);
         });
       }
@@ -225,7 +276,10 @@ class Bignote extends React.Component {
   }
 
   syncData() {
-    this.currentBigNote = { content: [] };
+    const selection = window.getSelection();
+    this.currentBigNote.content = [];
+    this.currentBigNote.selectedBlockId = selection.rangeCount ? $(selection.anchorNode).closest('.sp-block').get(0).id
+                                            : this.currentBigNote.selectedBlockId;
     const hiddenRegex = new RegExp(/sp-hidden/g);
     $('.sp-block').each((i, el) => {
         this.currentBigNote.content.push(el.outerHTML.replace(hiddenRegex, ''))
