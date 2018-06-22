@@ -82,6 +82,19 @@ class Bignote extends React.Component {
           const anchorNode = sel.anchorNode;
           anchorNode.id = shortId.generate();
           anchorNode.className ="sp-block";
+
+          if(anchorNode.parentElement.childElementCount > 10) {
+            const children = Array.from(anchorNode.parentElement.children);
+            const newHtml = `<div class="sp-page">${children.slice(0, Math.floor(children.length / 2)).map(child => child.outerHTML).join('\n')}</div>
+                             <div class="sp-page">${children.slice(Math.floor(children.length / 2), children.length).map(child => child.outerHTML).join('\n')}</div>`
+            $(anchorNode.parentElement).replaceWith(newHtml);
+            var range = document.createRange();
+            const cursorNode = $(`#${anchorNode.id}`).get(0);
+            range.setStart(cursorNode, 1);
+            range.setEnd(cursorNode, 1);
+            sel.removeAllRanges();
+            sel.addRange(range);
+          }
         }, 5)
       }
     });
@@ -138,9 +151,9 @@ class Bignote extends React.Component {
 
     content.addEventListener('input', (e) => {
       if (e.target.firstChild && e.target.firstChild.nodeType === 3) {
-        content.innterHTML = `<div id=${shortId.generate()} class="sp-block">${content.innerText}</div>`
+        content.innterHTML = `<div class="sp-page"><div id=${shortId.generate()} class="sp-block">${content.innerText}</div></div>`
       } else if (content.innerHTML === '<br>' || content.innerHTML === '') {
-        content.innerHTML = `<div id=${shortId.generate()} class="sp-block"><br /></div>`;
+        content.innerHTML = `<div class="sp-page"><div id=${shortId.generate()} class="sp-block"><br /></div></div>`;
       }
 
       const sel = window.getSelection();
@@ -172,28 +185,37 @@ class Bignote extends React.Component {
       const selection = window.getSelection();
       if (!selection.rangeCount) return false;
 
-      const newLines = document.createDocumentFragment();
+      let newLines = document.createDocumentFragment();
 
-      lines.forEach((line, i) => {
-        if(i === 0) {
-          selection.getRangeAt(0).insertNode(document.createTextNode(line));
-        } else {
-          var div = document.createElement('div');
-          div.className ="sp-block";
-          div.id = shortId.generate();
-          if(!line) {
-            div.innerHTML = '<br />';
-          } else {
-            div.textContent = line;
-          }
-          newLines.appendChild(div);
-        }
-      });
+      const firstLine = lines.shift();
+      selection.getRangeAt(0).insertNode(document.createTextNode(firstLine));
 
-      if(lines.length > 1) {
-        $(newLines).insertAfter($(selection.anchorNode).closest('.sp-block'));
+      const pageElement = $(selection.anchorNode).closest('.sp-page').get(0);
+      const insertIntoPageCount = Math.min(10 - pageElement.childElementCount, lines.length);
+
+      let insertedCount = 0;
+      while(insertedCount < insertIntoPageCount) {
+        var div = document.createElement('div');
+        div.className ="sp-block";
+        div.id = `${shortId.generate()}`;
+        div.innerHTML = lines.shift() || '<br />';
+        newLines.appendChild(div);
+        insertedCount++;
       }
 
+      $(newLines).insertAfter($(selection.anchorNode).closest('.sp-block'));
+
+      if(lines.length) {
+        newLines = document.createDocumentFragment();
+        _.chunk(lines, 5).forEach(pageContent => {
+          var div = document.createElement('div');
+          div.className ="sp-page";
+          div.innerHTML = pageContent.map(line => `<div id=${shortId.generate} class="sp-block">${line || '<br />'}</div>`).join('\n');
+          newLines.appendChild(div);
+        });
+      }
+
+      $(newLines).insertAfter($(selection.anchorNode).closest('.sp-page'));
       this.debouncedSync();
       });
   }
