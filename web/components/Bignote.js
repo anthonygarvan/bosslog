@@ -60,7 +60,11 @@ class Bignote extends React.Component {
   componentDidMount() {
     const content = document.querySelector('#sp-note-content');
     const debouncedSync = this.debouncedSync;
-    content.innerHTML = this.currentBigNote.content.join('\n');
+    let html = ''
+    _.chunk(this.currentBigNote.content, 5).forEach(pageContent => {
+      html += `<div class="sp-page">${pageContent.join('\n')}</div>`
+    });
+    content.innerHTML = html;
 
     document.querySelectorAll('input[type="checkbox"]').forEach((el) => {
       el.addEventListener('change', (e) => {
@@ -223,7 +227,7 @@ class Bignote extends React.Component {
   syncData() {
     this.currentBigNote = { content: [] };
     const hiddenRegex = new RegExp(/sp-hidden/g);
-    $('#sp-note-content').children().each((i, el) => {
+    $('.sp-block').each((i, el) => {
         this.currentBigNote.content.push(el.outerHTML.replace(hiddenRegex, ''))
     });
     const diffObj = diff.diff(this.bigNoteServerState, this.currentBigNote);
