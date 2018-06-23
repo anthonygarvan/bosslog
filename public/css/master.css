@@ -6419,6 +6419,12 @@ label.panel-block {
   background-color: #fafafa;
   padding: 3rem 1.5rem 6rem; }
 
+html {
+  font-size: 12px; }
+  @media screen and (min-width: 769px), print {
+    html {
+      font-size: 14px; } }
+
 body {
   font-family: "Roboto Slab", serif;
   background-color: #08080a;

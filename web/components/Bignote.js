@@ -20,6 +20,7 @@ class Bignote extends React.Component {
     this.searchNote = this.searchNote.bind(this);
     this.syncData = this.syncData.bind(this);
     this.flipPages = this.flipPages.bind(this);
+    this.initializeCursor = this.initializeCursor.bind(this);
     this.debouncedSync = _.debounce(this.syncData, 5000);
     this.debouncedSearch = _.debounce(this.searchNote, 300);
     this.debouncedFlipPages = _.debounce(this.flipPages, 300, { maxWait: 1000 });
@@ -79,15 +80,7 @@ class Bignote extends React.Component {
       }
   }
 
-  componentDidMount() {
-    const content = document.querySelector('#sp-note-content');
-    const debouncedSync = this.debouncedSync;
-    let html = ''
-    _.chunk(this.currentBigNote.content, 500).forEach(pageContent => {
-      html += `<div class="sp-page sp-hidden">${pageContent.join('\n')}</div>`
-    });
-    content.innerHTML = html;
-
+  initializeCursor() {
     // Set cursor position and hide / reveal pages
     const range = document.createRange();
     const cursor = $(`#${this.currentBigNote.selectedBlockId}`);
@@ -102,7 +95,7 @@ class Bignote extends React.Component {
     if(currentPage.prev()) {
       currentPage.prev().removeClass('sp-hidden');
     }
-    $(content).focus();
+    $('#sp-note-content').focus();
 
     $(window).scrollTop(Math.max(cursor.offset().top - $(window).height() / 2, 0));
 
@@ -111,6 +104,18 @@ class Bignote extends React.Component {
     const selection = window.getSelection();
     selection.removeAllRanges();
     selection.addRange(range);
+  }
+
+  componentDidMount() {
+    const content = document.querySelector('#sp-note-content');
+    const debouncedSync = this.debouncedSync;
+    let html = ''
+    _.chunk(this.currentBigNote.content, 500).forEach(pageContent => {
+      html += `<div class="sp-page sp-hidden">${pageContent.join('\n')}</div>`
+    });
+    content.innerHTML = html;
+
+    this.initializeCursor();
 
     document.querySelectorAll('input[type="checkbox"]').forEach((el) => {
       el.addEventListener('change', (e) => {
@@ -380,12 +385,15 @@ class Bignote extends React.Component {
       let html = document.querySelector('#sp-note-content').innerHTML;
       html = html.replace(/\ssp-hidden/g, '');
       document.querySelector('#sp-note-content').innerHTML = html;
+      $('.sp-page').addClass('sp-hidden');
+      this.initializeCursor();
     });
   }
 
   handleToSearchMode() {
     this.setState({mode: 'search'}, () => {
       this.searchNote();
+      $('.sp-page').removeClass('sp-hidden');
     });
   }
 
@@ -431,7 +439,7 @@ class Bignote extends React.Component {
             </div>
             <a className={`sp-search-icon ${this.state.mode === 'search' && 'sp-hidden'}`}
               onClick={this.handleToSearchMode}>
-              <i className="fa fa-search fa-2x"></i>
+              <i className="fa fa-filter fa-2x"></i>
             </a>
           </div>
           <div className={`sp-note content ${this.state.mode === 'search' && 'sp-with-search-mode'}`}>
