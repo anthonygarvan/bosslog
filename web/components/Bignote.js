@@ -5,6 +5,8 @@ const CryptoJS = require('crypto-js');
 const $ = require('jquery');
 const shortId = require('shortid');
 const { compress, decompress } = require('lz-string');
+const urlRegex = require('url-regex');
+const normalizeUrl = require('normalize-url');
 
 
 class Bignote extends React.Component {
@@ -180,6 +182,12 @@ class Bignote extends React.Component {
           case 'strong':
             newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
             break;
+          case 'code':
+            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
+            break;
+          case 'a':
+            newHtml = nodeContents.replace(regex, `<span id="${id}"><span contentEditable="false"><${tag} target="_blank" href="${normalizeUrl(match[matchIndex])}">${match[matchIndex]}</${tag}></span>&nbsp;</span>`);
+            break;
           case 'em':
             newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
             break;
@@ -225,9 +233,13 @@ class Bignote extends React.Component {
       const header2 = new RegExp('^(?:##[\\s|\u00A0])(.*)?');
       const unorderedList = new RegExp('^(?:-[\\s|\u00A0])(.*)?');
       const checkbox = new RegExp('^(?:\\[\\s\\])(.*)?');
+      const code = new RegExp(/`(.*?)`/);
+      const url = /(?:(?:(?:[a-z]+:)?\/\/)|www\.)(?:\S+(?::\S*)?@)?(?:localhost|(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])){3}|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[\/?#][^\s"]*)?(\s)/i
       formatMarkdown(italics, block.text(), 'em', 2, block, sel);
       formatMarkdown(bold, block.text(), 'strong', 2, block, sel);
+      formatMarkdown(code, block.text(), 'code', 1, block, sel);
       formatMarkdown(checkbox, block.text(), 'checkbox', 1, block, sel);
+      formatMarkdown(url, block.text(), 'a', 0, block, sel);
       formatMarkdown(header1, block.text(), 'h1', 1, block.parent(), sel);
       formatMarkdown(header2, block.text(), 'h2', 1, block.parent(), sel);
       formatMarkdown(unorderedList, block.text(), 'ul', 1, block.parent(), sel);

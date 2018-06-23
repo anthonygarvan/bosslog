@@ -2,7 +2,6 @@
 
 const express = require('express');
 const compression = require('compression');
-const { Contact } = require('./api/contact');
 const path = require('path');
 const urlEncodedBodyParser = require('body-parser').urlencoded({ extended: true, limit: '10mb' });
 const jsonBodyParser = require('body-parser').json();
@@ -17,7 +16,6 @@ const diff = require('deep-diff');
 
 module.exports = getDb.then((db) => {
   const app = express();
-  const contact = Contact();
   const auth = Auth(db);
   const sync = Sync(db, auth);
 
@@ -34,7 +32,6 @@ module.exports = getDb.then((db) => {
   app.use(auth.passport.session());
 
   app.use('/auth', auth.app);
-  app.use('/contact', contact);
   app.use('/sync', sync);
 
 

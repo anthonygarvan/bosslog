@@ -41,6 +41,7 @@
     "mongodb": "^3.0.10",
     "morgan": "latest",
     "node-sass": "latest",
+    "normalize-url": "^3.0.1",
     "passport": "latest",
     "passport-google-oauth2": "latest",
     "passport-strategy": "latest",
@@ -52,6 +53,7 @@
     "showdown": "^1.8.6",
     "turndown": "^4.0.2",
     "uglifyify": "^5.0.0",
+    "url-regex": "^4.1.1",
     "uuid": "^3.2.1",
     "winston": "latest"
   }

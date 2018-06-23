@@ -6,7 +6,7 @@ function Footer(props) {
     <div className="content has-text-centered">
     <p>Copyright © 2018. Made with ♥ by <a href="https://www.twitter.com/anthonygarvan">@anthonygarvan</a>.</p>
     <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a></p>
-    <p>Questions, comments or problems? Feel free to tweet me or use my handy <a href="/contact">contact form</a>.</p>
+    <p>Questions, comments or problems? Feel free to tweet me.</p>
   </div></div></footer>
 }
 
