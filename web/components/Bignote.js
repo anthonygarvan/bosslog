@@ -232,22 +232,24 @@ class Bignote extends React.Component {
       const anchorNode = sel.anchorNode;
       const block = $(anchorNode);
 
-      const italics = new RegExp(/(\*|_)(.*?)\1/);
-      const bold = new RegExp(/(\*\*|__)(.*?)\1/);
-      const header1 = new RegExp('^(?:#[\\s|\u00A0])(.*)?');
-      const header2 = new RegExp('^(?:##[\\s|\u00A0])(.*)?');
-      const unorderedList = new RegExp('^(?:-[\\s|\u00A0])(.*)?');
-      const checkbox = new RegExp('^(?:\\[\\s\\])(.*)?');
-      const code = new RegExp(/`(.*?)`/);
-      const url = /(?:(?:(?:[a-z]+:)?\/\/)|www\.)(?:\S+(?::\S*)?@)?(?:localhost|(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])){3}|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[\/?#][^\s"]*)?(\s)/i
-      formatMarkdown(italics, block.text(), 'em', 2, block, sel);
-      formatMarkdown(bold, block.text(), 'strong', 2, block, sel);
-      formatMarkdown(code, block.text(), 'code', 1, block, sel);
-      formatMarkdown(checkbox, block.text(), 'checkbox', 1, block, sel);
-      formatMarkdown(url, block.text().slice(0, sel.anchorOffset), 'a', 0, block, sel);
-      formatMarkdown(header1, block.text(), 'h1', 1, block.parent(), sel);
-      formatMarkdown(header2, block.text(), 'h2', 1, block.parent(), sel);
-      formatMarkdown(unorderedList, block.text(), 'ul', 1, block.parent(), sel);
+      if(block.parent().get(0).tagName !== 'CODE') {
+        const italics = new RegExp(/(\*|_)(.*?)\1/);
+        const bold = new RegExp(/(\*\*|__)(.*?)\1/);
+        const header1 = new RegExp('^(?:#[\\s|\u00A0])(.*)?');
+        const header2 = new RegExp('^(?:##[\\s|\u00A0])(.*)?');
+        const unorderedList = new RegExp('^(?:-[\\s|\u00A0])(.*)?');
+        const checkbox = new RegExp('^(?:\\[\\s\\])(.*)?');
+        const code = new RegExp(/`(.*?)`/);
+        const url = /(?:(?:(?:[a-z]+:)?\/\/)|www\.)(?:\S+(?::\S*)?@)?(?:localhost|(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])){3}|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[\/?#][^\s"]*)?(\s)/i
+        formatMarkdown(italics, block.text(), 'em', 2, block, sel);
+        formatMarkdown(bold, block.text(), 'strong', 2, block, sel);
+        formatMarkdown(code, block.text(), 'code', 1, block, sel);
+        formatMarkdown(checkbox, block.text(), 'checkbox', 1, block, sel);
+        formatMarkdown(url, block.text().slice(0, sel.anchorOffset), 'a', 0, block, sel);
+        formatMarkdown(header1, block.text(), 'h1', 1, block.parent(), sel);
+        formatMarkdown(header2, block.text(), 'h2', 1, block.parent(), sel);
+        formatMarkdown(unorderedList, block.text(), 'ul', 1, block.parent(), sel);  
+      }
 
       this.debouncedSync();
 
@@ -349,7 +351,7 @@ class Bignote extends React.Component {
 
   searchNote() {
     const keywords = this.state.searchString.split(' ')
-            .map(t => t.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'))
+            .map(t => t.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')) // comment out regex expressions
     const searchRegex = new RegExp(keywords.join('|'), 'i');
     const whitespaceRegex = new RegExp('^[\\s\n]*$')
     let header = false;
