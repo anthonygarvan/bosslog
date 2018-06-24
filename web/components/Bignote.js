@@ -186,7 +186,7 @@ class Bignote extends React.Component {
             newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
             break;
           case 'a':
-            newHtml = nodeContents.replace(regex, `<span id="${id}"><span contentEditable="false"><${tag} target="_blank" href="${normalizeUrl(match[matchIndex])}">${match[matchIndex]}</${tag}></span>&nbsp;</span>`);
+            newHtml = nodeContents.replace(regex, `<span id="${id}"><${tag} target="_blank" contentEditable="false" href="${normalizeUrl(match[matchIndex])}">${match[matchIndex]}</${tag}>&nbsp;</span>`);
             break;
           case 'em':
             newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
