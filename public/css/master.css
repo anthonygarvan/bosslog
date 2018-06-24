@@ -6563,4 +6563,8 @@ body {
 .sp-link-button {
   background: transparent;
   border: none;
-  font-size: 1.2rem; }
+  font-size: 1.2rem;
+  font-family: "Roboto Slab", serif; }
+
+code {
+  background-color: #e2e2eb; }
