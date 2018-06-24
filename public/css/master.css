@@ -6568,3 +6568,9 @@ body {
 
 code {
   background-color: #e2e2eb; }
+
+
+.content h2,
+.sp-link-button h2 {
+  color: grey;
+  font-size: 1.5rem; }
