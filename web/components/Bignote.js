@@ -140,9 +140,9 @@ class Bignote extends React.Component {
       } else if (event.key === 'Enter') {
         setTimeout(() => {
           const sel = window.getSelection();
-          const anchorNode = sel.anchorNode;
+          const anchorNode = $(sel.anchorNode).get(0);
           anchorNode.id = shortId.generate();
-          anchorNode.className ="sp-block";
+          anchorNode.className = "sp-block";
 
           if(anchorNode.parentElement.childElementCount > 1000) {
             const children = Array.from(anchorNode.parentElement.children);
@@ -239,7 +239,7 @@ class Bignote extends React.Component {
       formatMarkdown(bold, block.text(), 'strong', 2, block, sel);
       formatMarkdown(code, block.text(), 'code', 1, block, sel);
       formatMarkdown(checkbox, block.text(), 'checkbox', 1, block, sel);
-      formatMarkdown(url, block.text(), 'a', 0, block, sel);
+      formatMarkdown(url, block.text().slice(0, sel.anchorOffset), 'a', 0, block, sel);
       formatMarkdown(header1, block.text(), 'h1', 1, block.parent(), sel);
       formatMarkdown(header2, block.text(), 'h2', 1, block.parent(), sel);
       formatMarkdown(unorderedList, block.text(), 'ul', 1, block.parent(), sel);
