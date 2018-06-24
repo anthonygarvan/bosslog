@@ -186,7 +186,7 @@ class Bignote extends React.Component {
             newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
             break;
           case 'a':
-            newHtml = nodeContents.replace(regex, `<span id="${id}"><${tag} target="_blank" contentEditable="false" href="${normalizeUrl(match[matchIndex])}">${match[matchIndex]}</${tag}>&nbsp;</span>`);
+            newHtml = nodeContents.replace(regex, `<input id="${id}" type="button" class="sp-link-button" value="${match[matchIndex].trim()}" onclick="window.location.href='${normalizeUrl(match[matchIndex])}'" />&nbsp;`);
             break;
           case 'em':
             newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
@@ -202,7 +202,12 @@ class Bignote extends React.Component {
         if(match[matchIndex]) {
           nodeToReplace.replaceWith(newHtml);
           var range = document.createRange();
-          const cursorNode = $(`#${id}`).get(0);
+          let cursorNode;
+          if(['checkbox', 'strong', 'code', 'a', 'em'].indexOf(tag) !== -1) {
+            cursorNode = $(`#${id}`).get(0).nextSibling;
+          } else {
+            cursorNode = $(`#${id}`).get(0);
+          }
           range.setStart(cursorNode, 1);
           range.setEnd(cursorNode, 1);
           sel.removeAllRanges();
