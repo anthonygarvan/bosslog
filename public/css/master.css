@@ -6449,8 +6449,8 @@ body {
       width: 800px; } }
   .sp-bignote-container .sp-note {
     min-height: 100vh;
-    padding-right: 3rem;
-    padding: 1rem; }
+    padding: 1rem;
+    padding-right: 3rem; }
     @media screen and (min-width: 769px), print {
       .sp-bignote-container .sp-note {
         padding: 3rem; } }
