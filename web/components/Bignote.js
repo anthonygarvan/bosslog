@@ -155,6 +155,18 @@ class Bignote extends React.Component {
             if (!document.querySelector('#sp-note-content .sp-page')) {
               content.innerHTML = `<div class="sp-page"><div id=${shortId.generate()} class="sp-block"><br /></div></div>`;
             }
+            const sel = window.getSelection();
+            // sanitize rogue spans
+            let block = $(sel.anchorNode).closest('.sp-block');
+
+            block.find('span').each((i, span) => {
+              if(!span.id) {
+                $(span).replaceWith(span.innerHTML);
+              }
+            });
+            block.find('[style]').each((i, el) => {
+              el.removeAttribute('style');
+            });
           }, 20);
       }
     });
@@ -463,7 +475,7 @@ class Bignote extends React.Component {
           </div>
           <div className={`sp-note content ${this.state.mode === 'search' && 'sp-with-search-mode'}`}>
           <div id="sp-note-editor"></div>
-          <div id="sp-note-content" contentEditable="true" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
+          <div id="sp-note-content" contentEditable="true" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck="false"></div>
           </div></div>
             <footer className="footer sp-footer">
               <div className="container">
