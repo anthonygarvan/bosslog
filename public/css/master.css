@@ -6536,10 +6536,10 @@ label.panel-block {
   padding: 3rem 1.5rem 6rem; }
 
 html {
-  font-size: 12px; }
+  font-size: 14px; }
   @media screen and (min-width: 769px), print {
     html {
-      font-size: 14px; } }
+      font-size: 16px; } }
 
 
 body,
@@ -6557,7 +6557,6 @@ body,
 
 .sp-bignote-container {
   margin: 0 auto;
-  font-size: 1.2rem;
   min-height: 100vh;
   background-color: #fafafa;
   border: 1px solid lightgrey;
