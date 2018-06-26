@@ -7,6 +7,7 @@ const shortId = require('shortid');
 const { compress, decompress } = require('lz-string');
 const urlRegex = require('url-regex');
 const normalizeUrl = require('normalize-url');
+const defaultContent = require('./DefaultContent.js')
 
 
 class Bignote extends React.Component {
@@ -28,27 +29,18 @@ class Bignote extends React.Component {
     this.debouncedFlipPages = _.debounce(this.flipPages, 300, { maxWait: 1000 });
 
     let editorState;
-    if(window.localStorage.getItem("bigNoteLocalChanges")) {
-      this.bigNoteServerState = window.localStorage.getItem("bigNoteServerState") ? JSON.parse(decompress(window.localStorage.getItem("bigNoteServerState"))) : {};
-      const bigNoteLocalChanges = JSON.parse(decompress(window.localStorage.getItem('bigNoteLocalChanges')));
-      this.revision = parseInt(window.localStorage.getItem('revision'));
-      this.currentBigNote = _.cloneDeep(this.bigNoteServerState);
-      bigNoteLocalChanges.forEach(change => {
-        diff.applyChange(this.currentBigNote, null, change);
-      })
+    this.bigNoteServerState = window.localStorage.getItem("bigNoteServerState") ? JSON.parse(decompress(window.localStorage.getItem("bigNoteServerState"))) : {};
+    const bigNoteLocalChanges = window.localStorage.getItem("bigNoteLocalChanges") ? JSON.parse(decompress(window.localStorage.getItem("bigNoteLocalChanges"))) : defaultContent;
+    this.revision = parseInt(window.localStorage.getItem('revision'));
+    this.currentBigNote = _.cloneDeep(this.bigNoteServerState);
+    bigNoteLocalChanges.forEach(change => {
+      diff.applyChange(this.currentBigNote, null, change);
+    });
 
-      if(this.currentBigNote.content.length === 0) {
-        const firstId = shortId.generate();
-        this.currentBigNote.content = [`<div id="${firtId}" class="sp-block"><br></div>`];
-        this.currentBigNote.selectedBlockId = firstId;
-      }
-    } else {
-      this.bigNoteServerState = {};
-      const firstId = shortId.generate()
-      this.currentBigNote = { content: [`<div id="${firstId}" class="sp-block"><br></div>`] }
+    if(this.currentBigNote.content.length === 0) {
+      const firstId = shortId.generate();
+      this.currentBigNote.content = [`<div id="${firtId}" class="sp-block"><br></div>`];
       this.currentBigNote.selectedBlockId = firstId;
-      this.revision = 0;
-      window.localStorage.setItem('revision', this.revision);
     }
 
     this.state = {
@@ -71,7 +63,6 @@ class Bignote extends React.Component {
 			const docHeight = $(document).height();
 			const winHeight = $(window).height();
 			const scrollPercent = (scrollTop) / (docHeight - winHeight);
-			console.log(scrollPercent);
 
       if(scrollPercent < 0.10) {
         $('.sp-page:not(.sp-hidden)').first().prev().removeClass('sp-hidden');
@@ -142,7 +133,9 @@ class Bignote extends React.Component {
           const sel = window.getSelection();
           const anchorNode = $(sel.anchorNode).get(0);
           anchorNode.id = shortId.generate();
-          anchorNode.className = "sp-block";
+          if(anchorNode.tagName !== 'LI') {
+            anchorNode.className = "sp-block";
+          }
 
           if(anchorNode.parentElement.childElementCount > 1000) {
             const children = Array.from(anchorNode.parentElement.children);
@@ -172,47 +165,47 @@ class Bignote extends React.Component {
         const id = shortId.generate();
 
         let newHtml;
+        const matchContent = match[matchIndex] || '&nbsp;';
         switch(tag) {
           case 'ul':
-            newHtml = nodeContents.replace(regex, `<ul id=${shortId.generate()} class="sp-block"><li id="${id}">${match[matchIndex]}</li></ul>`);
+            newHtml = nodeContents.replace(regex, `<ul id=${shortId.generate()} class="sp-block"><li id="${id}">${matchContent}</li></ul>`);
             break;
           case 'checkbox':
-            newHtml = nodeContents.replace(regex, `<span id="${id}"><input type="checkbox" />${match[matchIndex]}</span>&nbsp;`);
+            newHtml = nodeContents.replace(regex, `<span id="${id}"><input type="checkbox" />${matchContent}</span>&nbsp;`);
             break;
           case 'strong':
-            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
+            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${matchContent}</${tag}>&nbsp;`);
             break;
           case 'code':
-            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
+            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${matchContent}</${tag}>&nbsp;`);
             break;
           case 'a':
-            newHtml = nodeContents.replace(regex, `<input id="${id}" type="button" class="sp-link-button" value="${match[matchIndex].trim()}" onclick="window.open('${normalizeUrl(match[matchIndex])}', '_blank')" />&nbsp;`);
+            newHtml = nodeContents.replace(regex, `<input id="${id}" type="button" class="sp-link-button" value="${matchContent.trim()}" onclick="window.open('${normalizeUrl(matchContent)}', '_blank')" />&nbsp;`);
             break;
           case 'em':
-            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${match[matchIndex]}</${tag}>&nbsp;`);
+            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${matchContent}</${tag}>&nbsp;`);
             break;
           case 'h1':
-            newHtml = nodeContents.replace(regex, `<${tag} id="${id}" class="sp-block">${match[matchIndex]}</${tag}>`);
+            newHtml = nodeContents.replace(regex, `<${tag} id="${id}" class="sp-block">${matchContent}</${tag}>`);
             break;
           case 'h2':
-            newHtml = nodeContents.replace(regex, `<${tag} id="${id}" class="sp-block">${match[matchIndex]}</${tag}>`);
+            newHtml = nodeContents.replace(regex, `<${tag} id="${id}" class="sp-block">${matchContent}</${tag}>`);
             break;
         }
 
-        if(match[matchIndex]) {
-          nodeToReplace.replaceWith(newHtml);
-          var range = document.createRange();
-          let cursorNode;
-          if(['checkbox', 'strong', 'code', 'a', 'em'].indexOf(tag) !== -1) {
-            cursorNode = $(`#${id}`).get(0).nextSibling;
-          } else {
-            cursorNode = $(`#${id}`).get(0);
-          }
-          range.setStart(cursorNode, 1);
-          range.setEnd(cursorNode, 1);
-          sel.removeAllRanges();
-          sel.addRange(range);
+      nodeToReplace.replaceWith(newHtml);
+        var range = document.createRange();
+        let cursorNode;
+        if(['checkbox', 'strong', 'code', 'a', 'em'].indexOf(tag) !== -1) {
+          cursorNode = $(`#${id}`).get(0).nextSibling;
+        } else {
+          cursorNode = $(`#${id}`).get(0);
         }
+        range.setStart(cursorNode, 1);
+        range.setEnd(cursorNode, 1);
+        sel.removeAllRanges();
+        sel.addRange(range);
+
 
         if(tag === 'checkbox') {
           document.querySelector(`#${id} input`).addEventListener('change', (e) => {
@@ -233,8 +226,8 @@ class Bignote extends React.Component {
       const block = $(anchorNode);
 
       if(block.parent().get(0).tagName !== 'CODE') {
-        const italics = new RegExp(/(\*|_)(.*?)\1/);
-        const bold = new RegExp(/(\*\*|__)(.*?)\1/);
+        const italics = new RegExp(/(_)(.*?)\1/);
+        const bold = new RegExp(/(\*\*)(.*?)\1/);
         const header1 = new RegExp('^(?:#[\\s|\u00A0])(.*)?');
         const header2 = new RegExp('^(?:##[\\s|\u00A0])(.*)?');
         const unorderedList = new RegExp('^(?:-[\\s|\u00A0])(.*)?');
@@ -248,7 +241,7 @@ class Bignote extends React.Component {
         formatMarkdown(url, block.text().slice(0, sel.anchorOffset), 'a', 0, block, sel);
         formatMarkdown(header1, block.text(), 'h1', 1, block.parent(), sel);
         formatMarkdown(header2, block.text(), 'h2', 1, block.parent(), sel);
-        formatMarkdown(unorderedList, block.text(), 'ul', 1, block.parent(), sel);  
+        formatMarkdown(unorderedList, block.text(), 'ul', 1, block.parent(), sel);
       }
 
       this.debouncedSync();
@@ -302,8 +295,15 @@ class Bignote extends React.Component {
   syncData() {
     const selection = window.getSelection();
     this.currentBigNote.content = [];
-    this.currentBigNote.selectedBlockId = selection.rangeCount ? $(selection.anchorNode).closest('.sp-block').get(0).id
-                                            : this.currentBigNote.selectedBlockId;
+
+    if(selection.rangeCount) {
+      if(selection.anchorNode.id !== 'sp-note-content') {
+        this.currentBigNote.selectedBlockId = $(selection.anchorNode).closest('.sp-block').get(0).id;
+      } else {
+        this.currentBigNote.selectedBlockId = $(selection.anchorNode).find('.sp-block').get(0).id;
+      }
+    }
+
     const hiddenRegex = new RegExp(/sp-hidden/g);
     $('.sp-block').each((i, el) => {
         this.currentBigNote.content.push(el.outerHTML.replace(hiddenRegex, ''))
@@ -463,7 +463,7 @@ class Bignote extends React.Component {
           </div>
           <div className={`sp-note content ${this.state.mode === 'search' && 'sp-with-search-mode'}`}>
           <div id="sp-note-editor"></div>
-          <div id="sp-note-content" contentEditable="true"></div>
+          <div id="sp-note-content" contentEditable="true" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
           </div></div>
             <footer className="footer sp-footer">
               <div className="container">

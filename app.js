@@ -47,27 +47,5 @@ module.exports = getDb.then((db) => {
     });
   });
 
-  app.render('pages/About', (err, html) => {
-    critical.generate({
-      html,
-      css: 'public/css/master.css',
-      dest: 'public/about.html',
-      minify: true,
-      inline: true,
-      folder: 'public',
-    });
-  });
-
-  app.render('pages/Contact', (err, html) => {
-    critical.generate({
-      html,
-      dest: 'public/contact.html',
-      css: 'public/css/master.css',
-      minify: true,
-      inline: true,
-      folder: 'public',
-    });
-  });
-
   return app;
 });
