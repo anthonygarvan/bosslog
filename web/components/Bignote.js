@@ -9,7 +9,6 @@ const urlRegex = require('url-regex');
 const normalizeUrl = require('normalize-url');
 const defaultContent = require('./DefaultContent.js')
 
-
 class Bignote extends React.Component {
   constructor(props) {
     super(props);
@@ -108,6 +107,22 @@ class Bignote extends React.Component {
     });
     content.innerHTML = html;
 
+    window.handleMentionKeydown = (e) => {
+      if(e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        $(`#${e.target.getAttribute('list')}`).remove();
+        const id = shortId.generate();
+        $(e.target).replaceWith(`<input id="${id}"class="sp-link-button sp-mention" type="button" value="${e.target.value.trim()}" />&nbsp;`)
+        var range = document.createRange();
+        let cursorNode = document.querySelector(`#${id}`).nextSibling;
+        range.setStart(cursorNode, 1);
+        range.setEnd(cursorNode, 1);
+        const sel = window.getSelection()
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    }
+
     this.initializeCursor();
 
     document.querySelectorAll('input[type="checkbox"]').forEach((el) => {
@@ -164,6 +179,7 @@ class Bignote extends React.Component {
                 $(span).replaceWith(span.innerHTML);
               }
             });
+
             block.find('[style]').each((i, el) => {
               el.removeAttribute('style');
             });
@@ -203,9 +219,23 @@ class Bignote extends React.Component {
           case 'h2':
             newHtml = nodeContents.replace(regex, `<${tag} id="${id}" class="sp-block">${matchContent}</${tag}>`);
             break;
+          case '@':
+            const mentions = _.uniq($.map($('.sp-mention').toArray(), el => `<option value=${el.value} />`)).join('\n')
+            newHtml = nodeContents.replace(regex, `<input id="${id}" class="sp-mention-input" list="mentions-${id}" value="${matchContent}" onkeydown="return handleMentionKeydown(event)"/>
+                                                    <datalist id="mentions-${id}">
+                                                      ${mentions}
+                                                    </datalist>`)
         }
 
       nodeToReplace.replaceWith(newHtml);
+
+      if(tag === '@') {
+        const mentionInput = $(`#${id}`)
+        mentionInput.focus();
+        const value = mentionInput[0].value;
+        mentionInput[0].value = '';
+        mentionInput[0].value = value;
+      } else {
         var range = document.createRange();
         let cursorNode;
         if(['checkbox', 'strong', 'code', 'a', 'em'].indexOf(tag) !== -1) {
@@ -217,19 +247,19 @@ class Bignote extends React.Component {
         range.setEnd(cursorNode, 1);
         sel.removeAllRanges();
         sel.addRange(range);
-
-
-        if(tag === 'checkbox') {
-          document.querySelector(`#${id} input`).addEventListener('change', (e) => {
-            if(e.target.checked) {
-              e.target.setAttribute('checked', 'checked');
-            } else {
-              e.target.removeAttribute('checked');
-            }
-            debouncedSync()
-          })
-        }
       }
+
+      if(tag === 'checkbox') {
+        document.querySelector(`#${id} input`).addEventListener('change', (e) => {
+          if(e.target.checked) {
+            e.target.setAttribute('checked', 'checked');
+          } else {
+            e.target.removeAttribute('checked');
+          }
+          debouncedSync()
+        })
+      }
+    }
     }
 
     content.addEventListener('input', (e) => {
@@ -246,6 +276,7 @@ class Bignote extends React.Component {
         const checkbox = new RegExp('^(?:\\[\\s\\])(.*)?');
         const code = new RegExp(/`(.*?)`/);
         const url = /(?:(?:(?:[a-z]+:)?\/\/)|www\.)(?:\S+(?::\S*)?@)?(?:localhost|(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])){3}|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[\/?#][^\s"]*)?(\s)/i
+        const mention = new RegExp(/(@\S*)/);
         formatMarkdown(italics, block.text(), 'em', 2, block, sel);
         formatMarkdown(bold, block.text(), 'strong', 2, block, sel);
         formatMarkdown(code, block.text(), 'code', 1, block, sel);
@@ -254,6 +285,7 @@ class Bignote extends React.Component {
         formatMarkdown(header1, block.text(), 'h1', 1, block.parent(), sel);
         formatMarkdown(header2, block.text(), 'h2', 1, block.parent(), sel);
         formatMarkdown(unorderedList, block.text(), 'ul', 1, block.parent(), sel);
+        formatMarkdown(mention, block.text(), '@', 1, block, sel);
       }
 
       this.debouncedSync();
