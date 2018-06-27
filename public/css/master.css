@@ -6629,13 +6629,16 @@ body,
   display: none !important; }
 
 .sp-link-button {
+  margin-bottom: auto !important;
   background: transparent;
   border: none;
   font-size: 1rem;
   font-family: "Roboto Slab", serif; }
 
 code {
-  background-color: #e2e2eb; }
+  background-color: #e2e2eb;
+  border: 1px solid darkgrey;
+  border-radius: 5px; }
 
 
 .content h2,

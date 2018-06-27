@@ -282,9 +282,16 @@ class Bignote extends React.Component {
   }
 
   searchNote() {
-    const keywords = this.state.searchString.split(' ')
-            .map(t => t.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')) // comment out regex expressions
-    const searchRegex = new RegExp(keywords.join('|'), 'i');
+    const exactMatchRegex = /^"(.+)"$/
+    let searchRegex;
+    if(exactMatchRegex.test(this.state.searchString)) {
+      searchRegex = new RegExp(this.state.searchString
+          .match(exactMatchRegex)[1].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
+    } else {
+      const keywords = this.state.searchString.split(' ')
+              .map(t => t.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')) // comment out regex expressions
+      searchRegex = new RegExp(keywords.join('|'), 'i');
+    }
     const whitespaceRegex = new RegExp('^[\\s\n]*$')
     let header = false;
 
