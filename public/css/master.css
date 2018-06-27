@@ -6576,7 +6576,8 @@ body,
   .sp-bignote-container .sp-note-header {
     width: 100%;
     position: fixed;
-    top: 0px; }
+    top: 0px;
+    z-index: 1; }
     @media screen and (min-width: 769px), print {
       .sp-bignote-container .sp-note-header {
         width: 800px; } }
