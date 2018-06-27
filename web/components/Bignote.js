@@ -106,20 +106,9 @@ class Bignote extends React.Component {
     });
     content.innerHTML = html;
 
-    window.handleMentionKeydown = (e) => {
-      if(e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        $(`#${e.target.getAttribute('list')}`).remove();
-        const id = shortId.generate();
-        $(e.target).replaceWith(`<input id="${id}"class="sp-link-button sp-mention" type="button" value="${e.target.value.trim()}" />&nbsp;`)
-        var range = document.createRange();
-        let cursorNode = document.querySelector(`#${id}`).nextSibling;
-        range.setStart(cursorNode, 1);
-        range.setEnd(cursorNode, 1);
-        const sel = window.getSelection()
-        sel.removeAllRanges();
-        sel.addRange(range);
-      }
+    window.handleMentionOrHashtagClick = (e) => {
+      this.handleToSearchMode();
+      this.handleSearchChange(e);
     }
 
     this.initializeCursor();
@@ -300,7 +289,11 @@ class Bignote extends React.Component {
     let header = false;
 
     function showOrHideElement(el) {
-      if(searchRegex.test(el.innerText) || searchRegex.test(header)) {
+      let mentionsAndHashtags = $(el).find('.sp-mention-hashtag').toArray().map(el => el.value).join(' ');
+      if($(el).find('[type="checkbox"]').length) {
+        mentionsAndHashtags += ' #todo';
+      }
+      if(searchRegex.test(el.innerText) || searchRegex.test(header) || searchRegex.test(mentionsAndHashtags)) {
         el.className = el.className.replace(/sp-hidden/g, '').trim();
       } else {
         if(el.className.indexOf('sp-hidden') === -1) {

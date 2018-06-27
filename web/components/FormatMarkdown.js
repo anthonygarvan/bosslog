@@ -229,15 +229,16 @@ function formatMentionOrHashtag() {
   const block = $(anchorNode);
   const nodeContents = block.text().slice(0, sel.anchorOffset);
 
-  const regex = /([@#]\S*)/;
+  const regex = /([@#][^\s#]+)/;
 
   if(regex.test(nodeContents)) {
     const match = nodeContents.match(regex);
     const id = shortId.generate();
 
     const matchContent = match[0];
-    const mentions = _.uniq($.map($('.sp-mention').toArray().sort(), el => `<option value=${el.value} />`)).join('\n')
-    const newHtml = nodeContents.replace(regex, `<input id="${id}" class="sp-mention-input" list="mentions-${id}" value="${matchContent}" onkeydown="return handleMentionKeydown(event)"/>
+    const mentions = _.uniq($.map($('.sp-mention-hashtag').toArray().sort(), el => `<option value=${el.value} />`)).join('\n')
+    const newHtml = nodeContents.replace(regex, `<input id="${id}" class="sp-mention-input"
+        list="mentions-${id}" value="${matchContent}" onkeydown="return handleMentionKeydown(event)"/>
                                             <datalist id="mentions-${id}">
                                               ${mentions}
                                             </datalist>`)
@@ -254,11 +255,20 @@ function formatMentionOrHashtag() {
       if(!mentionInput[0].value && (e.key === 'Backspace' || e.key === 'Delete')) {
         e.preventDefault();
         var range = document.createRange();
-        const cursorNode = $(`#${id}`).get(0).previousSibling;
-        range.setStart(cursorNode, cursorNode.textContent.length - 1);
-        range.setEnd(cursorNode, cursorNode.textContent.length - 1);
+
+        if($(`#${id}`).get(0).previousSibling) {
+          const cursorNode = $(`#${id}`).get(0).previousSibling;
+          range.setStart(cursorNode, cursorNode.textContent.length - 1);
+          range.setEnd(cursorNode, cursorNode.textContent.length - 1);
+        } else {
+          const cursorNode = $(`#${id}`).parent()[0];
+          range.setStart(cursorNode, 0);
+          range.setEnd(cursorNode, 0);
+        }
+
         sel.removeAllRanges();
         sel.addRange(range);
+
         mentionInput.remove();
       }
     });
@@ -282,5 +292,24 @@ function formatMarkdown() {
     formatMentionOrHashtag();
   }
 }
+
+$(window).ready(() => {
+  window.handleMentionKeydown = (e) => {
+    if(e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      $(`#${e.target.getAttribute('list')}`).remove();
+      const id = shortId.generate();
+      $(e.target).replaceWith(`<input id="${id}"class="sp-link-button sp-mention-hashtag"
+              type="button" value="${e.target.value.trim()}" onclick="return handleMentionOrHashtagClick(event)"/>&nbsp;`)
+      var range = document.createRange();
+      let cursorNode = document.querySelector(`#${id}`).nextSibling;
+      range.setStart(cursorNode, 1);
+      range.setEnd(cursorNode, 1);
+      const sel = window.getSelection()
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  }
+})
 
 module.exports = formatMarkdown;
