@@ -5,9 +5,8 @@ const CryptoJS = require('crypto-js');
 const $ = require('jquery');
 const shortId = require('shortid');
 const { compress, decompress } = require('lz-string');
-const urlRegex = require('url-regex');
-const normalizeUrl = require('normalize-url');
 const defaultContent = require('./DefaultContent.js')
+const formatMarkdown = require('./FormatMarkdown');
 
 class Bignote extends React.Component {
   constructor(props) {
@@ -187,109 +186,9 @@ class Bignote extends React.Component {
       }
     });
 
-    function formatMarkdown(regex, nodeContents, tag, matchIndex, nodeToReplace, sel) {
-      if(regex.test(nodeContents)) {
-        const match = nodeContents.match(regex);
-        const id = shortId.generate();
-
-        let newHtml;
-        const matchContent = match[matchIndex] || '&nbsp;';
-        switch(tag) {
-          case 'ul':
-            newHtml = nodeContents.replace(regex, `<ul id=${shortId.generate()} class="sp-block"><li id="${id}">${matchContent}</li></ul>`);
-            break;
-          case 'checkbox':
-            newHtml = nodeContents.replace(regex, `<span id="${id}"><input type="checkbox" />${matchContent}</span>&nbsp;`);
-            break;
-          case 'strong':
-            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${matchContent}</${tag}>&nbsp;`);
-            break;
-          case 'code':
-            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${matchContent}</${tag}>&nbsp;`);
-            break;
-          case 'a':
-            newHtml = nodeContents.replace(regex, `<input id="${id}" type="button" class="sp-link-button" value="${matchContent.trim()}" onclick="window.open('${normalizeUrl(matchContent)}', '_blank')" />&nbsp;`);
-            break;
-          case 'em':
-            newHtml = nodeContents.replace(regex, `<${tag} id="${id}">${matchContent}</${tag}>&nbsp;`);
-            break;
-          case 'h1':
-            newHtml = nodeContents.replace(regex, `<${tag} id="${id}" class="sp-block">${matchContent}</${tag}>`);
-            break;
-          case 'h2':
-            newHtml = nodeContents.replace(regex, `<${tag} id="${id}" class="sp-block">${matchContent}</${tag}>`);
-            break;
-          case '@':
-            const mentions = _.uniq($.map($('.sp-mention').toArray(), el => `<option value=${el.value} />`)).join('\n')
-            newHtml = nodeContents.replace(regex, `<input id="${id}" class="sp-mention-input" list="mentions-${id}" value="${matchContent}" onkeydown="return handleMentionKeydown(event)"/>
-                                                    <datalist id="mentions-${id}">
-                                                      ${mentions}
-                                                    </datalist>`)
-        }
-
-      nodeToReplace.replaceWith(newHtml);
-
-      if(tag === '@') {
-        const mentionInput = $(`#${id}`)
-        mentionInput.focus();
-        const value = mentionInput[0].value;
-        mentionInput[0].value = '';
-        mentionInput[0].value = value;
-      } else {
-        var range = document.createRange();
-        let cursorNode;
-        if(['checkbox', 'strong', 'code', 'a', 'em'].indexOf(tag) !== -1) {
-          cursorNode = $(`#${id}`).get(0).nextSibling;
-        } else {
-          cursorNode = $(`#${id}`).get(0);
-        }
-        range.setStart(cursorNode, 1);
-        range.setEnd(cursorNode, 1);
-        sel.removeAllRanges();
-        sel.addRange(range);
-      }
-
-      if(tag === 'checkbox') {
-        document.querySelector(`#${id} input`).addEventListener('change', (e) => {
-          if(e.target.checked) {
-            e.target.setAttribute('checked', 'checked');
-          } else {
-            e.target.removeAttribute('checked');
-          }
-          debouncedSync()
-        })
-      }
-    }
-    }
-
     content.addEventListener('input', (e) => {
-      const sel = window.getSelection();
-      const anchorNode = sel.anchorNode;
-      const block = $(anchorNode);
-
-      if(block.parent().get(0).tagName !== 'CODE') {
-        const italics = new RegExp(/(_)(.*?)\1/);
-        const bold = new RegExp(/(\*\*)(.*?)\1/);
-        const header1 = new RegExp('^(?:#[\\s|\u00A0])(.*)?');
-        const header2 = new RegExp('^(?:##[\\s|\u00A0])(.*)?');
-        const unorderedList = new RegExp('^(?:-[\\s|\u00A0])(.*)?');
-        const checkbox = new RegExp('^(?:\\[\\s\\])(.*)?');
-        const code = new RegExp(/`(.*?)`/);
-        const url = /(?:(?:(?:[a-z]+:)?\/\/)|www\.)(?:\S+(?::\S*)?@)?(?:localhost|(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])){3}|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[\/?#][^\s"]*)?(\s)/i
-        const mention = new RegExp(/(@\S*)/);
-        formatMarkdown(italics, block.text(), 'em', 2, block, sel);
-        formatMarkdown(bold, block.text(), 'strong', 2, block, sel);
-        formatMarkdown(code, block.text(), 'code', 1, block, sel);
-        formatMarkdown(checkbox, block.text(), 'checkbox', 1, block, sel);
-        formatMarkdown(url, block.text().slice(0, sel.anchorOffset), 'a', 0, block, sel);
-        formatMarkdown(header1, block.text(), 'h1', 1, block.parent(), sel);
-        formatMarkdown(header2, block.text(), 'h2', 1, block.parent(), sel);
-        formatMarkdown(unorderedList, block.text(), 'ul', 1, block.parent(), sel);
-        formatMarkdown(mention, block.text(), '@', 1, block, sel);
-      }
-
+      formatMarkdown();
       this.debouncedSync();
-
     });
 
     content.addEventListener('paste', (e) => {
