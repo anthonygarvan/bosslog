@@ -434,8 +434,8 @@ class Bignote extends React.Component {
                 <button className="modal-close is-large" onClick={this.handleNotLoggingIn}></button>
               </div>
               <p>Copyright © 2018. Made with ♥ by <a href="https://www.twitter.com/anthonygarvan">@anthonygarvan</a>.</p>
-              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a></p>
-              <p>Questions, comments or problems? Feel free to tweet me or use my handy <a href="/contact">contact form</a>.</p>
+              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="#">Source</a></p>
+              <p>Questions, comments or problems? Feel free to tweet me file an issue on <a href="#">github</a>.</p>
               </div></div></footer></div>
   }
 }
