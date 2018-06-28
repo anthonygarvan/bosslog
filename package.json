@@ -49,7 +49,6 @@
     "react": "latest",
     "react-dom": "latest",
     "react-google-login": "^3.2.1",
-    "register-service-worker": "^1.4.1",
     "sendinblue-api": "latest",
     "shortid": "^2.2.8",
     "showdown": "^1.8.6",
