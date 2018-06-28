@@ -48,7 +48,7 @@ module.exports = getDb.then((db) => {
   });
 
   swPrecache.write(`public/service-worker.js`, {
-    staticFileGlobs: ['public/*/*.{js,html,css,png}'],
+    staticFileGlobs: ['public/*/*.{js,html,css,png}', 'public/index.html'],
     stripPrefix: 'public'
   }, () => {
     console.log('service worker written');
