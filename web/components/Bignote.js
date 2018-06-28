@@ -348,6 +348,7 @@ class Bignote extends React.Component {
       html = html.replace(/\ssp-hidden/g, '');
       document.querySelector('#sp-note-content').innerHTML = html;
       $('.sp-page').addClass('sp-hidden');
+      $('#sp-note-content').removeClass('sp-search-mode');
       this.initializeCursor();
     });
   }
@@ -356,6 +357,7 @@ class Bignote extends React.Component {
     this.setState({mode: 'search'}, () => {
       this.searchNote();
       $('.sp-page').removeClass('sp-hidden');
+      $('#sp-note-content').addClass('sp-search-mode');
     });
   }
 

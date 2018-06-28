@@ -1,6 +1,5 @@
 const React = require('react');
 const Master = require('../components/Master');
-const MainNav = require('../components/MainNav');
 
 function Index(props) {
     return <Master>

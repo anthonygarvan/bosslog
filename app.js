@@ -12,7 +12,7 @@ const getDb = require('./api/db').getDb;
 const Auth = require('./api/auth').Auth;
 const Sync = require('./api/sync').Sync;
 const diff = require('deep-diff');
-
+const swPrecache = require('sw-precache');
 
 module.exports = getDb.then((db) => {
   const app = express();
@@ -45,6 +45,13 @@ module.exports = getDb.then((db) => {
       inline: true,
       folder: 'public',
     });
+  });
+
+  swPrecache.write(`public/service-worker.js`, {
+    staticFileGlobs: ['public/*/*.{js,html,css,png}'],
+    stripPrefix: 'public'
+  }, () => {
+    console.log('service worker written');
   });
 
   return app;
