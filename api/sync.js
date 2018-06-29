@@ -6,7 +6,6 @@ const diff = require('deep-diff');
 
 module.exports = { Sync: (db, auth) => {
   app.post('/', auth.ensureAuthenticated, (req, res) => {
-    console.log(req.body);
     db.notes.find({ userId: req.user.id, revision: { $gte: parseInt(req.body.revision) } })
       .sort({ revision: 1 })
       .toArray((err, revisions) => {

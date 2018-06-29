@@ -22,14 +22,14 @@ class Bignote extends React.Component {
     this.syncData = this.syncData.bind(this);
     this.flipPages = this.flipPages.bind(this);
     this.initializeCursor = this.initializeCursor.bind(this);
-    this.debouncedSync = _.debounce(this.syncData, 5000);
+    this.debouncedSync = _.debounce(this.syncData, 3000, { maxWait: 30000 });
     this.debouncedSearch = _.debounce(this.searchNote, 300);
     this.debouncedFlipPages = _.debounce(this.flipPages, 300, { maxWait: 1000 });
 
     let editorState;
     this.bigNoteServerState = window.localStorage.getItem("bigNoteServerState") ? JSON.parse(decompress(window.localStorage.getItem("bigNoteServerState"))) : {};
     const bigNoteLocalChanges = window.localStorage.getItem("bigNoteLocalChanges") ? JSON.parse(decompress(window.localStorage.getItem("bigNoteLocalChanges"))) : defaultContent;
-    this.revision = parseInt(window.localStorage.getItem('revision'));
+    this.revision =window.localStorage.getItem('revision') ?  parseInt(window.localStorage.getItem('revision')) : 0;
     this.currentBigNote = _.cloneDeep(this.bigNoteServerState);
     bigNoteLocalChanges.forEach(change => {
       diff.applyChange(this.currentBigNote, null, change);
@@ -46,14 +46,9 @@ class Bignote extends React.Component {
       mode: 'note',
       passwordValue: '',
       loggingIn: window.location.href.indexOf('loggingIn=true') >= 0,
-      password: window.localStorage.getItem('bigNotePassword')
+      password: window.localStorage.getItem('bigNotePassword'),
+      syncStatus: 'red'
     };
-  }
-
-  componentWillMount() {
-    $.getJSON('/auth/is-authenticated', result => {
-      this.setState(result);
-    })
   }
 
   flipPages() {
@@ -177,6 +172,7 @@ class Bignote extends React.Component {
 
     content.addEventListener('input', (e) => {
       formatMarkdown();
+      this.setState({ syncStatus: 'yellow'});
       this.debouncedSync();
     });
 
@@ -222,6 +218,12 @@ class Bignote extends React.Component {
       $(newLines).insertAfter($(selection.anchorNode).closest('.sp-page'));
       this.debouncedSync();
       });
+
+    $.getJSON('/auth/is-authenticated', result => {
+      this.setState(result, () => {
+        this.syncData();
+      });
+    })
   }
 
   syncData() {
@@ -240,19 +242,18 @@ class Bignote extends React.Component {
     $('.sp-block').each((i, el) => {
         this.currentBigNote.content.push(el.outerHTML.replace(hiddenRegex, ''))
     });
-    const diffObj = diff.diff(this.bigNoteServerState, this.currentBigNote);
+    const diffObj = diff.diff(this.bigNoteServerState, this.currentBigNote) || [];
 
     if(diffObj && diffObj.length > 0) {
       window.localStorage.setItem('bigNoteLocalChanges', compress(JSON.stringify(diffObj)));
     }
 
-    if(this.state.isAuthenticated && this.state.password && diffObj && diffObj.length > 0) {
+    if(this.state.isAuthenticated && this.state.password) {
       $.post('/sync', { revision: this.revision + 1,
         encryptedDiff: CryptoJS.AES.encrypt(JSON.stringify(diffObj), this.state.password).toString() }, (data) => {
         window.localStorage.setItem('bigNoteLocalChanges', compress('[]'));
-
         if( data.success ) {
-          this.bigNoteServerState = this.currentBigNote;
+          this.bigNoteServerState = _.cloneDeep(this.currentBigNote);
           this.revision += 1
           window.localStorage.setItem('revision', this.revision);
         } else {
@@ -275,8 +276,9 @@ class Bignote extends React.Component {
 
         window.localStorage.setItem('revision', this.revision);
         window.localStorage.setItem('bigNoteServerState', compress(JSON.stringify(this.bigNoteServerState)));
+        this.setState({syncStatus: 'green'});
       }).fail(() => {
-        console.log('Failed to sync.');
+        this.setState({ syncStatus: 'red' });
       });
     }
   }
@@ -384,7 +386,7 @@ class Bignote extends React.Component {
   }
 
   render() {
-    return <div><div className="sp-bignote-container">
+    return <div><div className={`sp-bignote-container ${this.state.syncStatus}`}>
           <div className="sp-note-header">
             <div className={`sp-search-header ${this.state.mode !== 'search' && 'sp-hidden'}`}>
             <a className={`sp-back ${this.state.mode === 'note' && 'sp-hidden'}`}

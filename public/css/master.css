@@ -6564,6 +6564,12 @@ body,
   @media screen and (min-width: 769px), print {
     .sp-bignote-container {
       width: 800px; } }
+  .sp-bignote-container.red {
+    border-right: 3px solid #ff3860; }
+  .sp-bignote-container.yellow {
+    border-right: 3px solid #ffdd57; }
+  .sp-bignote-container.green {
+    border-right: 3px solid #23d160; }
   .sp-bignote-container .sp-note {
     min-height: 100vh;
     padding: 1rem;
