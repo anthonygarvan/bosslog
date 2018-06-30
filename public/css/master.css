@@ -6661,3 +6661,9 @@ code {
   width: 8rem; }
   .sp-mention-input:focus {
     outline: none; }
+
+h1 .sp-mention-input, h1 .sp-link-button {
+  font-size: 2rem; }
+
+h2 .sp-mention-input, h2 .sp-link-button {
+  font-size: 1.5rem; }

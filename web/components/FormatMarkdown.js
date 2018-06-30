@@ -295,7 +295,7 @@ function formatMarkdown() {
 
 $(window).ready(() => {
   window.handleMentionKeydown = (e) => {
-    if(e.key === 'Enter' || e.key === ' ') {
+    if(e.key === 'Enter' || e.key === ' ' || e.key === 'Unidentified') {
       e.preventDefault();
       $(`#${e.target.getAttribute('list')}`).remove();
       const id = shortId.generate();

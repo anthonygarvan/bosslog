@@ -23,7 +23,7 @@ class Bignote extends React.Component {
     this.flipPages = this.flipPages.bind(this);
     this.initializeCursor = this.initializeCursor.bind(this);
     this.debouncedSync = _.debounce(this.syncData, 3000, { maxWait: 30000 });
-    this.debouncedSearch = _.debounce(this.searchNote, 300);
+    this.debouncedSearch = _.debounce(this.searchNote, 600);
     this.debouncedFlipPages = _.debounce(this.flipPages, 300, { maxWait: 1000 });
 
     let editorState;
@@ -319,6 +319,7 @@ class Bignote extends React.Component {
       document.querySelectorAll('.sp-block').forEach(el => {
         if(el.tagName === 'H1' || el.tagName === 'H2') {
           header = el.innerText;
+          header += ' ' + $(el).find('input[type=button]').toArray().map(el => el.value).join(' ');
         }
         if(whitespaceRegex.test(el.innerText)) {
           header = false;
