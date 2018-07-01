@@ -6672,3 +6672,6 @@ h2 .sp-mention-input, h2 .sp-link-button {
   cursor: pointer; }
   #sp-search-results .sp-block:hover, #sp-search-results li:hover {
     text-decoration: underline; }
+
+.sp-highlight {
+  font-weight: bold; }

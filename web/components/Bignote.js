@@ -240,7 +240,7 @@ class Bignote extends React.Component {
     }
 
     const hiddenRegex = new RegExp(/sp-hidden/g);
-    $('.sp-block').each((i, el) => {
+    $('#sp-note-content>.sp-page>.sp-block').each((i, el) => {
         this.currentBigNote.content.push(el.outerHTML.replace(hiddenRegex, ''))
     });
     const diffObj = diff.diff(this.bigNoteServerState, this.currentBigNote) || [];
@@ -289,11 +289,11 @@ class Bignote extends React.Component {
     let searchRegex;
     if(exactMatchRegex.test(this.state.searchString)) {
       searchRegex = new RegExp(this.state.searchString
-          .match(exactMatchRegex)[1].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i');
+          .match(exactMatchRegex)[1].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'ig');
     } else {
       const keywords = this.state.searchString.split(' ')
               .map(t => t.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')) // comment out regex expressions
-      searchRegex = new RegExp(keywords.join('|'), 'i');
+      searchRegex = new RegExp(keywords.join('|'), 'ig');
     }
     const whitespaceRegex = new RegExp('^[\\s\\n]*$')
     let header = false;
@@ -308,7 +308,7 @@ class Bignote extends React.Component {
 
     const searchResults = [];
     let lastElement;
-    document.querySelectorAll('#sp-note-content .sp-block').forEach(el => {
+    document.querySelectorAll('#sp-note-content>.sp-page>.sp-block').forEach(el => {
       if(el.tagName === 'H1' || el.tagName === 'H2') {
         header = el.innerText;
         header += ' ' + $(el).find('input[type=button]').toArray().map(el => el.value).join(' ');
@@ -334,7 +334,11 @@ class Bignote extends React.Component {
       $('#sp-search-results').html('<em>No results.</em>');
       $(window).scrollTop(0);
     } else {
-      $('#sp-search-results').html(searchResults.map(el => el.outerHTML).join('\n'));
+      let html = searchResults.map(el => el.outerHTML).join('\n');
+      html = html.replace(searchRegex, (searchMatch) => {
+        return `<span class="sp-highlight">${searchMatch}</span>`;
+      });
+      $('#sp-search-results').html(html);
 
       $('#sp-search-results .sp-block').click(e => {
         this.currentBigNote.selectedBlockId = e.target.id;
@@ -346,7 +350,7 @@ class Bignote extends React.Component {
         this.handleToNoteMode();
       });
 
-      $(window).scrollTop(Math.max($(searchResults.pop()).offset().top - $(window).height() / 2, 0));
+      $(window).scrollTop(Math.max($(`#${searchResults.pop().id}`).offset().top - $(window).height() / 2, 0));
 
     }
 
