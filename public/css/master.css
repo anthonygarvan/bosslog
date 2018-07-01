@@ -6667,3 +6667,8 @@ h1 .sp-mention-input, h1 .sp-link-button {
 
 h2 .sp-mention-input, h2 .sp-link-button {
   font-size: 1.5rem; }
+
+#sp-search-results .sp-block, #sp-search-results li {
+  cursor: pointer; }
+  #sp-search-results .sp-block:hover, #sp-search-results li:hover {
+    text-decoration: underline; }

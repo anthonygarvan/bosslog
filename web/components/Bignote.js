@@ -47,7 +47,8 @@ class Bignote extends React.Component {
       passwordValue: '',
       loggingIn: window.location.href.indexOf('loggingIn=true') >= 0,
       password: window.localStorage.getItem('bigNotePassword'),
-      syncStatus: 'red'
+      syncStatus: 'red',
+      searchResults: []
     };
   }
 
@@ -69,7 +70,7 @@ class Bignote extends React.Component {
   initializeCursor() {
     // Set cursor position and hide / reveal pages
     const range = document.createRange();
-    const cursor = $(`#${this.currentBigNote.selectedBlockId}`);
+    const cursor = $(`#sp-note-content #${this.currentBigNote.selectedBlockId}`);
     const cursorNode = cursor.get(0);
 
     const currentPage = cursor.closest('.sp-page');
@@ -294,46 +295,59 @@ class Bignote extends React.Component {
               .map(t => t.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')) // comment out regex expressions
       searchRegex = new RegExp(keywords.join('|'), 'i');
     }
-    const whitespaceRegex = new RegExp('^[\\s\n]*$')
+    const whitespaceRegex = new RegExp('^[\\s\\n]*$')
     let header = false;
 
-    function showOrHideElement(el) {
+    function includeElement(el) {
       let mentionsAndHashtags = $(el).find('.sp-mention-hashtag').toArray().map(el => el.value).join(' ');
       if($(el).find('[type="checkbox"]').length) {
         mentionsAndHashtags += ' #todo';
       }
-      if(searchRegex.test(el.innerText) || searchRegex.test(header) || searchRegex.test(mentionsAndHashtags)) {
-        el.className = el.className.replace(/sp-hidden/g, '').trim();
-      } else {
-        if(el.className.indexOf('sp-hidden') === -1) {
-            el.className += ' sp-hidden';
-        }
-      }
+      return (searchRegex.test(el.innerText) || searchRegex.test(header) || searchRegex.test(mentionsAndHashtags));
     }
 
-    if( this.state.searchString.length === 0 ) {
-      let html = document.querySelector('#sp-note-content').innerHTML;
-      html = html.replace(/sp-block/g, 'sp-block sp-hidden');
-      document.querySelector('#sp-note-content').innerHTML = html;
-    } else {
-      document.querySelectorAll('.sp-block').forEach(el => {
-        if(el.tagName === 'H1' || el.tagName === 'H2') {
-          header = el.innerText;
-          header += ' ' + $(el).find('input[type=button]').toArray().map(el => el.value).join(' ');
-        }
-        if(whitespaceRegex.test(el.innerText)) {
-          header = false;
-        }
+    const searchResults = [];
+    let lastElement;
+    document.querySelectorAll('#sp-note-content .sp-block').forEach(el => {
+      if(el.tagName === 'H1' || el.tagName === 'H2') {
+        header = el.innerText;
+        header += ' ' + $(el).find('input[type=button]').toArray().map(el => el.value).join(' ');
+      }
+      if(whitespaceRegex.test(el.innerText)) {
+        header = false;
+      }
 
-        if (el.tagName =='UL') {
-          el.className = el.className.replace(' sp-hidden', '');
-          Array.from(el.children).forEach(child => {
-            showOrHideElement(child);
-          });
-        } else {
-          showOrHideElement(el);
+      if (el.tagName =='UL') {
+        Array.from(el.children).forEach(child => {
+          if(includeElement(child)) {
+            searchResults.push(child);
+          }
+        });
+      } else {
+        if(includeElement(el)) {
+          searchResults.push(el);
         }
+      }
+    });
+
+    if(!this.state.searchString.trim() || searchResults.length === 0) {
+      $('#sp-search-results').html('<em>No results.</em>');
+      $(window).scrollTop(0);
+    } else {
+      $('#sp-search-results').html(searchResults.map(el => el.outerHTML).join('\n'));
+
+      $('#sp-search-results .sp-block').click(e => {
+        this.currentBigNote.selectedBlockId = e.target.id;
+        this.handleToNoteMode();
       });
+
+      $('#sp-search-results li').click(e => {
+        this.currentBigNote.selectedBlockId = e.target.id;
+        this.handleToNoteMode();
+      });
+
+      $(window).scrollTop(Math.max($(searchResults.pop()).offset().top - $(window).height() / 2, 0));
+
     }
 
     this.setState({ searching: false })
@@ -347,17 +361,16 @@ class Bignote extends React.Component {
 
   handleToNoteMode() {
     this.setState({mode: 'note'}, () => {
-      let html = document.querySelector('#sp-note-content').innerHTML;
-      html = html.replace(/\ssp-hidden/g, '');
-      document.querySelector('#sp-note-content').innerHTML = html;
-      $('.sp-page').addClass('sp-hidden');
-      $('#sp-note-content').removeClass('sp-search-mode');
+      $('#sp-search-results').hide();
+      $('#sp-note-content').show();
       this.initializeCursor();
     });
   }
 
   handleToSearchMode() {
     this.setState({mode: 'search'}, () => {
+      $('#sp-note-content').hide();
+      $('#sp-search-results').show();
       this.searchNote();
       $('.sp-page').removeClass('sp-hidden');
       $('#sp-note-content').addClass('sp-search-mode');
@@ -406,11 +419,12 @@ class Bignote extends React.Component {
             </div>
             <a className={`sp-search-icon ${this.state.mode === 'search' && 'sp-hidden'}`}
               onClick={this.handleToSearchMode}>
-              <i className="fa fa-filter fa-2x"></i>
+              <i className="fa fa-search fa-2x"></i>
             </a>
           </div>
           <div className={`sp-note content ${this.state.mode === 'search' && 'sp-with-search-mode'}`}>
           <div id="sp-note-editor"></div>
+          <div id="sp-search-results" style={{ display: 'none' }}></div>
           <div id="sp-note-content" contentEditable="true" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck="false"></div>
           </div></div>
             <footer className="footer sp-footer">
