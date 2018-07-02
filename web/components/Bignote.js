@@ -462,7 +462,7 @@ class Bignote extends React.Component {
               </div>
               <p>Copyright © 2018. Made with ♥ by <a href="https://www.twitter.com/anthonygarvan">@anthonygarvan</a>.</p>
               <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="#">Source</a></p>
-              <p>Questions, comments or problems? Feel free to tweet me file an issue on <a href="#">github</a>.</p>
+              <p>Questions, comments or problems? Feel free to tweet me or file an issue on <a href="#">github</a>.</p>
               </div></div></footer></div>
   }
 }
