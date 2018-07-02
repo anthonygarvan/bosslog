@@ -198,38 +198,58 @@ class Bignote extends React.Component {
       let newLines = document.createDocumentFragment();
 
       const firstLine = lines.shift();
-      selection.getRangeAt(0).insertNode(document.createTextNode(firstLine));
 
-      const pageElement = $(selection.anchorNode).closest('.sp-page').get(0);
+      let pageElement;
+      let firstLineElement;
+      if(selection.anchorNode.id === 'sp-note-content') {
+        firstLineElement = $(selection.anchorNode).find('.sp-block').first();
+        firstLineElement.text(firstLine);
+        pageElement = $(selection.anchorNode).find('.sp-page')[0];
+      } else {
+        firstLineElement = $(selection.anchorNode).closest('.sp-block');
+        selection.getRangeAt(0).insertNode(document.createTextNode(firstLine));
+        pageElement = $(selection.anchorNode).closest('.sp-page').get(0);
+      }
+
       const insertIntoPageCount = Math.min(1000 - pageElement.childElementCount, lines.length);
 
+      let lastNodeId = firstLineElement.id;
       let insertedCount = 0;
       while(insertedCount < insertIntoPageCount) {
         var div = document.createElement('div');
         div.className ="sp-block";
         div.id = `${shortId.generate()}`;
         div.innerHTML = lines.shift() || '<br />';
+        lastNodeId = div.id;
         newLines.appendChild(div);
         insertedCount++;
       }
 
-      $(newLines).insertAfter($(selection.anchorNode).closest('.sp-block'));
+      $(newLines).insertAfter(firstLineElement);
 
       if(lines.length) {
         newLines = document.createDocumentFragment();
         _.chunk(lines, 500).forEach((pageContent, i) => {
           var div = document.createElement('div');
           div.className = i ? "sp-page sp-hidden" : "sp-page";
-          div.innerHTML = pageContent.map(line => `<div id=${shortId.generate()} class="sp-block">${line || '<br />'}</div>`).join('\n');
+          const pageContentHtml = []
+          pageContent.forEach(line => {
+            const id = shortId.generate();
+            lastNodeId = id;
+            pageContentHtml.push(`<div id=${id} class="sp-block">${line || '<br />'}</div>`)
+          });
+
+          div.innerHTML = pageContentHtml.join('\n');
           newLines.appendChild(div);
         });
       }
 
       $(newLines).insertAfter($(selection.anchorNode).closest('.sp-page'));
+
+      this.currentBigNote.selectedBlockId = lastNodeId;
+      this.initializeCursor();
       this.debouncedSync();
     })
-
-    console.log('done');
   }
 
   syncData() {
