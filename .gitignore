@@ -4,4 +4,4 @@
 /public/js
 /certs
 /.node-persist
-/public/img/usr
+/public/service-worker.js

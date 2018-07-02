@@ -81,7 +81,7 @@ class Bignote extends React.Component {
       this.debouncedSearch();
     }
 
-    if(nextProps.password !== this.props.password || nextProps.isAuthenticated !== this.props.isAuthenticated) {
+    if((nextProps.password !== this.props.password) || (nextProps.isAuthenticated !== this.props.isAuthenticated)) {
       this.syncData();
     }
 
@@ -236,7 +236,7 @@ class Bignote extends React.Component {
     const selection = window.getSelection();
     this.currentBigNote.content = [];
 
-    if(selection.rangeCount) {
+    if(selection.rangeCount && $(selection.anchorNode).closest('#sp-note-content')[0]) {
       if(selection.anchorNode.id !== 'sp-note-content') {
         this.currentBigNote.selectedBlockId = $(selection.anchorNode).closest('.sp-block').get(0).id;
       } else {
