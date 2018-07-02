@@ -12,13 +12,6 @@ const Mark = require('mark.js');
 class Bignote extends React.Component {
   constructor(props) {
     super(props);
-    this.handleSearchChange = this.handleSearchChange.bind(this);
-    this.handleLoginSuccess = this.handleLoginSuccess.bind(this);
-    this.handleLoginFailure = this.handleLoginFailure.bind(this);
-    this.handlePasswordSet = this.handlePasswordSet.bind(this);
-    this.handleNotLoggingIn = this.handleNotLoggingIn.bind(this);
-    this.handleToNoteMode = this.handleToNoteMode.bind(this);
-    this.handleToSearchMode = this.handleToSearchMode.bind(this);
     this.searchNote = this.searchNote.bind(this);
     this.syncData = this.syncData.bind(this);
     this.flipPages = this.flipPages.bind(this);
@@ -27,7 +20,6 @@ class Bignote extends React.Component {
     this.debouncedSearch = _.debounce(this.searchNote, 600);
     this.debouncedFlipPages = _.debounce(this.flipPages, 300, { maxWait: 1000 });
 
-    let editorState;
     this.bigNoteServerState = window.localStorage.getItem("bigNoteServerState") ? JSON.parse(decompress(window.localStorage.getItem("bigNoteServerState"))) : {};
     const bigNoteLocalChanges = window.localStorage.getItem("bigNoteLocalChanges") ? JSON.parse(decompress(window.localStorage.getItem("bigNoteLocalChanges"))) : defaultContent;
     this.revision =window.localStorage.getItem('revision') ?  parseInt(window.localStorage.getItem('revision')) : 0;
@@ -41,16 +33,6 @@ class Bignote extends React.Component {
       this.currentBigNote.content = [`<div id="${firtId}" class="sp-block"><br></div>`];
       this.currentBigNote.selectedBlockId = firstId;
     }
-
-    this.state = {
-      searchString: '',
-      mode: 'note',
-      passwordValue: '',
-      loggingIn: window.location.href.indexOf('loggingIn=true') >= 0,
-      password: window.localStorage.getItem('bigNotePassword'),
-      syncStatus: 'red',
-      searchResults: []
-    };
   }
 
   flipPages() {
@@ -94,10 +76,36 @@ class Bignote extends React.Component {
     selection.addRange(range);
   }
 
+  shouldComponentUpdate(nextProps) {
+    if(nextProps.searchString !== this.props.searchString) {
+      this.debouncedSearch();
+    }
+
+    if(nextProps.password !== this.props.password || nextProps.isAuthenticated !== this.props.isAuthenticated) {
+      this.syncData();
+    }
+
+    if(nextProps.mode !== this.props.mode) {
+      if(nextProps.mode === 'note') {
+        $('#sp-search-results').hide();
+        $('#sp-note-content').show();
+        this.initializeCursor();
+      }
+
+      if(nextProps.mode === 'search') {
+        $('#sp-note-content').hide();
+        $('#sp-search-results').show();
+        this.searchNote();
+      }
+    }
+
+    return false;
+  }
+
   componentDidMount() {
     const content = document.querySelector('#sp-note-content');
     const debouncedSync = this.debouncedSync;
-    let html = ''
+    let html = '';
     _.chunk(this.currentBigNote.content, 500).forEach(pageContent => {
       html += `<div class="sp-page sp-hidden">${pageContent.join('\n')}</div>`
     });
@@ -174,7 +182,7 @@ class Bignote extends React.Component {
 
     content.addEventListener('input', (e) => {
       formatMarkdown();
-      this.setState({ syncStatus: 'yellow'});
+      this.props.toSyncStatus('yellow');
       this.debouncedSync();
     });
 
@@ -219,13 +227,9 @@ class Bignote extends React.Component {
 
       $(newLines).insertAfter($(selection.anchorNode).closest('.sp-page'));
       this.debouncedSync();
-      });
-
-    $.getJSON('/auth/is-authenticated', result => {
-      this.setState(result, () => {
-        this.syncData();
-      });
     })
+
+    console.log('done');
   }
 
   syncData() {
@@ -250,9 +254,9 @@ class Bignote extends React.Component {
       window.localStorage.setItem('bigNoteLocalChanges', compress(JSON.stringify(diffObj)));
     }
 
-    if(this.state.isAuthenticated && this.state.password) {
+    if(this.props.isAuthenticated && this.props.password) {
       $.post('/sync', { revision: this.revision + 1,
-        encryptedDiff: CryptoJS.AES.encrypt(JSON.stringify(diffObj), this.state.password).toString() }, (data) => {
+        encryptedDiff: CryptoJS.AES.encrypt(JSON.stringify(diffObj), this.props.password).toString() }, (data) => {
         window.localStorage.setItem('bigNoteLocalChanges', compress('[]'));
         if( data.success ) {
           this.bigNoteServerState = _.cloneDeep(this.currentBigNote);
@@ -262,7 +266,7 @@ class Bignote extends React.Component {
           const serverDiffs = data.revisions.map(revision => {
             return JSON.parse(CryptoJS.AES.decrypt(
                 revision.encryptedDiff,
-                this.state.password).toString(CryptoJS.enc.Utf8));
+                this.props.password).toString(CryptoJS.enc.Utf8));
           })
 
           serverDiffs.forEach(changes => {
@@ -278,9 +282,9 @@ class Bignote extends React.Component {
 
         window.localStorage.setItem('revision', this.revision);
         window.localStorage.setItem('bigNoteServerState', compress(JSON.stringify(this.bigNoteServerState)));
-        this.setState({syncStatus: 'green'});
+        this.props.toSyncStatus('green');
       }).fail(() => {
-        this.setState({ syncStatus: 'red' });
+        this.props.toSyncStatus('red' );
       });
     }
   }
@@ -288,11 +292,11 @@ class Bignote extends React.Component {
   searchNote() {
     const exactMatchRegex = /^"(.+)"$/
     let searchRegex;
-    if(exactMatchRegex.test(this.state.searchString)) {
-      searchRegex = new RegExp(this.state.searchString
+    if(exactMatchRegex.test(this.props.searchString)) {
+      searchRegex = new RegExp(this.props.searchString
           .match(exactMatchRegex)[1].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'ig');
     } else {
-      const keywords = this.state.searchString.split(' ')
+      const keywords = this.props.searchString.split(' ')
               .map(t => t.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')) // comment out regex expressions
       searchRegex = new RegExp(keywords.join('|'), 'ig');
     }
@@ -328,7 +332,7 @@ class Bignote extends React.Component {
     });
 
     searchResults = searchResults.filter(el => el);
-    if(!this.state.searchString.trim() || searchResults.length === 0) {
+    if(!this.props.searchString.trim() || searchResults.length === 0) {
       $('#sp-search-results').html('<em>No results.</em>');
       $(window).scrollTop(0);
     } else {
@@ -339,131 +343,25 @@ class Bignote extends React.Component {
 
       $('#sp-search-results .sp-block').click(e => {
         this.currentBigNote.selectedBlockId = $(e.target).closest('.sp-block')[0].id;
-        this.handleToNoteMode();
+        this.props.handleToNoteMode();
       });
 
       $('#sp-search-results li').click(e => {
         this.currentBigNote.selectedBlockId = $(e.target).closest('.sp-block')[0].id;
-        this.handleToNoteMode();
+        this.props.handleToNoteMode();
       });
 
       $(window).scrollTop(Math.max($(`#${searchResults.pop().id}`).offset().top - $(window).height() / 2, 0));
 
     }
 
-    this.setState({ searching: false })
-  }
-
-  handleSearchChange(e) {
-    this.setState({ searchString: e.target.value, searching: true }, () => {
-      this.debouncedSearch();
-    });
-  }
-
-  handleToNoteMode() {
-    this.setState({mode: 'note'}, () => {
-      $('#sp-search-results').hide();
-      $('#sp-note-content').show();
-      this.initializeCursor();
-    });
-  }
-
-  handleToSearchMode() {
-    this.setState({mode: 'search'}, () => {
-      $('#sp-note-content').hide();
-      $('#sp-search-results').show();
-      this.searchNote();
-      $('.sp-page').removeClass('sp-hidden');
-      $('#sp-note-content').addClass('sp-search-mode');
-    });
-  }
-
-  handleLoginSuccess(response) {
-    this.setState({ user: response });
-  }
-
-  handleLoginFailure(response) {
-    this.setState( { isSignedIn: false });
-  }
-
-  handleNotLoggingIn() {
-    this.setState({ loggingIn: false }, () => {
-      window.history.pushState(null, document.title, '/');
-    })
-  }
-
-  handlePasswordSet() {
-    this.setState({ password: this.state.passwordValue, loggingIn: false }, () => {
-      window.localStorage.setItem('bigNotePassword', this.state.passwordValue);
-      this.syncData();
-      this.handleNotLoggingIn();
-    });
+    this.props.searchDone();
   }
 
   render() {
-    return <div><div className={`sp-bignote-container ${this.state.syncStatus}`}>
-          <div className="sp-note-header">
-            <div className={`sp-search-header ${this.state.mode !== 'search' && 'sp-hidden'}`}>
-            <a className={`sp-back ${this.state.mode === 'note' && 'sp-hidden'}`}
-              onClick={ this.handleToNoteMode }><i className="fa fa-arrow-left fa-2x"></i></a>
-            <div className="sp-search field">
-              <div className={`sp-search-box control ${this.state.searching && "is-loading"}`}>
-              <form autoComplete="off">
-                <input autoComplete="false" name="hidden" type="text" className="sp-hidden" />
-                <input className="input is-medium" type="search"
-                  placeholder="Search your note..."
-                  onChange={this.handleSearchChange}
-                  value={this.state.searchString}/>
-              </form>
-              </div>
-            </div>
-            </div>
-            <a className={`sp-search-icon ${this.state.mode === 'search' && 'sp-hidden'}`}
-              onClick={this.handleToSearchMode}>
-              <i className="fa fa-search fa-2x"></i>
-            </a>
-          </div>
-          <div className={`sp-note content ${this.state.mode === 'search' && 'sp-with-search-mode'}`}>
+    return <div>
           <div id="sp-note-editor"></div>
-          <div id="sp-search-results" style={{ display: 'none' }}></div>
-          <div id="sp-note-content" contentEditable="true" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck="false"></div>
-          </div></div>
-            <footer className="footer sp-footer">
-              <div className="container">
-              <div className="content has-text-centered">
-              { (this.state.isAuthenticated && this.state.password) ? <p>Logged in & syncing as {this.state.userEmail}.</p>
-              : <p>Want to sync your data? You'll need to <a onClick={() => this.setState({ loggingIn: true })}>sign in</a>.</p> }
-              <div className={`modal ${this.state.loggingIn && 'is-active'}`}>
-                <div className="modal-background" onClick={this.handleNotLoggingIn}></div>
-                <div className="modal-content">
-                  <div className="box is-centered">{this.state.isAuthenticated ? <div><p>Logged in as {this.state.userEmail}.</p>
-                  <p>Please enter your password. It must be at least 8 characters.</p>
-                  <div className="field">
-                    <p className="control has-icons-left">
-                      <input className={`input ${this.state.passwordIsValid ? 'is-success' : this.state.passwordValue && 'is-danger'}`} type="password" placeholder="Password" value={this.state.passwordValue}
-                        onChange={(e) => this.setState({ passwordValue: e.target.value, passwordIsValid: e.target.value.length >= 8 })}/>
-                      <span className="icon is-small is-left">
-                        <i className="fas fa-lock"></i>
-                      </span>
-                    </p>
-                  </div>
-
-                  <p><i className="fas fa-exclamation-triangle"></i>&nbsp;&nbsp;For your security, we do not store your password.
-                  If you lose your password you will not be able to access your note.</p>
-                  <p>
-                    <a className="button is-primary" disabled={!this.state.passwordIsValid} onClick={this.handlePasswordSet}>Start Secure Sync</a>
-                  </p>
-                  </div>
-                     : <div>
-                    <p>Please sign in with your Google account.</p>
-                     <p><a href="/auth/authenticate" className="button is-primary">Log in with Google</a></p></div>}
-                </div></div>
-                <button className="modal-close is-large" onClick={this.handleNotLoggingIn}></button>
-              </div>
-              <p>Copyright © 2018. Made with ♥ by <a href="https://www.twitter.com/anthonygarvan">@anthonygarvan</a>.</p>
-              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="#">Source</a></p>
-              <p>Questions, comments or problems? Feel free to tweet me or file an issue on <a href="#">github</a>.</p>
-              </div></div></footer></div>
+          <div id="sp-search-results" style={{ display: 'none' }}></div></div>
   }
 }
 
