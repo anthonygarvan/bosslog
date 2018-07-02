@@ -7,6 +7,7 @@ const shortId = require('shortid');
 const { compress, decompress } = require('lz-string');
 const defaultContent = require('./DefaultContent.js')
 const formatMarkdown = require('./FormatMarkdown');
+const Mark = require('mark.js');
 
 class Bignote extends React.Component {
   constructor(props) {
@@ -303,10 +304,10 @@ class Bignote extends React.Component {
       if($(el).find('[type="checkbox"]').length) {
         mentionsAndHashtags += ' #todo';
       }
-      return (searchRegex.test(el.innerText) || searchRegex.test(header) || searchRegex.test(mentionsAndHashtags));
+      return (searchRegex.test(el.innerText) || searchRegex.test(header) || searchRegex.test(mentionsAndHashtags)) && el;
     }
 
-    const searchResults = [];
+    let searchResults = [];
     let lastElement;
     document.querySelectorAll('#sp-note-content>.sp-page>.sp-block').forEach(el => {
       if(el.tagName === 'H1' || el.tagName === 'H2') {
@@ -319,34 +320,30 @@ class Bignote extends React.Component {
 
       if (el.tagName =='UL') {
         Array.from(el.children).forEach(child => {
-          if(includeElement(child)) {
-            searchResults.push(child);
-          }
+          searchResults.push(includeElement(child));
         });
       } else {
-        if(includeElement(el)) {
-          searchResults.push(el);
-        }
+        searchResults.push(includeElement(el));
       }
     });
 
+    searchResults = searchResults.filter(el => el);
     if(!this.state.searchString.trim() || searchResults.length === 0) {
       $('#sp-search-results').html('<em>No results.</em>');
       $(window).scrollTop(0);
     } else {
       let html = searchResults.map(el => el.outerHTML).join('\n');
-      html = html.replace(searchRegex, (searchMatch) => {
-        return `<span class="sp-highlight">${searchMatch}</span>`;
-      });
       $('#sp-search-results').html(html);
 
+      new Mark(document.querySelector('#sp-search-results')).markRegExp(searchRegex);
+
       $('#sp-search-results .sp-block').click(e => {
-        this.currentBigNote.selectedBlockId = e.target.id;
+        this.currentBigNote.selectedBlockId = $(e.target).closest('.sp-block')[0].id;
         this.handleToNoteMode();
       });
 
       $('#sp-search-results li').click(e => {
-        this.currentBigNote.selectedBlockId = e.target.id;
+        this.currentBigNote.selectedBlockId = $(e.target).closest('.sp-block')[0].id;
         this.handleToNoteMode();
       });
 

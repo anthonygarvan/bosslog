@@ -39,6 +39,7 @@
     "localforage": "^1.7.1",
     "lodash": "^4.17.10",
     "lz-string": "^1.4.4",
+    "mark.js": "^8.11.1",
     "mongodb": "^3.0.10",
     "morgan": "latest",
     "node-sass": "latest",
