@@ -76,30 +76,30 @@ class Bignote extends React.Component {
     selection.addRange(range);
   }
 
-  shouldComponentUpdate(nextProps) {
-    if(nextProps.searchString !== this.props.searchString) {
+  componentDidUpdate(prevProps) {
+    if(prevProps.searchString !== this.props.searchString) {
       this.debouncedSearch();
     }
 
-    if((nextProps.password !== this.props.password) || (nextProps.isAuthenticated !== this.props.isAuthenticated)) {
+    if((prevProps.password !== this.props.password) || (prevProps.isAuthenticated !== this.props.isAuthenticated)) {
       this.syncData();
     }
 
-    if(nextProps.mode !== this.props.mode) {
-      if(nextProps.mode === 'note') {
+    if(prevProps.mode !== this.props.mode) {
+      if(this.props.mode === 'note') {
         $('#sp-search-results').hide();
         $('#sp-note-content').show();
         this.initializeCursor();
       }
 
-      if(nextProps.mode === 'search') {
+      if(this.props.mode === 'search') {
         $('#sp-note-content').hide();
         $('#sp-search-results').show();
         this.searchNote();
       }
     }
 
-    return false;
+
   }
 
   componentDidMount() {
@@ -297,7 +297,14 @@ class Bignote extends React.Component {
 
           this.revision = parseInt(data.revisions[data.revisions.length - 1].revision);
 
-          $('#sp-note-content').html(this.bigNoteServerState.content.join('\n'))
+          let html = '';
+          _.chunk(this.bigNoteServerState.content, 500).forEach(pageContent => {
+            html += `<div class="sp-page sp-hidden">${pageContent.join('\n')}</div>`
+          });
+          $('#sp-note-content').html(html);
+
+          this.currentBigNote.selectedBlockId = this.bigNoteServerState.selectedBlockId;
+          this.initializeCursor();
         }
 
         window.localStorage.setItem('revision', this.revision);
