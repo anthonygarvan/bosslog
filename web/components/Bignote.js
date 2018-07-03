@@ -231,7 +231,7 @@ class Bignote extends React.Component {
         newLines = document.createDocumentFragment();
         _.chunk(lines, 500).forEach((pageContent, i) => {
           var div = document.createElement('div');
-          div.className = i ? "sp-page sp-hidden" : "sp-page";
+          div.className = "sp-page sp-hidden";
           const pageContentHtml = []
           pageContent.forEach(line => {
             const id = shortId.generate();
@@ -244,7 +244,7 @@ class Bignote extends React.Component {
         });
       }
 
-      $(newLines).insertAfter($(selection.anchorNode).closest('.sp-page'));
+      $(newLines).insertAfter(pageElement);
 
       this.currentBigNote.selectedBlockId = lastNodeId;
       this.initializeCursor();
