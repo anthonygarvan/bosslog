@@ -6646,11 +6646,25 @@ code {
   border: 1px solid darkgrey;
   border-radius: 5px; }
 
+.content h1 .sp-mention-input, .sp-link-button h1 .sp-mention-input, .content h1 .sp-link-button, .sp-link-button h1 .sp-link-button {
+  font-size: 2rem; }
+
 
 .content h2,
 .sp-link-button h2 {
   color: grey;
   font-size: 1.5rem; }
+  .content h2 .sp-mention-input, .sp-link-button h2 .sp-mention-input, .content h2 .sp-link-button, .sp-link-button h2 .sp-link-button {
+    font-size: 1.5rem; }
+
+
+.content h3,
+.sp-link-button h3 {
+  color: purple;
+  font-size: 1.2rem;
+  text-transform: uppercase; }
+  .content h3 .sp-mention-input, .sp-link-button h3 .sp-mention-input, .content h3 .sp-link-button, .sp-link-button h3 .sp-link-button {
+    font-size: 1.2rem; }
 
 .sp-mention-input {
   background: transparent;
@@ -6661,12 +6675,6 @@ code {
   width: 8rem; }
   .sp-mention-input:focus {
     outline: none; }
-
-h1 .sp-mention-input, h1 .sp-link-button {
-  font-size: 2rem; }
-
-h2 .sp-mention-input, h2 .sp-link-button {
-  font-size: 1.5rem; }
 
 #sp-search-results .sp-block, #sp-search-results li {
   cursor: pointer; }

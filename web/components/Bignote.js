@@ -359,9 +359,17 @@ class Bignote extends React.Component {
     });
 
     searchResults = searchResults.filter(el => el);
-    if(!this.props.searchString.trim() || searchResults.length === 0) {
+    if(searchResults.length === 0) {
       $('#sp-search-results').html('<em>No results.</em>');
       $(window).scrollTop(0);
+    } else if(!this.props.searchString.trim()) {
+      $('#sp-search-results').html('<h2>Anchors</h2>' + $('#sp-note-content h3').toArray().map(el => el.outerHTML).join('\n'));
+      $(window).scrollTop(0);
+      let that = this;
+      $('#sp-search-results h3').click(function() {
+        that.currentBigNote.selectedBlockId = this.id;
+        that.props.handleToNoteMode();
+      })
     } else {
       let html = searchResults.map(el => el.outerHTML).join('\n');
       $('#sp-search-results').html(html);

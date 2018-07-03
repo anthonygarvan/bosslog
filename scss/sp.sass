@@ -128,9 +128,21 @@ code
   border: 1px solid darkgrey
   border-radius: 5px
 
-.content h2
-  color: grey
-  font-size: 1.5rem
+.content
+  h1
+    .sp-mention-input, .sp-link-button
+      font-size: 2rem
+  h2
+    color: grey
+    font-size: 1.5rem
+    .sp-mention-input, .sp-link-button
+      font-size: 1.5rem
+  h3
+    color: purple
+    font-size: 1.2rem
+    text-transform: uppercase
+    .sp-mention-input, .sp-link-button
+      font-size: 1.2rem
 
 .sp-mention-input
   background: transparent
@@ -141,13 +153,6 @@ code
   width: 8rem
   &:focus
     outline: none
-
-h1
-  .sp-mention-input, .sp-link-button
-    font-size: 2rem
-h2
-  .sp-mention-input, .sp-link-button
-    font-size: 1.5rem
 
 #sp-search-results .sp-block, #sp-search-results li
   cursor: pointer

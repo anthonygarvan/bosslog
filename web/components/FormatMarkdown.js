@@ -171,6 +171,32 @@ function formatHeader2() {
   }
 }
 
+function formatAnchor() {
+  const sel = window.getSelection();
+  const anchorNode = sel.anchorNode;
+  const block = $(anchorNode);
+  const nodeContents = block.text();
+
+  const regex = new RegExp(/^(?:\/\/\s)(.*)?/);
+
+  if(regex.test(nodeContents)) {
+    const match = nodeContents.match(regex);
+    const id = shortId.generate();
+
+    const matchContent = match[1] || '&nbsp;';
+    const newHtml = nodeContents.replace(regex, `<h3 id="${id}" class="sp-block">${matchContent}</h3>`);
+
+    block.parent().replaceWith(newHtml);
+
+    var range = document.createRange();
+    const cursorNode = $(`#${id}`).get(0);
+    range.setStart(cursorNode, 1);
+    range.setEnd(cursorNode, 1);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+}
+
 
 function formatUnorderedList() {
   const sel = window.getSelection();
@@ -287,6 +313,7 @@ function formatMarkdown() {
     formatCheckbox();
     formatHeader1();
     formatHeader2();
+    formatAnchor();
     formatUnorderedList();
     formatLink();
     formatMentionOrHashtag();
