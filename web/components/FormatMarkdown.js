@@ -253,11 +253,11 @@ function formatMentionOrHashtag() {
   const sel = window.getSelection();
   const anchorNode = sel.anchorNode;
   const block = $(anchorNode);
-  const nodeContents = block.text().slice(0, sel.anchorOffset);
+  const nodeContents = block.text();
 
   const regex = /([@#][^\s#]+)/;
 
-  if(regex.test(nodeContents)) {
+  if(regex.test(nodeContents.slice(0, sel.anchorOffset))) {
     const match = nodeContents.match(regex);
     const id = shortId.generate();
 
