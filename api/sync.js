@@ -13,9 +13,11 @@ module.exports = { Sync: (db, auth) => {
           if( revisions.length > 0 ) {;
             res.send({ success: false, revisions })
           } else {
-            db.notes.insert({ userId: req.user.id,
-                revision: parseInt(req.body.revision),
-                encryptedDiff: req.body.encryptedDiff });
+            if(req.body.encryptedDiff !== 'false') {
+              db.notes.insert({ userId: req.user.id,
+                  revision: parseInt(req.body.revision),
+                  encryptedDiff: req.body.encryptedDiff });
+            }
             res.send({ success: true })
           }
     });

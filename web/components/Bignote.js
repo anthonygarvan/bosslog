@@ -257,6 +257,8 @@ class Bignote extends React.Component {
       this.initializeCursor();
       this.debouncedSync();
     })
+
+    setInterval(this.syncData, 1000*60*15);
   }
 
   syncData() {
@@ -282,13 +284,15 @@ class Bignote extends React.Component {
     }
 
     if(this.props.isAuthenticated && this.props.password) {
+      const encryptedDiff = diffObj.length ? CryptoJS.AES.encrypt(JSON.stringify(diffObj), this.props.password).toString() : false;
       $.post('/sync', { revision: this.revision + 1,
-        encryptedDiff: CryptoJS.AES.encrypt(JSON.stringify(diffObj), this.props.password).toString() }, (data) => {
+        encryptedDiff  }, (data) => {
         window.localStorage.setItem('bigNoteLocalChanges', compress('[]'));
         if( data.success ) {
           this.bigNoteServerState = _.cloneDeep(this.currentBigNote);
-          this.revision += 1
-          window.localStorage.setItem('revision', this.revision);
+          if(encryptedDiff) {
+            this.revision += 1
+          }
         } else {
           const serverDiffs = data.revisions.map(revision => {
             return JSON.parse(CryptoJS.AES.decrypt(
