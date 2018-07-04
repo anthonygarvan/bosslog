@@ -58,7 +58,8 @@ class App extends React.Component {
     })
   }
 
-  handlePasswordSet() {
+  handlePasswordSet(e) {
+    e.preventDefault();
     this.setState({ password: this.state.passwordValue, loggingIn: false }, () => {
       window.localStorage.setItem('bigNotePassword', this.state.passwordValue);
       this.handleNotLoggingIn();
@@ -110,10 +111,11 @@ class App extends React.Component {
               <div className={`modal ${this.state.loggingIn && 'is-active'}`}>
                 <div className="modal-background" onClick={this.handleNotLoggingIn}></div>
                 <div className="modal-content">
-                  <div className="box is-centered">{this.state.isAuthenticated ? <div><p>Logged in as {this.state.userEmail}.</p>
+                  <div className="box is-centered">{this.state.isAuthenticated ? <form onSubmit={this.handlePasswordSet}><p>Logged in as {this.state.userEmail}.</p>
                   <p>Please enter your password. It must be at least 8 characters.</p>
                   <div className="field">
                     <p className="control has-icons-left">
+                      <input className="sp-hidden" type="email" value={this.state.userEmail} readOnly />
                       <input className={`input ${this.state.passwordIsValid ? 'is-success' : this.state.passwordValue && 'is-danger'}`} type="password" placeholder="Password" value={this.state.passwordValue}
                         onChange={(e) => this.setState({ passwordValue: e.target.value, passwordIsValid: e.target.value.length >= 8 })}/>
                       <span className="icon is-small is-left">
@@ -125,9 +127,11 @@ class App extends React.Component {
                   <p><i className="fas fa-exclamation-triangle"></i>&nbsp;&nbsp;For your security, we do not store your password.
                   If you lose your password you will not be able to access your note.</p>
                   <p>
-                    <a className="button is-primary" disabled={!this.state.passwordIsValid} onClick={this.handlePasswordSet}>Start Secure Sync</a>
+                    <button type="submit"
+                      className="button is-primary"
+                      disabled={!this.state.passwordIsValid}>Start Secure Sync</button>
                   </p>
-                  </div>
+                  </form>
                      : <div>
                     <p>Please sign in with your Google account.</p>
                      <p><a href="/auth/authenticate" className="button is-primary">Log in with Google</a></p></div>}
