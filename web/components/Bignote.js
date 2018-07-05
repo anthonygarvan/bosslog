@@ -118,11 +118,6 @@ class Bignote extends React.Component {
     });
     content.innerHTML = html;
 
-    window.handleMentionOrHashtagClick = (e) => {
-      this.handleToSearchMode();
-      this.handleSearchChange(e);
-    }
-
     this.initializeCursor();
 
     document.querySelectorAll('input[type="checkbox"]').forEach((el) => {

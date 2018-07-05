@@ -27,6 +27,11 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    window.handleMentionOrHashtagClick = (e) => {
+      this.handleToSearchMode();
+      this.handleSearchChange(e);
+    }
+
     $.getJSON('/auth/is-authenticated', result => {
       this.setState(result);
     })
