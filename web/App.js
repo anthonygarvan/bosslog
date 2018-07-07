@@ -144,7 +144,7 @@ class App extends React.Component {
                 <button className="modal-close is-large" onClick={this.handleNotLoggingIn}></button>
               </div>
               <p>Copyright © 2018. Made with ♥ by <a href="https://www.twitter.com/anthonygarvan">@anthonygarvan</a>.</p>
-              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="#">Source</a></p>
+              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="#">Source</a>{ this.state.isAuthenticated &&   <span>| <a href="/auth/logout">Logout</a></span> }</p>
               <p>Questions, comments or problems? Feel free to tweet me or file an issue on <a href="#">github</a>.</p>
               </div></div></footer></div>
   }

@@ -268,9 +268,8 @@ class Bignote extends React.Component {
       }
     }
 
-    const hiddenRegex = new RegExp(/sp-hidden/g);
     $('#sp-note-content>.sp-page>.sp-block').each((i, el) => {
-        this.currentBigNote.content.push(el.outerHTML.replace(hiddenRegex, ''))
+        this.currentBigNote.content.push(el.outerHTML);
     });
     const diffObj = diff.diff(this.bigNoteServerState, this.currentBigNote) || [];
 
