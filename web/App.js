@@ -2,6 +2,7 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const Bignote = require('./components/Bignote');
 const $ = require('jquery');
+const { decompress } = require('lz-string');
 require('./components/register-service-worker');
 
 class App extends React.Component {
@@ -14,6 +15,7 @@ class App extends React.Component {
     this.handleNotLoggingIn = this.handleNotLoggingIn.bind(this);
     this.handleToNoteMode = this.handleToNoteMode.bind(this);
     this.handleToSearchMode = this.handleToSearchMode.bind(this);
+    this.handleLogout = this.handleLogout.bind(this);
     this.toSyncStatus = this.toSyncStatus.bind(this);
 
     this.state = {
@@ -69,6 +71,18 @@ class App extends React.Component {
       window.localStorage.setItem('bigNotePassword', this.state.passwordValue);
       this.handleNotLoggingIn();
     });
+  }
+
+  handleLogout() {
+    if(JSON.parse(decompress(window.localStorage.getItem("bigNoteLocalChanges"))).length) {
+      alert("You have usaved changes. Please sync before logging out.")
+    } else {
+      window.localStorage.removeItem("bigNoteLocalChanges");
+      window.localStorage.removeItem("bigNoteServerState");
+      window.localStorage.removeItem("revision");
+      window.localStorage.removeItem("bigNotePassword");
+      window.location.href = '/auth/logout';
+    }
   }
 
   toSyncStatus(syncStatus) {
@@ -144,7 +158,7 @@ class App extends React.Component {
                 <button className="modal-close is-large" onClick={this.handleNotLoggingIn}></button>
               </div>
               <p>Copyright © 2018. Made with ♥ by <a href="https://www.twitter.com/anthonygarvan">@anthonygarvan</a>.</p>
-              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="#">Source</a>{ this.state.isAuthenticated &&   <span>| <a href="/auth/logout">Logout</a></span> }</p>
+              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="#">Source</a>{ this.state.isAuthenticated &&   <span>| <a onClick={this.handleLogout}>Logout</a></span> }</p>
               <p>Questions, comments or problems? Feel free to tweet me or file an issue on <a href="#">github</a>.</p>
               </div></div></footer></div>
   }
