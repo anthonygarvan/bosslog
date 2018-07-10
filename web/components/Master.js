@@ -21,7 +21,6 @@ function Master(props) {
 
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <link rel="icon" href="/img/favicon.png" />
-          <link href="https://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet" />
           <link rel="manifest" href="./manifest.json" />
 
           <script dangerouslySetInnerHTML={{__html: `
