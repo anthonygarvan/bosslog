@@ -160,6 +160,10 @@ class App extends React.Component {
               <p>Copyright © 2018. Made with ♥ by <a href="https://www.twitter.com/anthonygarvan">@anthonygarvan</a>.</p>
               <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="#">Source</a>{ this.state.isAuthenticated &&   <span>| <a onClick={this.handleLogout}>Logout</a></span> }</p>
               <p>Questions, comments or problems? Feel free to tweet me or file an issue on <a href="#">github</a>.</p>
+              <p className="sp-logo">
+                <img src="/img/logo.png" alt="logo" />
+                <div>Bignote</div>
+              </p>
               </div></div></footer></div>
   }
 }
