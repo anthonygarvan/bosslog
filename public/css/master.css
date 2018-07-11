@@ -6559,7 +6559,7 @@ body,
   margin: 0 auto;
   min-height: 100vh;
   background-color: #fafafa;
-  border: 1px solid lightgrey;
+  border: 3px solid #1c2c99;
   padding-bottom: 5rem; }
   @media screen and (min-width: 769px), print {
     .sp-bignote-container {
@@ -6606,7 +6606,7 @@ body,
   .sp-bignote-container .sp-search-header {
     padding: 1rem;
     display: flex;
-    background-color: lightgrey; }
+    background-color: #1c2c99; }
     .sp-bignote-container .sp-search-header .sp-search {
       margin: 0 auto;
       width: 70%; }
