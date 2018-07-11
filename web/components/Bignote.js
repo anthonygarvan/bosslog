@@ -183,7 +183,7 @@ class Bignote extends React.Component {
     });
 
     content.addEventListener('input', (e) => {
-      formatMarkdown();
+      formatMarkdown(this.debouncedSync);
       this.props.toSyncStatus('yellow');
       this.debouncedSync();
     });

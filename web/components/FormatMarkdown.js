@@ -84,7 +84,7 @@ function formatCode() {
   }
 }
 
-function formatCheckbox() {
+function formatCheckbox(debouncedSync) {
   const sel = window.getSelection();
   const anchorNode = sel.anchorNode;
   const block = $(anchorNode);
@@ -301,7 +301,7 @@ function formatMentionOrHashtag() {
   }
 }
 
-function formatMarkdown() {
+function formatMarkdown(debouncedSync) {
   const sel = window.getSelection();
   const anchorNode = sel.anchorNode;
   const block = $(anchorNode);
@@ -310,7 +310,7 @@ function formatMarkdown() {
     formatItalics();
     formatBold();
     formatCode();
-    formatCheckbox();
+    formatCheckbox(debouncedSync);
     formatHeader1();
     formatHeader2();
     formatAnchor();
