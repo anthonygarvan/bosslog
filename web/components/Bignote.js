@@ -30,7 +30,7 @@ class Bignote extends React.Component {
 
     if(this.currentBigNote.content.length === 0) {
       const firstId = shortId.generate();
-      this.currentBigNote.content = [`<div id="${firtId}" class="sp-block"><br></div>`];
+      this.currentBigNote.content = [`<div id="${firstId}" class="sp-block"><br></div>`];
       this.currentBigNote.selectedBlockId = firstId;
     }
   }
@@ -60,8 +60,13 @@ class Bignote extends React.Component {
   initializeCursor() {
     // Set cursor position and hide / reveal pages
     const range = document.createRange();
-    const cursor = $(`#sp-note-content #${this.currentBigNote.selectedBlockId}`);
-    const cursorNode = cursor.get(0);
+    let cursor = $(`#sp-note-content #${this.currentBigNote.selectedBlockId}`);
+    let cursorNode = cursor.get(0);
+
+    if(!cursorNode) {
+      cursor = $('#sp-note-content .sp-block').last();
+      cursorNode = cursor.get(0);
+    }
 
     const currentPage = cursor.closest('.sp-page');
     currentPage.removeClass('sp-hidden');
@@ -221,7 +226,8 @@ class Bignote extends React.Component {
         var div = document.createElement('div');
         div.className ="sp-block";
         div.id = `${shortId.generate()}`;
-        div.innerHTML = lines.shift() || '<br />';
+        let nextLine = lines.shift();
+        div.innerHTML = nextLine.trim() ? nextLine : '<br />';
         lastNodeId = div.id;
         newLines.appendChild(div);
         insertedCount++;
@@ -238,7 +244,7 @@ class Bignote extends React.Component {
           pageContent.forEach(line => {
             const id = shortId.generate();
             lastNodeId = id;
-            pageContentHtml.push(`<div id=${id} class="sp-block">${line || '<br />'}</div>`)
+            pageContentHtml.push(`<div id=${id} class="sp-block">${line.trim() ? line : '<br />'}</div>`)
           });
 
           div.innerHTML = pageContentHtml.join('\n');
@@ -363,7 +369,20 @@ class Bignote extends React.Component {
       }
     });
 
-    searchResults = searchResults.filter(el => el);
+    let filteredSearchResults = []
+    let breakInserted = false;
+    searchResults.forEach(result => {
+      if(!result) {
+        if(!breakInserted) {
+          filteredSearchResults.push(document.createElement('HR'))
+          breakInserted = true;
+        }
+      } else {
+        filteredSearchResults.push(result);
+        breakInserted = false;
+      }
+    })
+    searchResults = filteredSearchResults;
     if(searchResults.length === 0) {
       $('#sp-search-results').html('<em>No results.</em>');
       $(window).scrollTop(0);
@@ -387,12 +406,16 @@ class Bignote extends React.Component {
       });
 
       $('#sp-search-results li').click(e => {
-        this.currentBigNote.selectedBlockId = $(e.target).closest('.sp-block')[0].id;
+        this.currentBigNote.selectedBlockId = e.target.id;
         this.props.handleToNoteMode();
       });
 
-      $(window).scrollTop(Math.max($(`#${searchResults.pop().id}`).offset().top - $(window).height() / 2, 0));
+      let lastSearchResultId = false;
+      while(!lastSearchResultId) {
+        lastSearchResultId = searchResults.pop().id;
+      }
 
+      $(window).scrollTop(Math.max($(`#${lastSearchResultId}`).offset().top - $(window).height() / 2, 0));
     }
 
     this.props.searchDone();

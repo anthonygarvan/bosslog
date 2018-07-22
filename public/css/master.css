@@ -6691,3 +6691,7 @@ code {
     height: 3rem; }
   .sp-logo div {
     font-weight: bold; }
+
+hr {
+  height: 1px;
+  margin: 1rem 0; }
