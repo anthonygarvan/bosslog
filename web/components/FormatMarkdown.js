@@ -96,8 +96,14 @@ function formatCheckbox(debouncedSync) {
     const match = nodeContents.match(regex);
     const id = shortId.generate();
 
-    const matchContent = match[1] || '&nbsp;';
-    const newHtml = nodeContents.replace(regex, `<span id="${id}"><input type="checkbox" />${matchContent}</span>&nbsp;`);
+    const matchContent = match[1] || '';
+    const newHtml = nodeContents.replace(regex, `<span id="${id}"><div class="pretty p-icon p-smooth p-curve p-thick">
+                                                  <input type="checkbox" />
+                                                  <div class="state p-success">
+                                                      <i class="icon fas fa-check"></i>
+                                                      <label></label>
+                                                  </div>
+                                              </div>${matchContent}</span>&#8288;`);
 
     block.replaceWith(newHtml);
 
@@ -131,7 +137,7 @@ function formatHeader1() {
     const match = nodeContents.match(regex);
     const id = shortId.generate();
 
-    const matchContent = match[1] || '&nbsp;';
+    const matchContent = match[1] || '&#8288;';
     const newHtml = nodeContents.replace(regex, `<h1 id="${id}" class="sp-block">${matchContent}</h1>`);
 
     block.parent().replaceWith(newHtml);
@@ -157,7 +163,7 @@ function formatHeader2() {
     const match = nodeContents.match(regex);
     const id = shortId.generate();
 
-    const matchContent = match[1] || '&nbsp;';
+    const matchContent = match[1] || '&#8288;';
     const newHtml = nodeContents.replace(regex, `<h2 id="${id}" class="sp-block">${matchContent}</h2>`);
 
     block.parent().replaceWith(newHtml);
@@ -183,7 +189,7 @@ function formatAnchor() {
     const match = nodeContents.match(regex);
     const id = shortId.generate();
 
-    const matchContent = match[1] || '&nbsp;';
+    const matchContent = match[1] || '&#8288;';
     const newHtml = nodeContents.replace(regex, `<h3 id="${id}" class="sp-block">${matchContent}</h3>`);
 
     block.parent().replaceWith(newHtml);
@@ -210,7 +216,7 @@ function formatUnorderedList() {
     const match = nodeContents.match(regex);
     const id = shortId.generate();
 
-    const matchContent = match[1] || '&nbsp;';
+    const matchContent = match[1] || '&#8288;';
     const newHtml = nodeContents.replace(regex, `<ul id=${shortId.generate()} class="sp-block"><li id="${id}">${matchContent}</li></ul>`);
 
     block.parent().replaceWith(newHtml);

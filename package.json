@@ -47,6 +47,7 @@
     "passport": "latest",
     "passport-google-oauth2": "latest",
     "passport-strategy": "latest",
+    "pretty-checkbox": "^3.0.3",
     "react": "latest",
     "react-dom": "latest",
     "react-google-login": "^3.2.1",
