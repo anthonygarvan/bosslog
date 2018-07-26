@@ -6592,7 +6592,12 @@ body,
     .sp-bignote-container .sp-note-header .sp-search-icon {
       position: fixed;
       right: 1rem;
-      top: 1rem; }
+      top: 1rem;
+      font-size: 0.8rem;
+      background-color: #ff4d6a;
+      color: #fafafa;
+      padding: 0.4rem;
+      border-radius: 5px; }
       @media screen and (min-width: 769px), print {
         .sp-bignote-container .sp-note-header .sp-search-icon {
           position: absolute; } }
@@ -6643,9 +6648,12 @@ body,
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; }
 
 code {
-  background-color: #e2e2eb;
-  border: 1px solid darkgrey;
-  border-radius: 5px; }
+  background-color: #edf3ff;
+  border: 1px solid #8a93d3;
+  border-radius: 5px;
+  font-family: monospace;
+  padding: 0.15em;
+  color: #0a0a0a; }
 
 .content h1 .sp-mention-input, .sp-link-button h1 .sp-mention-input, .content h1 .sp-link-button, .sp-link-button h1 .sp-link-button {
   font-size: 2rem; }
@@ -6661,11 +6669,24 @@ code {
 
 .content h3,
 .sp-link-button h3 {
-  color: purple;
+  color: #bebebe;
   font-size: 1.2rem;
-  text-transform: uppercase; }
+  text-transform: uppercase;
+  position: relative;
+  padding-bottom: 1rem; }
   .content h3 .sp-mention-input, .sp-link-button h3 .sp-mention-input, .content h3 .sp-link-button, .sp-link-button h3 .sp-link-button {
     font-size: 1.2rem; }
+
+#sp-note-content h3:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  z-index: 100;
+  bottom: 0px;
+  width: 4rem;
+  height: 4px;
+  border-radius: 2px;
+  background: #ff4d6a; }
 
 .sp-mention-input {
   background: transparent;
