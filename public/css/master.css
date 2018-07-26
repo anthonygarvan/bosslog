@@ -6626,7 +6626,8 @@ body,
 .sp-block {
   background-color: transparent;
   position: relative;
-  left: 0px; }
+  left: 0px;
+  overflow: hidden; }
   .sp-block.sp-hidden {
     left: -4096px;
     height: 0px; }
@@ -6695,3 +6696,7 @@ code {
 hr {
   height: 1px;
   margin: 1rem 0; }
+
+.modal {
+  align-items: flex-start;
+  padding-top: 3rem; }
