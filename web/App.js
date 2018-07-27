@@ -157,8 +157,55 @@ class App extends React.Component {
                 </div></div>
                 <button className="modal-close is-large" onClick={this.handleNotLoggingIn}></button>
               </div>
+
+              <div className={`modal ${this.state.gettingHelp && 'is-active'}`}>
+                <div className="modal-background" onClick={() => this.setState({ gettingHelp: false })}></div>
+                <div className="modal-content">
+                  <div className="box sp-help">
+                  <div className="content">
+                    <h1>Cheat sheet</h1>
+                    <hr />
+                    <div className="columns">
+                    <div className="column">
+                      <div><strong>Header</strong></div>
+                      <div><code># single hash</code></div>
+                      <br />
+                      <div><strong>Subhead</strong></div>
+                      <div><code>## double hash</code></div>
+                      <br />
+                      <div><strong>List</strong></div>
+                      <div><code>- dash</code></div>
+                      <br />
+                      <div><strong>Checkbox</strong></div>
+                      <div><code>[ ] brackets</code></div>
+                      <br />
+                    </div>
+                    <div className="column">
+                      <div><strong>Bold</strong></div>
+                      <div><code>**asterisks**</code></div>
+                      <br />
+                      <div><strong>Italic</strong></div>
+                      <div><code>_underscores_</code></div>
+                      <br />
+                      <div><strong>Code Block</strong></div>
+                      <div><code>`grave accents`</code></div>
+                      <br />
+                      <div><strong>Bookmark</strong></div>
+                      <div><code>// double slash</code></div>
+                      <br />
+                    </div>
+                    </div>
+                    <div><strong>Also...</strong></div>
+                    <div>Checkboxes show up in searches for #todo,
+                    bookmarks show up in the search page when the search box is empty.
+                    @mentions and #hashtags autocomplete.</div>
+                    <br />
+                  </div>
+                </div></div>
+                <button className="modal-close is-large" onClick={() => this.setState({ gettingHelp: false })}></button>
+              </div>
               <p>Copyright © 2018. Made with ♥ by <a href="https://www.twitter.com/anthonygarvan">@anthonygarvan</a>. Design by Ryan Thurlwell.</p>
-              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="#">Source</a>{ this.state.isAuthenticated &&   <span>| <a onClick={this.handleLogout}>Logout</a></span> }</p>
+              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="#">Source</a> | <a onClick={() => this.setState({ gettingHelp: true })}>Help</a> | { this.state.isAuthenticated &&   <span>| <a onClick={this.handleLogout}>Logout</a></span> }</p>
               <p>Questions, comments or problems? Feel free to tweet me or file an issue on <a href="#">github</a>.</p>
               <div className="sp-logo">
                 <img src="/img/logo.png" alt="logo" />

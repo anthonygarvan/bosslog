@@ -7291,7 +7291,6 @@ code {
   content: "";
   position: absolute;
   left: 0;
-  z-index: 100;
   bottom: 0px;
   width: 4rem;
   height: 4px;
@@ -7331,3 +7330,15 @@ hr {
 .modal {
   align-items: flex-start;
   padding-top: 3rem; }
+
+.sp-help {
+  background-color: #edf3ff;
+  text-align: left;
+  padding-left: 3rem; }
+  .sp-help code {
+    border: none; }
+  .sp-help hr {
+    width: 4rem;
+    height: 4px;
+    border-radius: 2px;
+    background: #ff4d6a; }

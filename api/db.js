@@ -13,6 +13,7 @@ module.exports = {
     }).then(db =>
       Promise.all([
         db.notes.createIndex({ userId: 1 }),
+        db.notes.createIndex({ revision: 1 })
       ]).catch(err => winston.log(err))
         .then(() => new Promise((resolve) => { resolve(db); }))),
 };
