@@ -5,3 +5,5 @@
 /certs
 /.node-persist
 /public/service*
+/ecosystem.config.js
+/.env
