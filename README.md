@@ -22,7 +22,7 @@ _The app that's just one big note._
 - `_underscores_` make italics
 - `` `backticks` `` make a code  block
 - `// double slash with a space` makes an bookmark. Bookmarks show up in the search tab when there's no search term.
-- [ ] brackets with a space  at the beginning of a line make a checkbox (you can search for them later using #todo)
+- `[ ] brackets with a space`  at the beginning of a line make a checkbox (you can search for them later using #todo)
 - Urls like https://bignote.app become clickable after the first space
 - Use @mentions  and #hashtags to make sure you can easily find notes about your  teammates or important themes   
 
