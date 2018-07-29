@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/anthonygarvan/bignote.svg?style=svg)](https://circleci.com/gh/anthonygarvan/bignote)
+
 # Welcome to Bignote
 _The app that's just one big note._
 
