@@ -20,7 +20,7 @@ _The app that's just one big note._
 - `- dash with space` at beginning of line makes a list
 - `**asterisks**` make bold
 - `_underscores_` make italics
-- ``backticks`` make a code  block
+- `\`backticks\`` make a code  block
 - `// double slash with a space` makes an bookmark. Bookmarks show up in the search tab when there's no search term.
 - [ ] brackets with a space  at the beginning of a line make a checkbox (you can search for them later using #todo)
 - Urls like https://bignote.app become clickable after the first space
