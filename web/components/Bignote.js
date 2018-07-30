@@ -4,10 +4,12 @@ const diff = require('deep-diff');
 const CryptoJS = require('crypto-js');
 const $ = require('jquery');
 const shortId = require('shortid');
-const { compress, decompress } = require('lz-string');
+const { decompress } = require('lz-string');
 const defaultContent = require('./DefaultContent.js')
 const formatMarkdown = require('./FormatMarkdown');
 const Mark = require('mark.js');
+const localforage = require('localforage');
+require('babel-polyfill');
 
 class Bignote extends React.Component {
   constructor(props) {
@@ -20,19 +22,35 @@ class Bignote extends React.Component {
     this.debouncedSearch = _.debounce(this.searchNote, 600);
     this.debouncedFlipPages = _.debounce(this.flipPages, 300, { maxWait: 1000 });
 
-    this.bigNoteServerState = window.localStorage.getItem("bigNoteServerState") ? JSON.parse(decompress(window.localStorage.getItem("bigNoteServerState"))) : {};
-    const bigNoteLocalChanges = window.localStorage.getItem("bigNoteLocalChanges") ? JSON.parse(decompress(window.localStorage.getItem("bigNoteLocalChanges"))) : defaultContent;
-    this.revision =window.localStorage.getItem('revision') ?  parseInt(window.localStorage.getItem('revision')) : 0;
-    this.currentBigNote = _.cloneDeep(this.bigNoteServerState);
-    bigNoteLocalChanges.forEach(change => {
-      diff.applyChange(this.currentBigNote, null, change);
-    });
-
-    if(this.currentBigNote.content.length === 0) {
-      const firstId = shortId.generate();
-      this.currentBigNote.content = [`<div id="${firstId}" class="sp-block"><br></div>`];
-      this.currentBigNote.selectedBlockId = firstId;
+    let bigNoteServerState, bigNoteLocalChanges, revision;
+    async function getData() {
+       return await Promise.all([localforage.getItem("bigNoteServerState"),
+                 localforage.getItem("bigNoteLocalChanges"),
+                 localforage.getItem('revision')])
     }
+
+    this.loadData = getData().then(values => {
+      [bigNoteServerState, bigNoteLocalChanges, revision] = values;
+      try {
+        this.bigNoteServerState =  bigNoteServerState ? JSON.parse(bigNoteServerState) : {};
+        bigNoteLocalChanges =  bigNoteLocalChanges ? JSON.parse(bigNoteLocalChanges) : defaultContent;
+      } catch(error) {
+        this.bigNoteServerState =  bigNoteServerState ? JSON.parse(decompress(bigNoteServerState)) : {};
+        bigNoteLocalChanges =  bigNoteLocalChanges ? JSON.parse(decompress(bigNoteLocalChanges)) : defaultContent;
+      }
+
+      this.revision = revision ?  parseInt(revision) : 0;
+      this.currentBigNote = _.cloneDeep(this.bigNoteServerState);
+      bigNoteLocalChanges.forEach(change => {
+        diff.applyChange(this.currentBigNote, null, change);
+      });
+
+      if(this.currentBigNote.content.length === 0) {
+        const firstId = shortId.generate();
+        this.currentBigNote.content = [`<div id="${firstId}" class="sp-block"><br></div>`];
+        this.currentBigNote.selectedBlockId = firstId;
+      }
+    });
   }
 
   flipPages() {
@@ -77,7 +95,6 @@ class Bignote extends React.Component {
     if(currentPage.prev()) {
       currentPage.prev().removeClass('sp-hidden');
     }
-    $('#sp-note-content').focus();
 
     $(window).scrollTop(Math.max(cursor.offset().top - $(window).height() / 2, 0));
 
@@ -94,7 +111,9 @@ class Bignote extends React.Component {
     }
 
     if((prevProps.password !== this.props.password) || (prevProps.isAuthenticated !== this.props.isAuthenticated)) {
-      this.syncData();
+      this.loadData.then(() => {
+        this.syncData();
+      });
     }
 
     if(prevProps.mode !== this.props.mode) {
@@ -118,6 +137,7 @@ class Bignote extends React.Component {
     const content = document.querySelector('#sp-note-content');
     const debouncedSync = this.debouncedSync;
     let html = '';
+    this.loadData.then(() => {
     _.chunk(this.currentBigNote.content, 100).forEach(pageContent => {
       html += `<div class="sp-page sp-hidden">${pageContent.join('\n')}</div>`
     });
@@ -260,6 +280,7 @@ class Bignote extends React.Component {
     })
 
     setInterval(this.syncData, 1000*60*15);
+  });
   }
 
   syncData() {
@@ -280,14 +301,14 @@ class Bignote extends React.Component {
     const diffObj = diff.diff(this.bigNoteServerState, this.currentBigNote) || [];
 
     if(diffObj && diffObj.length > 0) {
-      window.localStorage.setItem('bigNoteLocalChanges', compress(JSON.stringify(diffObj)));
+      localforage.setItem('bigNoteLocalChanges', JSON.stringify(diffObj));
     }
 
     if(this.props.isAuthenticated && this.props.password) {
       const encryptedDiff = diffObj.length ? CryptoJS.AES.encrypt(JSON.stringify(diffObj), this.props.password).toString() : false;
       $.post('/sync', { revision: this.revision + 1,
         encryptedDiff  }, (data) => {
-        window.localStorage.setItem('bigNoteLocalChanges', compress('[]'));
+        localforage.setItem('bigNoteLocalChanges', '[]');
         if( data.success ) {
           this.bigNoteServerState = _.cloneDeep(this.currentBigNote);
           if(encryptedDiff) {
@@ -318,8 +339,8 @@ class Bignote extends React.Component {
           this.initializeCursor();
         }
 
-        window.localStorage.setItem('revision', this.revision);
-        window.localStorage.setItem('bigNoteServerState', compress(JSON.stringify(this.bigNoteServerState)));
+        localforage.setItem('revision', this.revision);
+        localforage.setItem('bigNoteServerState', JSON.stringify(this.bigNoteServerState));
         this.props.toSyncStatus('green');
       }).fail(() => {
         this.props.toSyncStatus('red' );
