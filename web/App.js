@@ -4,6 +4,7 @@ const Bignote = require('./components/Bignote');
 const $ = require('jquery');
 const { decompress } = require('lz-string');
 require('./components/register-service-worker');
+const localforage = require('localforage');
 
 class App extends React.Component {
   constructor(props) {
@@ -23,7 +24,6 @@ class App extends React.Component {
       mode: 'note',
       passwordValue: '',
       loggingIn: window.location.href.indexOf('loggingIn=true') >= 0,
-      password: window.localStorage.getItem('bigNotePassword'),
       searchResults: []
     };
   }
@@ -37,6 +37,10 @@ class App extends React.Component {
     $.getJSON('/auth/is-authenticated', result => {
       this.setState(result);
     })
+
+    localforage.getItem('bigNotePassword').then(password => {
+        this.setState({ password });
+    });
   }
 
   handleSearchChange(e) {
@@ -68,21 +72,23 @@ class App extends React.Component {
   handlePasswordSet(e) {
     e.preventDefault();
     this.setState({ password: this.state.passwordValue, loggingIn: false }, () => {
-      window.localStorage.setItem('bigNotePassword', this.state.passwordValue);
+      localforage.setItem('bigNotePassword', this.state.passwordValue);
       this.handleNotLoggingIn();
     });
   }
 
   handleLogout() {
-    if(JSON.parse(decompress(window.localStorage.getItem("bigNoteLocalChanges"))).length) {
-      alert("You have usaved changes. Please sync before logging out.")
-    } else {
-      window.localStorage.removeItem("bigNoteLocalChanges");
-      window.localStorage.removeItem("bigNoteServerState");
-      window.localStorage.removeItem("revision");
-      window.localStorage.removeItem("bigNotePassword");
-      window.location.href = '/auth/logout';
-    }
+    localforage.getItem("bigNoteLocalChanges").then(bigNoteLocalChanges => {
+      if((JSON.parse(bigNoteLocalChanges)).length) {
+        alert("You have usaved changes. Please sync before logging out.")
+      } else {
+        localforage.removeItem("bigNoteLocalChanges");
+        localforage.removeItem("bigNoteServerState");
+        localforage.removeItem("revision");
+        localforage.removeItem("bigNotePassword");
+        window.location.href = '/auth/logout';
+      }
+    });
   }
 
   toSyncStatus(syncStatus) {
