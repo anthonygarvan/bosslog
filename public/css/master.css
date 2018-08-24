@@ -7183,7 +7183,8 @@ body,
   .sp-bignote-container .sp-note {
     min-height: 100vh;
     padding: 1rem;
-    padding-right: 3rem; }
+    padding-right: 3rem;
+    overflow: initial; }
     @media screen and (min-width: 769px), print {
       .sp-bignote-container .sp-note {
         padding: 3rem; } }
@@ -7342,3 +7343,6 @@ hr {
     height: 4px;
     border-radius: 2px;
     background: #ff4d6a; }
+
+#sp-note-container {
+  overflow: hidden; }

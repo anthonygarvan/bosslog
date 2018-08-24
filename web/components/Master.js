@@ -34,7 +34,6 @@ function Master(props) {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-
             gtag('config', 'UA-38185442-8');` } }>
           </script>
           </head>

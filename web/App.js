@@ -10,6 +10,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.handleSearchChange = this.handleSearchChange.bind(this);
+    this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
     this.handleLoginSuccess = this.handleLoginSuccess.bind(this);
     this.handleLoginFailure = this.handleLoginFailure.bind(this);
     this.handlePasswordSet = this.handlePasswordSet.bind(this);
@@ -21,6 +22,7 @@ class App extends React.Component {
 
     this.state = {
       searchString: '',
+      searchStringValue: '',
       mode: 'note',
       passwordValue: '',
       loggingIn: window.location.href.indexOf('loggingIn=true') >= 0,
@@ -34,17 +36,23 @@ class App extends React.Component {
       this.handleSearchChange(e);
     }
 
-    $.getJSON('/auth/is-authenticated', result => {
-      this.setState(result);
-    })
-
     localforage.getItem('bigNotePassword').then(password => {
-        this.setState({ password });
+        $.getJSON('/auth/is-authenticated', result => {
+          this.setState({ isAuthenticated: result.isAuthenticated,
+                          userEmail: result.userEmail,
+                          loggingIn: password && !result.isAuthenticated,
+                          password });
+        });
     });
   }
 
   handleSearchChange(e) {
-    this.setState({ searchString: e.target.value, searching: true });
+    this.setState({ searchStringValue: e.target.value })
+  }
+
+  handleSearchSubmit(e) {
+    e.preventDefault();
+    this.setState({ searchString: this.state.searchStringValue, searching: true });
   }
 
   handleToNoteMode() {
@@ -102,15 +110,20 @@ class App extends React.Component {
             <a className={`sp-back ${this.state.mode === 'note' && 'sp-hidden'}`}
               onClick={ this.handleToNoteMode }><i className="fa fa-arrow-left fa-2x"></i></a>
             <div className="sp-search field">
-              <div className={`sp-search-box control ${this.state.searching && "is-loading"}`}>
-              <form autoComplete="off">
+              <form autoComplete="off" onSubmit={this.handleSearchSubmit}>
                 <input autoComplete="false" name="hidden" type="text" className="sp-hidden" />
-                <input className="input is-medium" type="search"
-                  placeholder="Search your note..."
-                  onChange={this.handleSearchChange}
-                  value={this.state.searchString}/>
+                <div className="field has-addons">
+                <div className={`sp-search-box control ${this.state.searching && "is-loading"}`}>
+                  <input className="input is-medium" type="search"
+                    placeholder="Search your note..."
+                    value={this.state.searchStringValue}
+                    onChange={this.handleSearchChange} /></div>
+                  <div className="control">
+                    <button type="submit" className="button is-primary is-medium">
+                      Search
+                    </button>
+                  </div></div>
               </form>
-              </div>
             </div>
             </div>
             <a className={`sp-search-icon ${this.state.mode === 'search' && 'sp-hidden'}`}
@@ -212,7 +225,7 @@ class App extends React.Component {
               </div>
               <p>Copyright © 2018. Made with ♥ by <a href="https://www.twitter.com/anthonygarvan">@anthonygarvan</a>. Design by Ryan Thurlwell.</p>
               <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="https://github.com/anthonygarvan/bignote">Source</a> | <a onClick={() => this.setState({ gettingHelp: true })}>Help</a> | { this.state.isAuthenticated &&   <span>| <a onClick={this.handleLogout}>Logout</a></span> }</p>
-              <p>Questions, comments or problems? Feel free to tweet me or file an issue on <a href="#">github</a>.</p>
+              <p>Questions, comments or problems? Feel free to tweet me or file an issue on <a href="https://github.com/anthonygarvan/bignote/issues">github</a>.</p>
               <div className="sp-logo">
                 <img src="/img/logo.png" alt="logo" />
                 <div>Bignote</div>

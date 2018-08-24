@@ -37,7 +37,7 @@
 /* eslint-disable indent, no-unused-vars, no-multiple-empty-lines, max-nested-callbacks, space-before-function-paren, quotes, comma-spacing */
 'use strict';
 
-var precacheConfig = [["/css/master.css","bcc3e6be22b6709dc0bed2022f8bb7cc"],["/img/favicon.png","038dc7ddc6459f293adcde725cc85253"],["/img/logo.png","4708b3a7792ea8d2ef658bcec82fddc0"],["/index.html","b73f0e3a23595c5a853788363785eefb"]];
+var precacheConfig = [["/css/master.css","cbfc51f18218994aa2fba765953d67fe"],["/img/favicon.png","e6a3a1d380b17cf8997da89a8ec7819a"],["/img/logo.png","6af33d9ba04894200fd517f0c4ec6e62"],["/index.html","d14405c3f31f8b074ddea4bc7fa08bb2"]];
 var cacheName = 'sw-precache-v3--' + (self.registration ? self.registration.scope : '');
 
 

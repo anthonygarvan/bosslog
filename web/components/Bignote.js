@@ -19,7 +19,6 @@ class Bignote extends React.Component {
     this.flipPages = this.flipPages.bind(this);
     this.initializeCursor = this.initializeCursor.bind(this);
     this.debouncedSync = _.debounce(this.syncData, 3000, { maxWait: 30000 });
-    this.debouncedSearch = _.debounce(this.searchNote, 600);
     this.debouncedFlipPages = _.debounce(this.flipPages, 300, { maxWait: 1000 });
 
     let bigNoteServerState, bigNoteLocalChanges, revision;
@@ -107,7 +106,7 @@ class Bignote extends React.Component {
 
   componentDidUpdate(prevProps) {
     if(prevProps.searchString !== this.props.searchString) {
-      this.debouncedSearch();
+      this.searchNote();
     }
 
     if((prevProps.password !== this.props.password) || (prevProps.isAuthenticated !== this.props.isAuthenticated)) {
@@ -129,8 +128,6 @@ class Bignote extends React.Component {
         this.searchNote();
       }
     }
-
-
   }
 
   componentDidMount() {
@@ -391,7 +388,7 @@ class Bignote extends React.Component {
     });
 
     let filteredSearchResults = []
-    let breakInserted = false;
+    let breakInserted = true;
     searchResults.forEach(result => {
       if(!result) {
         if(!breakInserted) {
