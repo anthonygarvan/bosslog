@@ -7308,6 +7308,9 @@ code {
   .sp-mention-input:focus {
     outline: none; }
 
+#sp-search-results {
+  overflow: hidden; }
+
 #sp-search-results .sp-block, #sp-search-results li {
   cursor: pointer; }
   #sp-search-results .sp-block:hover, #sp-search-results li:hover {
