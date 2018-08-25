@@ -30,20 +30,22 @@ class App extends React.Component {
     };
   }
 
+  componentWillMount() {
+    localforage.getItem('bigNotePassword').then(password => {
+        $.getJSON('/auth/is-authenticated', result => {
+          this.setState({ isAuthenticated: result.isAuthenticated,
+                          userEmail: result.userEmail,
+                          loggingIn: this.state.loggingIn || (password && !result.isAuthenticated),
+                          password });
+        });
+    });
+  }
+
   componentDidMount() {
     window.handleMentionOrHashtagClick = (e) => {
       this.handleToSearchMode();
       this.handleSearchChange(e);
     }
-
-    localforage.getItem('bigNotePassword').then(password => {
-        $.getJSON('/auth/is-authenticated', result => {
-          this.setState({ isAuthenticated: result.isAuthenticated,
-                          userEmail: result.userEmail,
-                          loggingIn: password && !result.isAuthenticated,
-                          password });
-        });
-    });
   }
 
   handleSearchChange(e) {
@@ -90,11 +92,9 @@ class App extends React.Component {
       if((JSON.parse(bigNoteLocalChanges)).length) {
         alert("You have usaved changes. Please sync before logging out.")
       } else {
-        localforage.removeItem("bigNoteLocalChanges");
-        localforage.removeItem("bigNoteServerState");
-        localforage.removeItem("revision");
-        localforage.removeItem("bigNotePassword");
-        window.location.href = '/auth/logout';
+        localforage.dropInstance().then(() => {
+          window.location.href = '/auth/logout';
+        });
       }
     });
   }
