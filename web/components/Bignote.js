@@ -312,11 +312,18 @@ class Bignote extends React.Component {
             this.revision += 1
           }
         } else {
-          const serverDiffs = data.revisions.map(revision => {
-            return JSON.parse(CryptoJS.AES.decrypt(
-                revision.encryptedDiff,
-                this.props.password).toString(CryptoJS.enc.Utf8));
-          })
+          let serverDiffs;
+          try {
+            serverDiffs = data.revisions.map(revision => {
+              return JSON.parse(CryptoJS.AES.decrypt(
+                  revision.encryptedDiff,
+                  this.props.password).toString(CryptoJS.enc.Utf8));
+            })
+          } catch (e) {
+            this.props.handleWrongPassword();
+            return;
+          }
+
 
           serverDiffs.forEach(changes => {
               changes.forEach(change => {

@@ -19,6 +19,7 @@ class App extends React.Component {
     this.handleToSearchMode = this.handleToSearchMode.bind(this);
     this.handleLogout = this.handleLogout.bind(this);
     this.toSyncStatus = this.toSyncStatus.bind(this);
+    this.handleWrongPassword = this.handleWrongPassword.bind(this);
 
     this.state = {
       searchString: '',
@@ -87,6 +88,10 @@ class App extends React.Component {
     });
   }
 
+  handleWrongPassword() {
+    this.setState({ passwordIsValid: false, loggingIn: true, wrongPassword: true });
+  }
+
   handleLogout() {
     localforage.getItem("bigNoteLocalChanges").then(bigNoteLocalChanges => {
       if((JSON.parse(bigNoteLocalChanges)).length) {
@@ -138,7 +143,8 @@ class App extends React.Component {
                   searchString={this.state.searchString}
                   toSyncStatus={this.toSyncStatus}
                   searchDone={() => this.setState({ searching: false })}
-                  handleToNoteMode={ this.handleToNoteMode }/>
+                  handleToNoteMode={ this.handleToNoteMode }
+                  handleWrongPassword = { this.handleWrongPassword }/>
           <div id="sp-note-content" contentEditable="true" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck="false"></div>
           </div></div>
             <footer className="footer sp-footer">
@@ -150,7 +156,7 @@ class App extends React.Component {
                 <div className="modal-background" onClick={this.handleNotLoggingIn}></div>
                 <div className="modal-content">
                   <div className="box is-centered">{this.state.isAuthenticated ? <form onSubmit={this.handlePasswordSet}><p>Logged in as {this.state.userEmail}.</p>
-                  <p>Please enter your password. It must be at least 8 characters.</p>
+                  <p>Please enter your password.</p>
                   <div className="field">
                     <p className="control has-icons-left">
                       <input className="sp-hidden" type="email" value={this.state.userEmail} readOnly />
@@ -160,6 +166,8 @@ class App extends React.Component {
                         <i className="fas fa-lock"></i>
                       </span>
                     </p>
+                    { this.state.wrongPassword && <p className="help is-danger">Looks like that's the wrong password.</p> }
+                    { this.state.passwordValue && (this.state.passwordValue.length < 8) && <p className="help is-danger">Password must be at least 8 characters.</p> }
                   </div>
 
                   <p><i className="fas fa-exclamation-triangle"></i>&nbsp;&nbsp;For your security, we do not store your password.
