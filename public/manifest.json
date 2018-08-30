@@ -1,7 +1,7 @@
 {
-	"name": "Bignote | Just one big note.",
+	"name": "Bignote | The note app for managers.",
 	"short_name": "Bignote",
-	"description": "Write things down. Later, find what you wrote.",
+	"description": "Keep it together, people.",
 	"start_url": "./index.html",
 	"display": "standalone",
 	"orientation": "portrait",

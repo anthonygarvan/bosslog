@@ -232,7 +232,7 @@ class App extends React.Component {
                 <button className="modal-close is-large" onClick={() => this.setState({ gettingHelp: false })}></button>
               </div>
               <p>Copyright © 2018. Made with ♥ by <a href="https://www.twitter.com/anthonygarvan">@anthonygarvan</a>. Design by Ryan Thurlwell.</p>
-              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="https://github.com/anthonygarvan/bignote">Source</a> | <a onClick={() => this.setState({ gettingHelp: true })}>Help</a> | { this.state.isAuthenticated &&   <span>| <a onClick={this.handleLogout}>Logout</a></span> }</p>
+              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="https://github.com/anthonygarvan/bignote">Source</a> | <a onClick={() => this.setState({ gettingHelp: true })}>Help</a>{ this.state.isAuthenticated &&   <span> | <a onClick={this.handleLogout}>Logout</a></span> }</p>
               <p>Questions, comments or problems? Feel free to tweet me or file an issue on <a href="https://github.com/anthonygarvan/bignote/issues">github</a>.</p>
               <div className="sp-logo">
                 <img src="/img/logo.png" alt="logo" />

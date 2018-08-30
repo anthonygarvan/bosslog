@@ -3,10 +3,10 @@ const React = require('react');
 function Master(props) {
   return <html>
           <head>
-          <title>Bignote | Just one big note.</title>
+          <title>Bignote | The Note App for Managers.</title>
 
-          <meta property="og:title" content="Bignote | Just one big note." />
-          <meta property="og:description" content="Write things down. Later, find what you wrote." />
+          <meta property="og:title" content="Bignote | The Note App for Managers." />
+          <meta property="og:description" content="Keep it together, people." />
           <meta property="og:type" content="website" />
           <meta property="og:url" content="https://bignote.app" />
           <meta property="og:image" content="https://bignote.app/img/social.jpg" />
@@ -16,8 +16,8 @@ function Master(props) {
 
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:image" content="https://bignote.app/img/social.jpg" />
-          <meta name="twitter:title" content="Bignote | Just one big note." />
-          <meta name="twitter:description" content="Write things down. Later, find what you wrote." />
+          <meta name="twitter:title" content="Bignote | The Note App for Managers." />
+          <meta name="twitter:description" content="Keep it together, people." />
 
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <link rel="icon" href="/img/favicon.png" />
@@ -29,7 +29,7 @@ function Master(props) {
               document.head.append(template.content.firstChild)`}}>
           </script>
           <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossOrigin="anonymous" />
-          <script async src="https://www.googletagmanager.com/gtag/js?id=UA-38185442-7"></script>
+          <script async src="https://www.googletagmanager.com/gtag/js?id=UA-38185442-8"></script>
           <script  dangerouslySetInnerHTML={ {__html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
