@@ -7,7 +7,7 @@ const winston = require('winston');
 module.exports = {
   getDb: MongoClient.connect(process.env.MONGO_URI)
     .then((client) => {
-      const db = client.db('bignote');
+      const db = client.db('bosslog');
       db.notes = db.collection('notes');
       return new Promise(resolve => resolve(db));
     }).then(db =>

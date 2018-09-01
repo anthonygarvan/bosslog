@@ -11,7 +11,7 @@ const Mark = require('mark.js');
 const localforage = require('localforage');
 require('babel-polyfill');
 
-class Bignote extends React.Component {
+class Bosslog extends React.Component {
   constructor(props) {
     super(props);
     this.searchNote = this.searchNote.bind(this);
@@ -457,4 +457,4 @@ class Bignote extends React.Component {
   }
 }
 
-module.exports = Bignote
+module.exports = Bosslog

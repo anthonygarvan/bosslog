@@ -1,5 +1,5 @@
 {
-  "name": "bignote",
+  "name": "bosslog",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -9,8 +9,8 @@
     "build": "npm install && node-sass scss/master.sass public/css/master.css && browserify web/App.js -t [ babelify --presets [ latest react ] ] -g [ envify --NODE_ENV production ] -g uglifyify | terser --compress --mangle > public/js/app.js",
     "startDev": "npm run buildDev && node server.js",
     "start": "npm run build && node server.js",
-    "forever": "npm run build && pm2 start ecosystem.config.js --only bignote",
-    "reload": "npm run build && pm2 reload bignote"
+    "forever": "npm run build && pm2 start ecosystem.config.js --only bosslog",
+    "reload": "npm run build && pm2 reload bosslog"
   },
   "author": "",
   "license": "ISC",

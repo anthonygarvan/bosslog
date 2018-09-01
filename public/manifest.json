@@ -1,6 +1,6 @@
 {
-	"name": "Bignote | The note app for managers.",
-	"short_name": "Bignote",
+	"name": "Bosslog | The note app for managers.",
+	"short_name": "Bosslog",
 	"description": "Keep it together, people.",
 	"start_url": "./index.html",
 	"display": "standalone",
@@ -18,6 +18,6 @@
 		"name": "Anthony Garvan",
 		"website": "http://www.anthonygarvan.com",
 		"github": "https://github.com/anthonygarvan",
-		"source-repo": "https://github.com/anthonygarvan/bignote"
+		"source-repo": "https://github.com/anthonygarvan/bosslog"
 	}
 }

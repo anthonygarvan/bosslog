@@ -1,6 +1,6 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
-const Bignote = require('./components/Bignote');
+const Bosslog = require('./components/Bosslog');
 const $ = require('jquery');
 const { decompress } = require('lz-string');
 require('./components/register-service-worker');
@@ -109,7 +109,7 @@ class App extends React.Component {
   }
 
   render() {
-    return <div><div className={`sp-bignote-container ${this.state.syncStatus}`}>
+    return <div><div className={`sp-bosslog-container ${this.state.syncStatus}`}>
           <div className="sp-note-header">
             <div className={`sp-search-header ${this.state.mode !== 'search' && 'sp-hidden'}`}>
             <a className={`sp-back ${this.state.mode === 'note' && 'sp-hidden'}`}
@@ -137,7 +137,7 @@ class App extends React.Component {
             </a>
           </div>
           <div className={`sp-note content ${this.state.mode === 'search' && 'sp-with-search-mode'}`}>
-          <Bignote password={this.state.password}
+          <Bosslog password={this.state.password}
                   isAuthenticated={this.state.isAuthenticated}
                   mode={this.state.mode}
                   searchString={this.state.searchString}
@@ -232,11 +232,11 @@ class App extends React.Component {
                 <button className="modal-close is-large" onClick={() => this.setState({ gettingHelp: false })}></button>
               </div>
               <p>Copyright © 2018. Made with ♥ by <a href="https://www.twitter.com/anthonygarvan">@anthonygarvan</a>. Design by Ryan Thurlwell.</p>
-              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="https://github.com/anthonygarvan/bignote">Source</a> | <a onClick={() => this.setState({ gettingHelp: true })}>Help</a>{ this.state.isAuthenticated &&   <span> | <a onClick={this.handleLogout}>Logout</a></span> }</p>
-              <p>Questions, comments or problems? Feel free to tweet me or file an issue on <a href="https://github.com/anthonygarvan/bignote/issues">github</a>.</p>
+              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="https://github.com/anthonygarvan/bosslog">Source</a> | <a onClick={() => this.setState({ gettingHelp: true })}>Help</a>{ this.state.isAuthenticated &&   <span> | <a onClick={this.handleLogout}>Logout</a></span> }</p>
+              <p>Questions, comments or problems? Feel free to tweet me or file an issue on <a href="https://github.com/anthonygarvan/bosslog/issues">github</a>.</p>
               <div className="sp-logo">
                 <img src="/img/logo.png" alt="logo" />
-                <div>Bignote</div>
+                <div>Bosslog</div>
               </div>
               </div></div></footer></div>
   }

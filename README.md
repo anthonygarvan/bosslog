@@ -1,6 +1,6 @@
-[![CircleCI](https://circleci.com/gh/anthonygarvan/bignote.svg?style=svg)](https://circleci.com/gh/anthonygarvan/bignote)
+[![CircleCI](https://circleci.com/gh/anthonygarvan/bosslog.svg?style=svg)](https://circleci.com/gh/anthonygarvan/bosslog)
 
-# Welcome to Bignote
+# Welcome to Bosslog
 _The app that's just one big note._
 
 ## Core features:
@@ -16,7 +16,7 @@ _The app that's just one big note._
 - Its a progressive web app, so you can pin to your home screen and get an app-like experience (improved load times, full screen)
 - Fully free & open source
 
-## Bignote Cheat sheet
+## Bosslog Cheat sheet
 - `# Hash with space` at the beginning of a line makes a header
 - `## Double Hash` with a space at the beginning of a line makes a subheader
 - `- dash with space` at beginning of line makes a list
@@ -25,7 +25,7 @@ _The app that's just one big note._
 - `` `backticks` `` make a code  block
 - `// double slash with a space` makes an bookmark. Bookmarks show up in the search tab when there's no search term.
 - `[ ] brackets with a space`  at the beginning of a line make a checkbox (you can search for them later using #todo)
-- Urls like https://bignote.app become clickable after the first space
+- Urls like https://bosslog.app become clickable after the first space
 - Use @mentions  and #hashtags to make sure you can easily find notes about your  teammates or important themes   
 
 ## Other good things to know
