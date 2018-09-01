@@ -1,7 +1,7 @@
 [![CircleCI](https://circleci.com/gh/anthonygarvan/bosslog.svg?style=svg)](https://circleci.com/gh/anthonygarvan/bosslog)
 
 # Welcome to Bosslog
-_The app that's just one big note._
+_The note app for managers._
 
 ## Core features:
 - Write things down
