@@ -14,7 +14,7 @@ _The note app for managers._
 - Stays fast & responsive even for huge notes (tested on full text of War and Peace)
 - Client side encryption means even the site owner can't see your notes (p.s., don't forget your password!)
 - Its a progressive web app, so you can pin to your home screen and get an app-like experience (improved load times, full screen)
-- Fully free & open source
+- Open source, run it yourself or pay what you want for the hosted version.
 
 ## Bosslog Cheat sheet
 - `# Hash with space` at the beginning of a line makes a header
