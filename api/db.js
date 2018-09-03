@@ -9,11 +9,13 @@ module.exports = {
     .then((client) => {
       const db = client.db('bosslog');
       db.notes = db.collection('notes');
+      db.users = db.collection('users');
       return new Promise(resolve => resolve(db));
     }).then(db =>
       Promise.all([
         db.notes.createIndex({ userId: 1 }),
-        db.notes.createIndex({ revision: 1 })
+        db.notes.createIndex({ revision: 1 }),
+        db.users.createIndex({ email: 1 })
       ]).catch(err => winston.log(err))
         .then(() => new Promise((resolve) => { resolve(db); }))),
 };

@@ -52,6 +52,7 @@
     "react": "latest",
     "react-dom": "latest",
     "react-google-login": "^3.2.1",
+    "react-radio-buttons": "^1.2.2",
     "sendinblue-api": "latest",
     "shortid": "^2.2.8",
     "showdown": "^1.8.6",

@@ -22,7 +22,6 @@ function Master(props) {
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <link rel="icon" href="/img/favicon.png" />
           <link rel="manifest" href="./manifest.json" />
-
           <script dangerouslySetInnerHTML={{__html: `
               var template = document.createElement('template');
               template.innerHTML = '<link rel="stylesheet" href="/css/master.css" />';
@@ -36,6 +35,7 @@ function Master(props) {
             gtag('js', new Date());
             gtag('config', 'UA-38185442-8');` } }>
           </script>
+          <script src="https://www.paypalobjects.com/api/checkout.js"></script>
           </head>
           <body>
               {props.children}

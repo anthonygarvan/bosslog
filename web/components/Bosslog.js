@@ -434,6 +434,12 @@ class Bosslog extends React.Component {
         this.props.handleToNoteMode();
       });
 
+      $('#sp-search-results input[type=checkbox]').click(e => {
+        this.currentBigNote.selectedBlockId = $(e.target).closest('span')[0].id;
+        this.props.handleToNoteMode();
+        e.stopPropagation();
+      });
+
       $('#sp-search-results li').click(e => {
         this.currentBigNote.selectedBlockId = e.target.id;
         this.props.handleToNoteMode();

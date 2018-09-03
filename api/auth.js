@@ -42,12 +42,22 @@ module.exports = { Auth: (db) => {
   app.get('/google/callback',
     passport.authenticate('google'),
       (req, res) => {
-
+          db.users.findOne({ email: req.user.email }, (err, userFound) => {
+            if (!userFound) {
+              let photoUrl = '';
+              if (req.user.photos.length > 0) { photoUrl = req.user.photos[0].value; }
+              const user = { id: req.user.id,
+                displayName: req.user.displayName,
+                email: req.user.email,
+                photoUrl,
+                signUpDate: new Date()};
+              db.users.update({ email: user.email }, user, { upsert: true });
+            }
           res.redirect(req.session.path || '/');
           const userSession = req.session;
           delete userSession.path;
           delete userSession.query;
-  });
+  })});
 
   function ensureAuthenticated(req, res, next) {
     const userSession = req.session;
@@ -71,6 +81,24 @@ module.exports = { Auth: (db) => {
         res.send({ isAuthenticated: false });
     }
   });
+
+  app.get('/pay-prompt', ensureAuthenticated, (req, res) => {
+    db.users.findOne({ email: req.user.email }, (err, userFound) => {
+      const pastTrialPeriod = (new Date() - new Date(userFound.signUpDate)) > 30*24*60*60*1000;
+      const hasntPaid = !userFound.lastPaymentDate;
+      const paymentDue = (new Date() - new Date(userFound.lastPaymentDate)) > 365*24*60*60*1000;
+      const promptUser = pastTrialPeriod && (hasntPaid || paymentDue);
+      res.send({ promptUser });
+    });
+  });
+
+  app.get('/payment-complete', ensureAuthenticated, (req, res) => {
+    db.users.findOne({ email: req.user.email }, (err, userFound) => {
+      userFound.lastPaymentDate = new Date();
+      db.users.update({ _id: userFound._id}, userFound);
+      res.send({ success: true });
+    });
+  })
 
   app.get('/logout', (req, res) => {
     req.logout();

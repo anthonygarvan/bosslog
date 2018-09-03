@@ -5,6 +5,8 @@ const $ = require('jquery');
 const { decompress } = require('lz-string');
 require('./components/register-service-worker');
 const localforage = require('localforage');
+const Paypal = require('./components/Paypal');
+const { RadioGroup, RadioButton } = require('react-radio-buttons');
 
 class App extends React.Component {
   constructor(props) {
@@ -19,7 +21,10 @@ class App extends React.Component {
     this.handleToSearchMode = this.handleToSearchMode.bind(this);
     this.handleLogout = this.handleLogout.bind(this);
     this.toSyncStatus = this.toSyncStatus.bind(this);
+    this.handlePaymentAmountChange = this.handlePaymentAmountChange.bind(this);
     this.handleWrongPassword = this.handleWrongPassword.bind(this);
+    this.onToken = this.onToken.bind(this);
+    this.handleNoPayment = this.handleNoPayment.bind(this);
 
     this.state = {
       searchString: '',
@@ -27,7 +32,8 @@ class App extends React.Component {
       mode: 'note',
       passwordValue: '',
       loggingIn: window.location.href.indexOf('loggingIn=true') >= 0,
-      searchResults: []
+      searchResults: [],
+      paymentAmount: "12.00"
     };
   }
 
@@ -38,6 +44,12 @@ class App extends React.Component {
                           userEmail: result.userEmail,
                           loggingIn: this.state.loggingIn || (password && !result.isAuthenticated),
                           password });
+
+          if(result.isAuthenticated) {
+            $.getJSON('/auth/pay-prompt', result => {
+              this.setState({ promptUser: result.promptUser });
+            });
+          }
         });
     });
   }
@@ -106,6 +118,17 @@ class App extends React.Component {
 
   toSyncStatus(syncStatus) {
     this.setState({ syncStatus })
+  }
+
+  handlePaymentAmountChange(value) {
+    this.setState({ paymentAmount: value });
+  }
+
+  handleNoPayment() {
+    $.getJSON('/auth/payment-complete', () => {
+      window.alert('Sorry to hear that! Maybe next year :)');
+      this.setState({ promptUser: false });
+    });
   }
 
   render() {
@@ -183,6 +206,40 @@ class App extends React.Component {
                      <p><a href="/auth/authenticate" className="button is-primary">Log in with Google</a></p></div>}
                 </div></div>
                 <button className="modal-close is-large" onClick={this.handleNotLoggingIn}></button>
+              </div>
+
+              <div className={`modal ${this.state.promptUser && 'is-active'}`}>
+                <div className="modal-background" onClick={() => {this.setState({ promptUser: false })}}></div>
+                <div className="modal-content">
+                  <div className="box is-centered">
+                    <h2>Looks like you're enjoying Bosslog. Yay &#127881;</h2>
+                    <p><em>Bosslog operates on the honor system. What best describes you?</em></p>
+                    <RadioGroup onChange={ this.handlePaymentAmountChange } value={ this.state.paymentAmount }>
+                      <RadioButton value="NoPayment" iconSize={20} rootColor="#bebebe" pointColor="#1c2c99">
+                        I don't use Bosslog ($0)
+                      </RadioButton>
+                      <RadioButton value="6.00" iconSize={20} rootColor="#bebebe" pointColor="#1c2c99">
+                        I barely use Bosslog ($6)
+                      </RadioButton>
+                      <RadioButton value="12.00" iconSize={20} rootColor="#bebebe" pointColor="#1c2c99">
+                        I use Bosslog ($12)
+                      </RadioButton>
+                      <RadioButton value="16.00" iconSize={20} rootColor="#bebebe" pointColor="#1c2c99">
+                        I rely on Bosslog ($16)
+                      </RadioButton>
+                      <RadioButton value="24.00" iconSize={20} rootColor="#bebebe" pointColor="#1c2c99">
+                        I love Bosslog ($24)
+                      </RadioButton>
+                      <RadioButton value="36.00" iconSize={20} rootColor="#bebebe" pointColor="#1c2c99">
+                        Bosslog changed my life ($36)
+                      </RadioButton>
+                    </RadioGroup>
+                    <p>This payment will cover <strong>a full year</strong> of using Bosslog!</p>
+                    {this.state.paymentAmount === 'NoPayment' ?
+                        <button className="button is-danger is-large" onClick={this.handleNoPayment}>I don't use Bosslog (no payment).</button>
+                        : <Paypal amount={ this.state.paymentAmount } closePrompt={() => {this.setState({ promptUser: false })}}/>}
+                  </div></div>
+                <button className="modal-close is-large" onClick={() => {this.setState({ promptUser: false })}}></button>
               </div>
 
               <div className={`modal ${this.state.gettingHelp && 'is-active'}`}>
