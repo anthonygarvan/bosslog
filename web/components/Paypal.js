@@ -7,7 +7,7 @@ function Paypal(props) {
 
   const client={sandbox: 'AYmXwS_TdNIsBmlfxTT02VhFaoVMVm-4GWOg-xK5y0onyHBFKBWbhLwWQJy0ADjYdNz6ZpBnWAVZTGeN',
      production: 'AYAIAJp_kIihRTEtdttWYzkVd0UrLtC5a-Xhc2JAKrnGF6mrAGBBR1htLigOHBi7P3HGLdblD-CaodKO'};
-  const env="sandbox";
+  const env="production";
   const payment = () =>
       paypal.rest.payment.create(env, client, {
         transactions: [

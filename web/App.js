@@ -56,7 +56,7 @@ class App extends React.Component {
   componentDidMount() {
     window.handleMentionOrHashtagClick = (e) => {
       this.handleToSearchMode();
-      this.handleSearchChange(e);
+      this.setState({ searchStringValue: e.target.value, searchString: e.target.value, searching: true });
     }
   }
 
@@ -167,7 +167,7 @@ class App extends React.Component {
                   searchDone={() => this.setState({ searching: false })}
                   handleToNoteMode={ this.handleToNoteMode }
                   handleWrongPassword = { this.handleWrongPassword }/>
-          <div id="sp-note-content" contentEditable="true" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck="false"></div>
+          <div id="sp-note-content" contentEditable="true" autoCapitalize="off" spellCheck="false"></div>
           </div></div>
             <footer className="footer sp-footer">
               <div className="container">

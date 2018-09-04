@@ -429,20 +429,11 @@ class Bosslog extends React.Component {
 
       new Mark(document.querySelector('#sp-search-results')).markRegExp(searchRegex);
 
-      $('#sp-search-results .sp-block').click(e => {
-        this.currentBigNote.selectedBlockId = $(e.target).closest('.sp-block')[0].id;
-        this.props.handleToNoteMode();
-      });
-
-      $('#sp-search-results input[type=checkbox]').click(e => {
-        this.currentBigNote.selectedBlockId = $(e.target).closest('span')[0].id;
+      $('#sp-search-results *').click(e => {
+        const id = $(e.target).closest('[id]')[0].id;
+        this.currentBigNote.selectedBlockId = $(`#sp-note-content #${id}`).closest('.sp-block')[0].id;
         this.props.handleToNoteMode();
         e.stopPropagation();
-      });
-
-      $('#sp-search-results li').click(e => {
-        this.currentBigNote.selectedBlockId = e.target.id;
-        this.props.handleToNoteMode();
       });
 
       let lastSearchResultId = false;
