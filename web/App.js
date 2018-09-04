@@ -23,7 +23,6 @@ class App extends React.Component {
     this.toSyncStatus = this.toSyncStatus.bind(this);
     this.handlePaymentAmountChange = this.handlePaymentAmountChange.bind(this);
     this.handleWrongPassword = this.handleWrongPassword.bind(this);
-    this.onToken = this.onToken.bind(this);
     this.handleNoPayment = this.handleNoPayment.bind(this);
 
     this.state = {
