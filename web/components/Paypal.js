@@ -18,6 +18,11 @@ function Paypal(props) {
             }
           },
         ],
+        experience: {
+          input_fields: {
+            no_shipping: 1
+          }
+        }
       });
   return <PayPalButton client={client}
      env={env}
