@@ -23,7 +23,7 @@ function Paypal(props) {
             no_shipping: 1
           }
         }
-      });
+});
   return <PayPalButton client={client}
      env={env}
      locale="en_US"
