@@ -9,7 +9,6 @@ module.exports = { Sync: (db, auth) => {
     db.notes.find({ userId: req.user.id, revision: { $gte: parseInt(req.body.revision) } })
       .sort({ revision: 1 })
       .toArray((err, revisions) => {
-          console.log(revisions);
           if( revisions.length > 0 ) {;
             res.send({ success: false, revisions })
           } else {
