@@ -17,17 +17,17 @@ function Paypal(props) {
               currency:'USD'
             }
           },
-        ],
-        experience: {
-          input_fields: {
-            no_shipping: 1
-          }
-        }
-});
+        ]
+    });
+
+  const experience = {input_fields: {
+                          no_shipping: 1}};
+
   return <PayPalButton client={client}
      env={env}
      locale="en_US"
      payment={payment}
+     experience={experience}
      commit={true}
      style={{size: 'responsive',
              color: 'blue',
