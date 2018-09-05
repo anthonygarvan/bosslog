@@ -10,24 +10,29 @@ function Paypal(props) {
   const env="production";
   const payment = () =>
       paypal.rest.payment.create(env, client, {
-        transactions: [
+          transactions: [
           {
             amount: {
               total: props.amount,
               currency:'USD'
-            }
-          },
-        ]
-    });
-
-  const experience = {input_fields: {
-                          no_shipping: 1}};
+            },
+            item_list: {
+              items: [
+                {
+                  name: "Bosslog",
+                  description: "Use of Bosslog for 1 year",
+                  quantity: "1",
+                  price: props.amount,
+                  sku: "1",
+                  currency: "USD"
+                }]}}
+        ]},
+        {input_fields: { no_shipping: 1 } });
 
   return <PayPalButton client={client}
      env={env}
      locale="en_US"
      payment={payment}
-     experience={experience}
      commit={true}
      style={{size: 'responsive',
              color: 'blue',
