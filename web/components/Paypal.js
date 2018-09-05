@@ -19,8 +19,7 @@ function Paypal(props) {
             item_list: {
               items: [
                 {
-                  name: "Bosslog",
-                  description: "Use of Bosslog for 1 year",
+                  name: "Bosslog | The note app for managers (1 year)",
                   quantity: "1",
                   price: props.amount,
                   sku: "1",
