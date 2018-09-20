@@ -74,7 +74,9 @@ class App extends React.Component {
   }
 
   handleToSearchMode() {
-    this.setState({mode: 'search'});
+    this.setState({mode: 'search'}, () => {
+      $('.sp-search-box input').focus();
+    });
   }
 
   handleLoginSuccess(response) {
