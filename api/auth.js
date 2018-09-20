@@ -34,7 +34,11 @@ module.exports = { Auth: (db) => {
       process.nextTick(() => done(null, profile));
     }));
 
-  app.get('/google', passport.authenticate('google', { scope: [
+  app.get('/google', passport.authenticate('google', { authType: 'rerequest',
+  accessType: 'offline',
+  prompt: 'consent',
+  includeGrantedScopes: true,
+  scope: [
     'https://www.googleapis.com/auth/plus.login',
     'https://www.googleapis.com/auth/plus.profile.emails.read'],
   }));
