@@ -6,6 +6,7 @@ const { decompress } = require('lz-string');
 require('./components/register-service-worker');
 const localforage = require('localforage');
 const Paypal = require('./components/Paypal');
+const Login = require('./components/Login');
 const { RadioGroup, RadioButton } = require('react-radio-buttons');
 
 class App extends React.Component {
@@ -13,24 +14,17 @@ class App extends React.Component {
     super(props);
     this.handleSearchChange = this.handleSearchChange.bind(this);
     this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
-    this.handleLoginSuccess = this.handleLoginSuccess.bind(this);
-    this.handleLoginFailure = this.handleLoginFailure.bind(this);
-    this.handlePasswordSet = this.handlePasswordSet.bind(this);
-    this.handleNotLoggingIn = this.handleNotLoggingIn.bind(this);
     this.handleToNoteMode = this.handleToNoteMode.bind(this);
     this.handleToSearchMode = this.handleToSearchMode.bind(this);
     this.handleLogout = this.handleLogout.bind(this);
     this.toSyncStatus = this.toSyncStatus.bind(this);
     this.handlePaymentAmountChange = this.handlePaymentAmountChange.bind(this);
-    this.handleWrongPassword = this.handleWrongPassword.bind(this);
     this.handleNoPayment = this.handleNoPayment.bind(this);
 
     this.state = {
       searchString: '',
       searchStringValue: '',
       mode: 'note',
-      passwordValue: '',
-      loggingIn: window.location.href.indexOf('loggingIn=true') >= 0,
       searchResults: [],
       paymentAmount: "12.00"
     };
@@ -42,6 +36,7 @@ class App extends React.Component {
           this.setState({ isAuthenticated: result.isAuthenticated,
                           userEmail: result.userEmail,
                           loggingIn: this.state.loggingIn || (password && !result.isAuthenticated),
+                          passwordIsSet: result.passwordIsSet,
                           password });
 
           if(result.isAuthenticated) {
@@ -77,32 +72,6 @@ class App extends React.Component {
     this.setState({mode: 'search'}, () => {
       $('.sp-search-box input').focus();
     });
-  }
-
-  handleLoginSuccess(response) {
-    this.setState({ user: response });
-  }
-
-  handleLoginFailure(response) {
-    this.setState( { isSignedIn: false });
-  }
-
-  handleNotLoggingIn() {
-    this.setState({ loggingIn: false }, () => {
-      window.history.pushState(null, document.title, '/');
-    })
-  }
-
-  handlePasswordSet(e) {
-    e.preventDefault();
-    this.setState({ password: this.state.passwordValue, loggingIn: false }, () => {
-      localforage.setItem('bigNotePassword', this.state.passwordValue);
-      this.handleNotLoggingIn();
-    });
-  }
-
-  handleWrongPassword() {
-    this.setState({ passwordIsValid: false, loggingIn: true, wrongPassword: true });
   }
 
   handleLogout() {
@@ -174,41 +143,11 @@ class App extends React.Component {
             <footer className="footer sp-footer">
               <div className="container">
               <div className="content has-text-centered">
-              { (this.state.isAuthenticated && this.state.password) ? <p>Logged in & syncing as {this.state.userEmail}.</p>
-              : <p>Want to sync your data? You'll need to <a onClick={() => this.setState({ loggingIn: true })}>sign in</a>.</p> }
-              <div className={`modal ${this.state.loggingIn && 'is-active'}`}>
-                <div className="modal-background" onClick={this.handleNotLoggingIn}></div>
-                <div className="modal-content">
-                  <div className="box is-centered">{this.state.isAuthenticated ? <form onSubmit={this.handlePasswordSet}><p>Logged in as {this.state.userEmail}.</p>
-                  <p>Please enter your password.</p>
-                  <div className="field">
-                    <p className="control has-icons-left">
-                      <input className="sp-hidden" type="email" value={this.state.userEmail} readOnly />
-                      <input className={`input ${this.state.passwordIsValid ? 'is-success' : this.state.passwordValue && 'is-danger'}`} type="password" placeholder="Password" value={this.state.passwordValue}
-                        onChange={(e) => this.setState({ passwordValue: e.target.value, passwordIsValid: e.target.value.length >= 8 })}/>
-                      <span className="icon is-small is-left">
-                        <i className="fas fa-lock"></i>
-                      </span>
-                    </p>
-                    { this.state.wrongPassword && <p className="help is-danger">Looks like that's the wrong password.</p> }
-                    { this.state.passwordValue && (this.state.passwordValue.length < 8) && <p className="help is-danger">Password must be at least 8 characters.</p> }
-                  </div>
-
-                  <p><i className="fas fa-exclamation-triangle"></i>&nbsp;&nbsp;For your security, we do not store your password.
-                  If you lose your password you will not be able to access your note.</p>
-                  <p>
-                    <button type="submit"
-                      className="button is-primary"
-                      disabled={!this.state.passwordIsValid}>Start Secure Sync</button>
-                  </p>
-                  </form>
-                     : <div>
-                    <p>Please sign in with your Google account.</p>
-                     <p><a href="/auth/authenticate" className="button is-primary">Log in with Google</a></p></div>}
-                </div></div>
-                <button className="modal-close is-large" onClick={this.handleNotLoggingIn}></button>
-              </div>
-
+              <Login userEmail={this.state.userEmail}
+              setPassword={(passwordValue) => this.setState({ password: passwordValue })}
+              isAuthenticated={this.state.isAuthenticated}
+              password={this.state.password}
+              passwordIsSet={this.state.passwordIsSet}/>
               <div className={`modal ${this.state.promptUser && 'is-active'}`}>
                 <div className="modal-background" onClick={() => {this.setState({ promptUser: false })}}></div>
                 <div className="modal-content">

@@ -80,10 +80,17 @@ module.exports = { Auth: (db) => {
 
   app.get('/is-authenticated', (req, res) => {
     if (req.isAuthenticated()) {
-      res.send({ isAuthenticated: true, userEmail: req.user.email })
+      db.users.findOne({ email: req.user.email }, (err, userFound) => {
+        res.send({ isAuthenticated: true, userEmail: userFound.email, passwordIsSet: userFound.passwordIsSet })
+      });
     } else {
         res.send({ isAuthenticated: false });
     }
+  });
+
+  app.get('/password-created', ensureAuthenticated, (req, res) => {
+    db.users.update({ email: req.user.email}, {$set: { passwordIsSet: true }});
+    res.send({ success: true });
   });
 
   app.get('/pay-prompt', ensureAuthenticated, (req, res) => {
