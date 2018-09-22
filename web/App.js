@@ -75,15 +75,8 @@ class App extends React.Component {
   }
 
   handleLogout() {
-    localforage.getItem("bigNoteLocalChanges").then(bigNoteLocalChanges => {
-      if((JSON.parse(bigNoteLocalChanges)).length) {
-        alert("You have usaved changes. Please sync before logging out.")
-      } else {
-        localforage.dropInstance().then(() => {
-          window.location.href = '/auth/logout';
-        });
-      }
-    });
+    localforage.dropInstance()
+    window.location.href = '/auth/logout';
   }
 
   toSyncStatus(syncStatus) {

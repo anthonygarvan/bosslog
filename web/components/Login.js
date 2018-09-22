@@ -9,7 +9,9 @@ class Login extends React.Component {
     this.handlePasswordSet = this.handlePasswordSet.bind(this);
     this.handleNotLoggingIn = this.handleNotLoggingIn.bind(this);
     this.handleWrongPassword = this.handleWrongPassword.bind(this);
-    this.state = { passwordValue: '', loggingIn: window.location.href.indexOf('loggingIn=true') >= 0, }
+    this.state = { passwordValue: '',
+    retypedPasswordValue: '',
+    loggingIn: window.location.href.indexOf('loggingIn=true') >= 0, }
   }
 
   handleNotLoggingIn() {
