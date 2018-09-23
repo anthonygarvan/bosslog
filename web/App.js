@@ -35,11 +35,11 @@ class App extends React.Component {
         $.getJSON('/auth/is-authenticated', result => {
           this.setState({ isAuthenticated: result.isAuthenticated,
                           userEmail: result.userEmail,
-                          loggingIn: this.state.loggingIn || (password && !result.isAuthenticated),
+                          loggingIn: this.state.loggingIn,
                           passwordIsSet: result.passwordIsSet,
                           password });
 
-          if(!result.isAuthenticated && password) {
+          if(!result.isAuthenticated && password && !this.state.loggingIn) {
             window.location.href = '/auth/reauthenticate';
           }
 

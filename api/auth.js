@@ -36,7 +36,6 @@ module.exports = { Auth: (db) => {
 
   app.get('/google', passport.authenticate('google', { authType: 'rerequest',
     accessType: 'offline',
-    prompt: 'consent',
     includeGrantedScopes: true,
     failureRedirect: '/',
     scope: [
@@ -45,7 +44,7 @@ module.exports = { Auth: (db) => {
   }));
 
   app.get('/google/callback',
-    passport.authenticate('google'),
+    passport.authenticate('google', {failureRedirect: '/?loggingIn=true'}),
       (req, res) => {
           db.users.findOne({ email: req.user.email }, (err, userFound) => {
             if (!userFound) {
@@ -81,9 +80,8 @@ module.exports = { Auth: (db) => {
 
   app.get('/reauthenticate', passport.authenticate('google', { authType: 'rerequest',
       accessType: 'offline',
-      prompt: 'none',
       includeGrantedScopes: true,
-      failureRedirect: '/',
+      failureRedirect: '/?loggingIn=true',
       scope: [
         'https://www.googleapis.com/auth/plus.login',
         'https://www.googleapis.com/auth/plus.profile.emails.read'],
