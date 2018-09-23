@@ -35,12 +35,13 @@ module.exports = { Auth: (db) => {
     }));
 
   app.get('/google', passport.authenticate('google', { authType: 'rerequest',
-  accessType: 'offline',
-  prompt: 'consent',
-  includeGrantedScopes: true,
-  scope: [
-    'https://www.googleapis.com/auth/plus.login',
-    'https://www.googleapis.com/auth/plus.profile.emails.read'],
+    accessType: 'offline',
+    prompt: 'consent',
+    includeGrantedScopes: true,
+    failureRedirect: '/',
+    scope: [
+      'https://www.googleapis.com/auth/plus.login',
+      'https://www.googleapis.com/auth/plus.profile.emails.read'],
   }));
 
   app.get('/google/callback',
@@ -76,6 +77,18 @@ module.exports = { Auth: (db) => {
 
   app.get('/authenticate', ensureAuthenticated, (req, res) => {
     res.redirect('/?loggingIn=true');
+  });
+
+  app.get('/reauthenticate', passport.authenticate('google', { authType: 'rerequest',
+      accessType: 'offline',
+      prompt: 'none',
+      includeGrantedScopes: true,
+      failureRedirect: '/',
+      scope: [
+        'https://www.googleapis.com/auth/plus.login',
+        'https://www.googleapis.com/auth/plus.profile.emails.read'],
+      }), (req, res) => {
+        res.redirect('/');
   });
 
   app.get('/is-authenticated', (req, res) => {

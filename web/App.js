@@ -39,12 +39,16 @@ class App extends React.Component {
                           passwordIsSet: result.passwordIsSet,
                           password });
 
+          if(!result.isAuthenticated && password) {
+            window.location.href = '/auth/reauthenticate';
+          }
+
           if(result.isAuthenticated) {
             $.getJSON('/auth/pay-prompt', result => {
               this.setState({ promptUser: result.promptUser });
             });
           }
-        });
+      });
     });
   }
 
