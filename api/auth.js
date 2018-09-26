@@ -78,14 +78,17 @@ module.exports = { Auth: (db) => {
     res.redirect('/?loggingIn=true');
   });
 
-  app.get('/reauthenticate', passport.authenticate('google', { authType: 'rerequest',
+  app.get('/reauthenticate', (req, res, next) => {
+    return passport.authenticate('google', { authType: 'rerequest',
       accessType: 'offline',
       includeGrantedScopes: true,
       failureRedirect: '/?loggingIn=true',
+      loginHint: req.user && req.user.email,
       scope: [
         'https://www.googleapis.com/auth/plus.login',
         'https://www.googleapis.com/auth/plus.profile.emails.read'],
-      }), (req, res) => {
+      })(req, res, next);
+    }, (req, res) => {
         res.redirect('/');
   });
 
