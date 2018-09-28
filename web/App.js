@@ -79,8 +79,8 @@ class App extends React.Component {
   }
 
   handleLogout() {
-    localforage.dropInstance()
-    window.location.href = '/auth/logout';
+    localforage.dropInstance(); // I've had issues with this not working reliably
+    setTimeout(() => window.location.href = '/auth/logout', 300);
   }
 
   toSyncStatus(syncStatus) {
