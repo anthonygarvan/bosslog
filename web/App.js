@@ -7,6 +7,9 @@ require('./components/register-service-worker');
 const localforage = require('localforage');
 const Paypal = require('./components/Paypal');
 const Login = require('./components/Login');
+const turndownService = require('turndown')({ headingStyle: 'atx', bulletListMarker: '-' });
+const download = require('in-browser-download');
+
 const { RadioGroup, RadioButton } = require('react-radio-buttons');
 
 class App extends React.Component {
@@ -17,6 +20,7 @@ class App extends React.Component {
     this.handleToNoteMode = this.handleToNoteMode.bind(this);
     this.handleToSearchMode = this.handleToSearchMode.bind(this);
     this.handleLogout = this.handleLogout.bind(this);
+    this.handleExport = this.handleExport.bind(this);
     this.toSyncStatus = this.toSyncStatus.bind(this);
     this.handlePaymentAmountChange = this.handlePaymentAmountChange.bind(this);
     this.handleNoPayment = this.handleNoPayment.bind(this);
@@ -81,6 +85,10 @@ class App extends React.Component {
   handleLogout() {
     localforage.dropInstance(); // I've had issues with this not working reliably
     setTimeout(() => window.location.href = '/auth/logout', 300);
+  }
+
+  handleExport() {
+    download(turndownService.turndown(document.querySelector('#sp-note-content')), 'bosslog_export.txt');
   }
 
   toSyncStatus(syncStatus) {
@@ -226,7 +234,7 @@ class App extends React.Component {
                 <button className="modal-close is-large" onClick={() => this.setState({ gettingHelp: false })}></button>
               </div>
               <p>Copyright © 2018. Made with ♥ by <a href="https://www.twitter.com/anthonygarvan">@anthonygarvan</a>. Design by Ryan Thurlwell.</p>
-              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="https://github.com/anthonygarvan/bosslog">Source</a> | <a onClick={() => this.setState({ promptUser: true })}>Pricing</a> | <a onClick={() => this.setState({ gettingHelp: true })}>Cheat sheet</a>{ this.state.isAuthenticated &&   <span> | <a onClick={this.handleLogout}>Logout</a></span> }</p>
+              <p><a href="/privacy.txt">Privacy</a> | <a href="/terms.txt">Terms</a> | <a href="https://github.com/anthonygarvan/bosslog">Source</a> | <a onClick={() => this.setState({ promptUser: true })}>Pricing</a> | <a onClick={() => this.setState({ gettingHelp: true })}>Cheat sheet</a> | <a onClick={() => this.handleExport()}>Export</a>{ this.state.isAuthenticated &&   <span> | <a onClick={this.handleLogout}>Logout</a></span> }</p>
               <p>Questions, comments or problems? Feel free to tweet me or file an issue on <a href="https://github.com/anthonygarvan/bosslog/issues">github</a>.</p>
               <div className="sp-logo">
                 <img src="/img/logo.png" alt="logo" />
