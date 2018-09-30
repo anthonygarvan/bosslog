@@ -7,7 +7,7 @@ require('./components/register-service-worker');
 const localforage = require('localforage');
 const Paypal = require('./components/Paypal');
 const Login = require('./components/Login');
-const turndownService = require('turndown')({ headingStyle: 'atx', bulletListMarker: '-' });
+const TurndownService = require('turndown');
 const download = require('in-browser-download');
 
 const { RadioGroup, RadioButton } = require('react-radio-buttons');
@@ -24,7 +24,13 @@ class App extends React.Component {
     this.toSyncStatus = this.toSyncStatus.bind(this);
     this.handlePaymentAmountChange = this.handlePaymentAmountChange.bind(this);
     this.handleNoPayment = this.handleNoPayment.bind(this);
-
+    this.turndownService = new TurndownService({ headingStyle: 'atx', bulletListMarker: '-' });
+    this.turndownService.addRule('inputs', {
+      filter: 'input',
+      replacement: (content, node) => {
+        return node.value;
+      }
+    })
     this.state = {
       searchString: '',
       searchStringValue: '',
@@ -88,7 +94,7 @@ class App extends React.Component {
   }
 
   handleExport() {
-    download(turndownService.turndown(document.querySelector('#sp-note-content')), 'bosslog_export.txt');
+    download(this.turndownService.turndown(document.querySelector('#sp-note-content')), 'bosslog_export.txt');
   }
 
   toSyncStatus(syncStatus) {
