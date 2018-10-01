@@ -96,7 +96,10 @@ module.exports = { Auth: (db) => {
   app.get('/is-authenticated', (req, res) => {
     if (req.isAuthenticated()) {
       db.users.findOne({ email: req.user.email }, (err, userFound) => {
-        res.send({ isAuthenticated: true, userEmail: userFound.email, passwordIsSet: userFound.passwordIsSet })
+        res.send({ isAuthenticated: true,
+          userEmail: userFound.email,
+          passwordIsSet: userFound.passwordIsSet, 
+          photoUrl: userFound.photoUrl })
       });
     } else {
         res.send({ isAuthenticated: false });

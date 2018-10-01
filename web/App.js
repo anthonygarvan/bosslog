@@ -47,6 +47,7 @@ class App extends React.Component {
                           userEmail: result.userEmail,
                           loggingIn: this.state.loggingIn,
                           passwordIsSet: result.passwordIsSet,
+                          photoUrl: result.photoUrl,
                           password });
 
           if(!result.isAuthenticated && password && !this.state.loggingIn) {
@@ -158,7 +159,8 @@ class App extends React.Component {
               setPassword={(passwordValue) => this.setState({ password: passwordValue })}
               isAuthenticated={this.state.isAuthenticated}
               password={this.state.password}
-              passwordIsSet={this.state.passwordIsSet}/>
+              passwordIsSet={this.state.passwordIsSet}
+              photoUrl={this.state.photoUrl}/>
               <div className={`modal ${this.state.promptUser && 'is-active'}`}>
                 <div className="modal-background" onClick={() => {this.setState({ promptUser: false })}}></div>
                 <div className="modal-content">

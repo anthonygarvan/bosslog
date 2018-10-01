@@ -22,7 +22,7 @@ class Login extends React.Component {
 
   handlePasswordSet(e) {
     e.preventDefault();
-    this.setState({ loggingIn: false, passwordIsSet: true }, () => {
+    this.setState({ passwordIsSet: true }, () => {
       localforage.setItem('bigNotePassword', this.state.passwordValue);
       this.props.setPassword(this.state.passwordValue);
       $.getJSON('/auth/password-created')
@@ -36,8 +36,8 @@ class Login extends React.Component {
 
   render() {
     return <div>
-    {(this.props.isAuthenticated && this.props.password) ? <p>Logged in & syncing as {this.props.userEmail}.</p>
-    : <p>Want to sync your data? You'll need to <a onClick={() => this.setState({ loggingIn: true })}>sign in</a>.</p>}
+    {(this.props.isAuthenticated && this.props.password) ? <p className="sp-user-card"><div>{this.props.photoUrl && <img src={this.props.photoUrl} />}</div><div>{this.props.userEmail}</div></p>
+    : <p><button className="button is-primary" onClick={() => this.setState({ loggingIn: true })}>Sign in to Sync</button></p>}
     <div className={`modal ${this.state.loggingIn && 'is-active'}`}>
       <div className="modal-background" onClick={this.handleNotLoggingIn}></div>
       <div className="modal-content">

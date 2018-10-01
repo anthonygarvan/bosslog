@@ -7160,10 +7160,10 @@ body,
 
 .sp-footer {
   background-color: #1c2c99;
-  color: #fafafa; }
+  color: lightblue; }
   .sp-footer a, .sp-footer .sp-link-button {
     text-decoration: underline;
-    color: white; }
+    color: lightblue; }
 
 .sp-bosslog-container {
   margin: 0 auto;
@@ -7349,3 +7349,17 @@ hr {
 
 #sp-note-container {
   overflow: hidden; }
+
+.sp-user-card {
+  background-color: darkblue;
+  border-radius: 5px;
+  margin-bottom: 2rem;
+  width: 20rem;
+  margin: 0 auto;
+  border-radius: 1px solid black;
+  color: #fafafa;
+  padding: 1rem; }
+  .sp-user-card img {
+    width: 50px;
+    height: 50px;
+    border-radius: 25px; }
