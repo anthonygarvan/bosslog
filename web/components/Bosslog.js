@@ -146,8 +146,10 @@ class Bosslog extends React.Component {
       el.addEventListener('change', (e) => {
         if(e.target.checked) {
           e.target.setAttribute('checked', 'checked');
+          $(e.target).closest('li,.sp-block').addClass('sp-done');
         } else {
           e.target.removeAttribute('checked');
+          $(e.target).closest('li,.sp-block').removeClass('sp-done');
         }
         debouncedSync()
       });
@@ -163,7 +165,12 @@ class Bosslog extends React.Component {
       } else if (event.key === 'Enter') {
         setTimeout(() => {
           const sel = window.getSelection();
-          const anchorNode = $(sel.anchorNode).get(0);
+          let anchorNode = $(sel.anchorNode).get(0);
+          if(anchorNode.tagName === 'EM' || anchorNode.tagName === 'STRONG') {
+            const parentNode = anchorNode.parentNode;
+            anchorNode.parentNode.innerHTML = anchorNode.innerHTML
+            anchorNode = parentNode;
+          }
           anchorNode.id = shortId.generate();
           if(anchorNode.tagName !== 'LI') {
             anchorNode.className = "sp-block";
