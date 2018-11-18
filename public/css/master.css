@@ -7369,3 +7369,14 @@ hr {
 
 .sp-cta {
   text-decoration: underline; }
+
+.sp-blog-profile {
+  width: 64px;
+  height: 64px;
+  border-radius: 32px;
+  vertical-align: middle; }
+
+.sp-bio {
+  margin-top: 5rem;
+  background-color: lightgrey;
+  border-radius: 5px; }
