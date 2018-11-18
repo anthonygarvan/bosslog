@@ -6,7 +6,7 @@ function Leading(props) {
     return <Master>
     <div className="sp-bosslog-container">
     <div className="sp-note content">
-    <h1>Leading a Team? Use This For Taking Notes</h1>
+    <h1>Lead a Team? Use This For Taking Notes</h1>
     <p><em>By Anthony Garvan</em></p>
 
     <p>
