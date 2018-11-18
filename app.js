@@ -47,6 +47,18 @@ module.exports = getDb.then((db) => {
     });
   });
 
+  app.render('pages/Leading', (err, html) => {
+    console.log(err);
+    critical.generate({
+      html,
+      css: 'public/css/master.css',
+      dest: 'public/leading.html',
+      minify: true,
+      inline: true,
+      folder: 'public',
+    });
+  });
+
   swPrecache.write(`public/service-worker.js`, {
     staticFileGlobs: ['public/*/*.{js,html,css,png}', 'public/index.html'],
     stripPrefix: 'public'
