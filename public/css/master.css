@@ -7379,4 +7379,11 @@ hr {
 .sp-bio {
   margin-top: 5rem;
   background-color: lightgrey;
-  border-radius: 5px; }
+  border-radius: 5px;
+  padding: 2rem; }
+  .sp-bio .is-one-fifth {
+    text-align: center; }
+  @media screen and (min-width: 769px), print {
+    .sp-bio {
+      padding-left: 5rem;
+      padding-right: 5rem; } }
