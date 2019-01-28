@@ -99,7 +99,10 @@ class App extends React.Component {
   }
 
   toSyncStatus(syncStatus) {
-    this.setState({ syncStatus })
+    $('.sp-bosslog-container').removeClass('green')
+      .removeClass('yellow')
+      .removeClass('red')
+      .addClass(syncStatus);
   }
 
   handlePaymentAmountChange(value) {
@@ -114,7 +117,7 @@ class App extends React.Component {
   }
 
   render() {
-    return <div><div className={`sp-bosslog-container ${this.state.syncStatus}`}>
+    return <div><div className="sp-bosslog-container">
           <div className="sp-note-header">
             <div className={`sp-search-header ${this.state.mode !== 'search' && 'sp-hidden'}`}>
             <a className={`sp-back ${this.state.mode === 'note' && 'sp-hidden'}`}
