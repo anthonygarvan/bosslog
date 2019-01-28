@@ -36,7 +36,7 @@ class Login extends React.Component {
 
   render() {
     return <div>
-    {(this.props.isAuthenticated && this.props.password) ? <p className="sp-user-card"><div>{this.props.photoUrl && <img src={this.props.photoUrl} />}</div><div>{this.props.userEmail}</div></p>
+    {(this.props.isAuthenticated && this.props.password) ? <div className="sp-user-card"><div>{this.props.photoUrl && <img src={this.props.photoUrl} />}</div><div>{this.props.userEmail}</div></div>
     : <p><button className="button is-primary" onClick={() => this.setState({ loggingIn: true })}>Sign in to Sync</button></p>}
     <div className={`modal ${this.state.loggingIn && 'is-active'}`}>
       <div className="modal-background" onClick={this.handleNotLoggingIn}></div>

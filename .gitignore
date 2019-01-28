@@ -2,6 +2,7 @@
 /coverage
 /logs
 /public/js
+/public/service-worker.js
 /certs
 /.node-persist
 /public/service*
