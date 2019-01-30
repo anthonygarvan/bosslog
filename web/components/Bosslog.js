@@ -9,6 +9,8 @@ const defaultContent = require('./DefaultContent.js')
 const formatMarkdown = require('./FormatMarkdown');
 const Mark = require('mark.js');
 const localforage = require('localforage');
+const turndownService = require('./turndownService');
+const showdown = require('showdown');
 require('babel-polyfill');
 
 class Bosslog extends React.Component {
@@ -20,6 +22,7 @@ class Bosslog extends React.Component {
     this.initializeCursor = this.initializeCursor.bind(this);
     this.debouncedSync = _.debounce(this.syncData, 3000, { maxWait: 30000 });
     this.debouncedFlipPages = _.debounce(this.flipPages, 300, { maxWait: 1000 });
+    this.converter = new showdown.Converter();
 
     let bigNoteServerState, bigNoteLocalChanges, revision;
     async function getData() {
@@ -220,64 +223,33 @@ class Bosslog extends React.Component {
     content.addEventListener('paste', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      let paste = (e.clipboardData || window.clipboardData).getData('text');
-      let lines = paste.split('\n');
+      let clipboardData = (e.clipboardData || window.clipboardData)
 
+      let lastNodeId;
+      let newLines = document.createElement('div');
+      const text = clipboardData.getData('text/html')
+        ? turndownService.turndown(clipboardData.getData('text/html'))
+        : clipboardData.getData('text')
+      newLines.innerHTML = this.converter.makeHtml(text);
+      newLines.childNodes.forEach(el => {
+        if(el.tagName === 'P') {
+          const div = document.createElement('div');
+          div.innerHTML = el.innerHTML;
+          el.parentNode.replaceChild(div, el);
+          el = div;
+        }
+        el.className = "sp-block";
+      })
+      newLines.querySelectorAll('*').forEach(el => {
+        el.id = `${shortId.generate()}`
+        lastNodeId = el.id;
+      });
       const selection = window.getSelection();
       if (!selection.rangeCount) return false;
-
-      let newLines = document.createDocumentFragment();
-
-      const firstLine = lines.shift();
-
-      let pageElement;
-      let firstLineElement;
-      if(selection.anchorNode.id === 'sp-note-content') {
-        firstLineElement = $(selection.anchorNode).find('.sp-block').first();
-        firstLineElement.text(firstLine);
-        pageElement = $(selection.anchorNode).find('.sp-page')[0];
-      } else {
-        firstLineElement = $(selection.anchorNode).closest('.sp-block');
-        selection.getRangeAt(0).insertNode(document.createTextNode(firstLine));
-        pageElement = $(selection.anchorNode).closest('.sp-page').get(0);
-      }
-
-      const insertIntoPageCount = Math.min(200 - pageElement.childElementCount, lines.length);
-
-      let lastNodeId = firstLineElement.id;
-      let insertedCount = 0;
-      while(insertedCount < insertIntoPageCount) {
-        var div = document.createElement('div');
-        div.className ="sp-block";
-        div.id = `${shortId.generate()}`;
-        let nextLine = lines.shift();
-        div.innerHTML = nextLine.trim() ? nextLine : '<br />';
-        lastNodeId = div.id;
-        newLines.appendChild(div);
-        insertedCount++;
-      }
-
-      $(newLines).insertAfter(firstLineElement);
-
-      if(lines.length) {
-        newLines = document.createDocumentFragment();
-        _.chunk(lines, 100).forEach((pageContent, i) => {
-          var div = document.createElement('div');
-          div.className = "sp-page sp-hidden";
-          const pageContentHtml = []
-          pageContent.forEach(line => {
-            const id = shortId.generate();
-            lastNodeId = id;
-            pageContentHtml.push(`<div id=${id} class="sp-block">${line.trim() ? line : '<br />'}</div>`)
-          });
-
-          div.innerHTML = pageContentHtml.join('\n');
-          newLines.appendChild(div);
-        });
-      }
-
-      $(newLines).insertAfter(pageElement);
-
+      const firstLineElement = $(selection.anchorNode).closest('.sp-block');
+      const fragment = document.createDocumentFragment();
+      newLines.childNodes.forEach(el => fragment.appendChild(el.cloneNode(true)));
+      $(fragment).insertAfter(firstLineElement);
       this.currentBigNote.selectedBlockId = lastNodeId;
       this.initializeCursor();
       this.debouncedSync();
