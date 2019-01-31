@@ -226,10 +226,23 @@ class Bosslog extends React.Component {
       let clipboardData = (e.clipboardData || window.clipboardData)
 
       let lastNodeId;
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return false;
+      const block = $(selection.anchorNode).closest('.sp-block');
+
+      let html = clipboardData.getData('text/html')
+        ? clipboardData.getData('text/html')
+        : this.converter.makeHtml(clipboardData.getData('text'))
+      const nodeWithPaste = document.createElement('span');
+      nodeWithPaste.innerHTML = selection.anchorNode.textContent.substr(0, selection.anchorOffset)
+        + html + selection.anchorNode.textContent.substr(selection.anchorOffset);
+      if(selection.anchorNode.tagName === 'DIV') {
+        selection.anchorNode.append(nodeWithPaste);
+      } else {
+        selection.anchorNode.replaceWith(nodeWithPaste);
+      }
+      let text = turndownService.turndown(block[0].outerHTML);
       let newLines = document.createElement('div');
-      const text = clipboardData.getData('text/html')
-        ? turndownService.turndown(clipboardData.getData('text/html'))
-        : clipboardData.getData('text')
       newLines.innerHTML = this.converter.makeHtml(text);
       newLines.childNodes.forEach(el => {
         if(el.tagName === 'P') {
@@ -244,12 +257,9 @@ class Bosslog extends React.Component {
         el.id = `${shortId.generate()}`
         lastNodeId = el.id;
       });
-      const selection = window.getSelection();
-      if (!selection.rangeCount) return false;
-      const firstLineElement = $(selection.anchorNode).closest('.sp-block');
       const fragment = document.createDocumentFragment();
       newLines.childNodes.forEach(el => fragment.appendChild(el.cloneNode(true)));
-      $(fragment).insertAfter(firstLineElement);
+      $(block).replaceWith(fragment);
       this.currentBigNote.selectedBlockId = lastNodeId;
       this.initializeCursor();
       this.debouncedSync();

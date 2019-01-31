@@ -40,8 +40,8 @@ module.exports = { Auth: (db) => {
     includeGrantedScopes: true,
     failureRedirect: '/',
     scope: [
-      'https://www.googleapis.com/auth/plus.login',
-      'https://www.googleapis.com/auth/plus.profile.emails.read'],
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/userinfo.email'],
   }));
 
   app.get('/google/callback',
@@ -86,8 +86,8 @@ module.exports = { Auth: (db) => {
       failureRedirect: '/?loggingIn=true',
       loginHint: req.user && req.user.email,
       scope: [
-        'https://www.googleapis.com/auth/plus.login',
-        'https://www.googleapis.com/auth/plus.profile.emails.read'],
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://www.googleapis.com/auth/userinfo.email'],
       })(req, res, next);
     }, (req, res) => {
         res.redirect('/');
@@ -98,7 +98,7 @@ module.exports = { Auth: (db) => {
       db.users.findOne({ email: req.user.email }, (err, userFound) => {
         res.send({ isAuthenticated: true,
           userEmail: userFound.email,
-          passwordIsSet: userFound.passwordIsSet, 
+          passwordIsSet: userFound.passwordIsSet,
           photoUrl: userFound.photoUrl })
       });
     } else {
