@@ -2,7 +2,7 @@
 
 const express = require('express');
 const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth2').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const expressSession = require('express-session');
 const MongoStore = require('connect-mongo')(expressSession);
 
@@ -30,6 +30,7 @@ module.exports = { Auth: (db) => {
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: `${process.env.ROOT_URL}/auth/google/callback`,
     passReqToCallback: true,
+    userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
   },
     (request, accessToken, refreshToken, profile, done) => {
       process.nextTick(() => done(null, profile));
@@ -47,13 +48,13 @@ module.exports = { Auth: (db) => {
   app.get('/google/callback',
     passport.authenticate('google', {failureRedirect: '/?loggingIn=true'}),
       (req, res) => {
-          db.users.findOne({ email: req.user.email }, (err, userFound) => {
+          db.users.findOne({ email: req.user._json.email }, (err, userFound) => {
             if (!userFound) {
               let photoUrl = '';
               if (req.user.photos.length > 0) { photoUrl = req.user.photos[0].value; }
               const user = { id: req.user.id,
                 displayName: req.user.displayName,
-                email: req.user.email,
+                email: req.user._json.email,
                 photoUrl,
                 signUpDate: new Date()};
               db.users.update({ email: user.email }, user, { upsert: true });
@@ -84,7 +85,7 @@ module.exports = { Auth: (db) => {
       accessType: 'offline',
       includeGrantedScopes: true,
       failureRedirect: '/?loggingIn=true',
-      loginHint: req.user && req.user.email,
+      loginHint: req.user && req.user._json.email,
       scope: [
         'https://www.googleapis.com/auth/userinfo.profile',
         'https://www.googleapis.com/auth/userinfo.email'],
@@ -95,7 +96,7 @@ module.exports = { Auth: (db) => {
 
   app.get('/is-authenticated', (req, res) => {
     if (req.isAuthenticated()) {
-      db.users.findOne({ email: req.user.email }, (err, userFound) => {
+      db.users.findOne({ email: req.user._json.email }, (err, userFound) => {
         res.send({ isAuthenticated: true,
           userEmail: userFound.email,
           passwordIsSet: userFound.passwordIsSet,
@@ -107,12 +108,12 @@ module.exports = { Auth: (db) => {
   });
 
   app.get('/password-created', ensureAuthenticated, (req, res) => {
-    db.users.update({ email: req.user.email}, {$set: { passwordIsSet: true }});
+    db.users.update({ email: req.user._json.email}, {$set: { passwordIsSet: true }});
     res.send({ success: true });
   });
 
   app.get('/pay-prompt', ensureAuthenticated, (req, res) => {
-    db.users.findOne({ email: req.user.email }, (err, userFound) => {
+    db.users.findOne({ email: req.user._json.email }, (err, userFound) => {
       const pastTrialPeriod = (new Date() - new Date(userFound.signUpDate)) > 30*24*60*60*1000;
       const hasntPaid = !userFound.lastPaymentDate;
       const paymentDue = (new Date() - new Date(userFound.lastPaymentDate)) > 365*24*60*60*1000;
@@ -122,7 +123,7 @@ module.exports = { Auth: (db) => {
   });
 
   app.get('/payment-complete', ensureAuthenticated, (req, res) => {
-    db.users.findOne({ email: req.user.email }, (err, userFound) => {
+    db.users.findOne({ email: req.user._json.email }, (err, userFound) => {
       userFound.lastPaymentDate = new Date();
       db.users.update({ _id: userFound._id}, userFound);
       res.send({ success: true });

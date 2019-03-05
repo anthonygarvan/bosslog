@@ -11,7 +11,7 @@ const Mark = require('mark.js');
 const localforage = require('localforage');
 const turndownService = require('./turndownService');
 const showdown = require('showdown');
-require('babel-polyfill');
+require('@babel/polyfill');
 
 class Bosslog extends React.Component {
   constructor(props) {
