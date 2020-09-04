@@ -42,7 +42,7 @@
     "lodash": "^4.17.10",
     "lz-string": "^1.4.4",
     "mark.js": "^8.11.1",
-    "mongodb": "^3.0.10",
+    "mongodb": "^3.1.13",
     "morgan": "latest",
     "node-sass": "latest",
     "normalize-url": "^3.0.1",
