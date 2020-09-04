@@ -56,7 +56,7 @@
     "react-radio-buttons": "^1.2.2",
     "sendinblue-api": "latest",
     "shortid": "^2.2.8",
-    "showdown": "^1.8.6",
+    "showdown": "^1.9.1",
     "sw-precache": "^5.2.1",
     "terser": "^3.7.6",
     "turndown": "^4.0.2",
