@@ -45,7 +45,7 @@
     "mongodb": "^3.0.10",
     "morgan": "latest",
     "node-sass": "latest",
-    "normalize-url": "^3.0.1",
+    "normalize-url": "^4.5.1",
     "passport": "latest",
     "passport-google-oauth20": "^1.0.0",
     "passport-strategy": "latest",
