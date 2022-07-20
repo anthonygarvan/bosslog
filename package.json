@@ -58,7 +58,7 @@
     "shortid": "^2.2.8",
     "showdown": "^1.8.6",
     "sw-precache": "^5.2.1",
-    "terser": "^3.7.6",
+    "terser": "^4.8.1",
     "turndown": "^4.0.2",
     "uglifyify": "^5.0.0",
     "url-regex": "^4.1.1",
